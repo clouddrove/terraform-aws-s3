@@ -7,7 +7,7 @@
 #              tags for resources. You can use terraform-labels to implement a strict
 #              naming convention.
 module "labels" {
-  source = "git::https://github.com/clouddrove/terraform-lables.git"
+  source = "git::https://github.com/clouddrove/terraform-labels.git"
 
   name        = var.name
   application = var.application
