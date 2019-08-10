@@ -1,0 +1,114 @@
+---
+#
+# This is the canonical configuration for the `README.md`
+# Run `make readme` to rebuild the `README.md`
+#
+
+# Name of this project
+name : Terraform AWS S3
+
+# License of this project
+license: "MIT"
+
+# Canonical GitHub repo
+github_repo: clouddrove/terraform-aws-s3
+
+# Badges to display
+badges:
+  - name: "Terraform"
+    image: "https://img.shields.io/badge/Terraform-v0.12-green"
+    url: "https://www.terraform.io"
+  - name: "Licence"
+    image: "https://img.shields.io/badge/License-MIT-blue.svg"
+    url: "LICENSE.md"
+
+#  description of this project
+description: |-
+  Terraform module to create default S3 bucket with logging and encryption type specific features.
+
+# extra content
+include:
+  - "terraform.md"
+
+# How to use this project
+usage : |-
+  Here are some examples of how you can use this module in your inventory structure:
+  ### Basic Bucket
+  ```hcl
+  module "s3_bucket" {
+    source              = "https://github.com/clouddrove/terraform-aws-s3"
+    name                = "secure-bucket"
+    region              = "eu-west-1"
+    application         = "clouddrove"
+    environment         = "test"
+    label_order         = ["environment", "name", "application"]
+    versioning          = true
+    acl                 = "private"
+    bucket_enabled      = true
+  }
+  ```
+  ### Encryption Bucket
+  ```hcl
+  module "s3_bucket" {
+    source              = "https://github.com/clouddrove/terraform-aws-s3"
+    name                = "encryption-bucket"
+    region              = "eu-west-1"
+    application         = "clouddrove"
+    environment         = "test"
+    label_order         = ["environment", "name", "application"]
+    versioning          = true
+    acl                 = "private"
+    encryption_enabled  = true
+    sse_algorithm       = "AES256"
+  }
+  ```
+  ### Logging Bucket
+  ```hcl
+  module "s3_bucket" {
+    source                  = "https://github.com/clouddrove/terraform-aws-s3"
+    name                    = "logging-bucket"
+    region                  = "eu-west-1"
+    application             = "clouddrove"
+    environment             = "test"
+    label_order             = ["environment", "name", "application"]
+    versioning              = true
+    acl                     = "private"
+    bucket_logging_enabled  = true
+    target_bucket           = "bucket-logs12"
+    target_prefix           = "logs"
+  }
+  ```
+  ### Website Host Bucket
+  ```hcl
+  module "s3_bucket" {
+    source                              = "https://github.com/clouddrove/terraform-aws-s3"
+    name                                = "website-bucket"
+    region                              = "eu-west-1"
+    application                         = "clouddrove"
+    environment                         = "test"
+    label_order                         = ["environment", "name", "application"]
+    versioning                          = true
+    acl                                 = "private"
+    website_hosting_bucket              = true
+    website_index                       = "index.html"
+    website_error                       = "error.html"
+    bucket_policy                       = true
+    lifecycle_expiration_enabled        = true
+    lifecycle_expiration_object_prefix  = "test"
+    lifecycle_days_to_expiration        = 10
+    aws_iam_policy_document             = data.aws_iam_policy_document.default.json
+  }
+  data "aws_iam_policy_document" "default" {
+    version = "2012-10-17"
+    statement {
+         sid = "Stmt1447315805704"
+         effect = "Allow"
+         principals {
+              type = "AWS"
+              identifiers = ["*"]
+            }
+         actions = ["s3:GetObject"]
+         resources = ["arn:aws:s3:::test-website-bucket-clouddrove/*"]
+     }
+  }
+  ```
