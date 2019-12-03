@@ -70,7 +70,7 @@ Here are some examples of how you can use this module in your inventory structur
 ### Basic Bucket
 ```hcl
 module "s3_bucket" {
-  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.1"
+  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.2"
   name                = "secure-bucket"
   region              = "eu-west-1"
   application         = "clouddrove"
@@ -84,7 +84,7 @@ module "s3_bucket" {
 ### Encryption Bucket
 ```hcl
 module "s3_bucket" {
-  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.1"
+  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.2"
   name                = "encryption-bucket"
   region              = "eu-west-1"
   application         = "clouddrove"
@@ -99,7 +99,7 @@ module "s3_bucket" {
 ### Logging Bucket
 ```hcl
 module "s3_bucket" {
-  source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.1"
+  source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.2"
   name                    = "logging-bucket"
   region                  = "eu-west-1"
   application             = "clouddrove"
@@ -115,7 +115,7 @@ module "s3_bucket" {
 ### Website Host Bucket
 ```hcl
 module "s3_bucket" {
-  source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.1"
+  source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.2"
   name                                = "website-bucket"
   region                              = "eu-west-1"
   application                         = "clouddrove"
