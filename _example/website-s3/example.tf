@@ -34,6 +34,6 @@ data "aws_iam_policy_document" "default" {
       identifiers = ["*"]
     }
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::test-website-bucket-clouddrove/*"]
+    resources = ["arn:aws:s3:::test-clouddrove-website-bucket/*"]
   }
 }
