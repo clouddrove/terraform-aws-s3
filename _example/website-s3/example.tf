@@ -3,12 +3,12 @@ provider "aws" {
 }
 
 module "s3_bucket" {
-  source = "git::https://github.com/clouddrove/terraform-aws-s3.git?ref=tags/0.12.2"
+  source = "./../../"
 
   name        = "website-bucket"
   application = "clouddrove"
   environment = "test"
-  label_order = ["environment", "name", "application"]
+  label_order = ["environment", "application", "name"]
 
   region                             = "eu-west-1"
   versioning                         = true
@@ -34,6 +34,6 @@ data "aws_iam_policy_document" "default" {
       identifiers = ["*"]
     }
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::test-website-bucket-clouddrove/*"]
+    resources = ["arn:aws:s3:::test-clouddrove-website-bucket/*"]
   }
 }
