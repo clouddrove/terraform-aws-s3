@@ -36,7 +36,7 @@ usage : |-
   ### Basic Bucket
   ```hcl
   module "s3_bucket" {
-    source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.3"
+    source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.4"
     name                = "secure-bucket"
     region              = "eu-west-1"
     application         = "clouddrove"
