@@ -38,7 +38,7 @@
 <hr>
 
 
-We eat, drink, sleep and most importantly love **DevOps**. We are working towards stratergies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure.
+We eat, drink, sleep and most importantly love **DevOps**. We are working towards strategies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure.
 
 This module is basically combination of [Terraform open source](https://www.terraform.io/) and includes automatation tests and examples. It also helps to create and improve your infrastructure with minimalistic code instead of maintaining the whole infrastructure code yourself.
 
@@ -61,7 +61,9 @@ This module has a few dependencies:
 
 
 
+
 ## Examples
+
 
 **IMPORTANT:** Since the `master` branch used in `source` varies based on new modifications, we suggest that you use the release versions [here](https://github.com/clouddrove/terraform-aws-s3/releases).
 
@@ -70,7 +72,7 @@ Here are some examples of how you can use this module in your inventory structur
 ### Basic Bucket
 ```hcl
 module "s3_bucket" {
-  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.3"
+  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.4"
   name                = "secure-bucket"
   region              = "eu-west-1"
   application         = "clouddrove"
@@ -84,7 +86,7 @@ module "s3_bucket" {
 ### Encryption Bucket
 ```hcl
 module "s3_bucket" {
-  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.3"
+  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.4"
   name                = "encryption-bucket"
   region              = "eu-west-1"
   application         = "clouddrove"
@@ -99,7 +101,7 @@ module "s3_bucket" {
 ### Logging Bucket
 ```hcl
 module "s3_bucket" {
-  source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.3"
+  source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.4"
   name                    = "logging-bucket"
   region                  = "eu-west-1"
   application             = "clouddrove"
@@ -115,7 +117,7 @@ module "s3_bucket" {
 ### Website Host Bucket
 ```hcl
 module "s3_bucket" {
-  source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.3"
+  source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.4"
   name                                = "website-bucket"
   region                              = "eu-west-1"
   application                         = "clouddrove"
@@ -149,57 +151,61 @@ data "aws_iam_policy_document" "default" {
 
 
 
+
+
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| acl | Canned ACL to apply to the S3 bucket. | string | `` | no |
-| application | Application (e.g. `cd` or `clouddrove`). | string | `` | no |
-| attributes | Additional attributes (e.g. `1`). | list | `<list>` | no |
-| aws_iam_policy_document | Specifies the number of days after object creation when the object expires. | string | `` | no |
-| bucket_enabled | Enable simple S3. | bool | `false` | no |
-| bucket_logging_enabled | Enable logging of S3. | bool | `false` | no |
-| bucket_policy | Conditionally create S3 bucket policy. | bool | `false` | no |
-| create_bucket | Conditionally create S3 bucket. | bool | `true` | no |
-| delimiter | Delimiter to be used between `organization`, `environment`, `name` and `attributes`. | string | `-` | no |
-| encryption_enabled | Enable encryption of S3. | bool | `false` | no |
-| environment | Environment (e.g. `prod`, `dev`, `staging`). | string | `` | no |
-| force_destroy | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | bool | `false` | no |
-| kms_master_key_id | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms. | string | `` | no |
-| label_order | Label order, e.g. `name`,`application`. | list | `<list>` | no |
-| lifecycle_days_to_expiration | Specifies the number of days after object creation when the object expires. | number | `365` | no |
-| lifecycle_days_to_glacier_transition | Specifies the number of days after object creation when it will be moved to Glacier storage. | number | `180` | no |
-| lifecycle_days_to_infrequent_storage_transition | Specifies the number of days after object creation when it will be moved to standard infrequent access storage. | number | `60` | no |
-| lifecycle_expiration_enabled | Specifies expiration lifecycle rule status. | bool | `false` | no |
-| lifecycle_expiration_object_prefix | Object key prefix identifying one or more objects to which the lifecycle rule applies. | string | `` | no |
-| lifecycle_glacier_object_prefix | Object key prefix identifying one or more objects to which the lifecycle rule applies. | string | `` | no |
-| lifecycle_glacier_transition_enabled | Specifies Glacier transition lifecycle rule status. | bool | `false` | no |
-| lifecycle_infrequent_storage_object_prefix | Object key prefix identifying one or more objects to which the lifecycle rule applies. | string | `` | no |
-| lifecycle_infrequent_storage_transition_enabled | Specifies infrequent storage transition lifecycle rule status. | bool | `false` | no |
-| name | Name  (e.g. `app` or `cluster`). | string | `` | no |
-| region | Region Where you want to host S3. | string | `` | no |
-| sse_algorithm | The server-side encryption algorithm to use. Valid values are AES256 and aws:kms. | string | `AES256` | no |
-| tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | map | `<map>` | no |
-| target_bucket | The name of the bucket that will receive the log objects. | string | `` | no |
-| target_prefix | To specify a key prefix for log objects. | string | `` | no |
-| versioning | Enable Versioning of S3. | bool | `false` | no |
-| website_error | An absolute path to the document to return in case of a 4XX error. | string | `error.html` | no |
-| website_hosting_bucket | Enable website hosting of S3. | bool | `false` | no |
-| website_index | Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders. | string | `index.html` | no |
+| acl | Canned ACL to apply to the S3 bucket. | string | `""` | no |
+| application | Application \(e.g. `cd` or `clouddrove`\). | string | `""` | no |
+| attributes | Additional attributes \(e.g. `1`\). | list | `<list>` | no |
+| aws\_iam\_policy\_document | Specifies the number of days after object creation when the object expires. | string | `""` | no |
+| bucket\_enabled | Enable simple S3. | bool | `"false"` | no |
+| bucket\_logging\_enabled | Enable logging of S3. | bool | `"false"` | no |
+| bucket\_policy | Conditionally create S3 bucket policy. | bool | `"false"` | no |
+| create\_bucket | Conditionally create S3 bucket. | bool | `"true"` | no |
+| delimiter | Delimiter to be used between `organization`, `environment`, `name` and `attributes`. | string | `"-"` | no |
+| encryption\_enabled | Enable encryption of S3. | bool | `"false"` | no |
+| environment | Environment \(e.g. `prod`, `dev`, `staging`\). | string | `""` | no |
+| force\_destroy | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | bool | `"false"` | no |
+| kms\_master\_key\_id | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse\_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse\_algorithm is aws:kms. | string | `""` | no |
+| label\_order | Label order, e.g. `name`,`application`. | list | `<list>` | no |
+| lifecycle\_days\_to\_expiration | Specifies the number of days after object creation when the object expires. | number | `"365"` | no |
+| lifecycle\_days\_to\_glacier\_transition | Specifies the number of days after object creation when it will be moved to Glacier storage. | number | `"180"` | no |
+| lifecycle\_days\_to\_infrequent\_storage\_transition | Specifies the number of days after object creation when it will be moved to standard infrequent access storage. | number | `"60"` | no |
+| lifecycle\_expiration\_enabled | Specifies expiration lifecycle rule status. | bool | `"false"` | no |
+| lifecycle\_expiration\_object\_prefix | Object key prefix identifying one or more objects to which the lifecycle rule applies. | string | `""` | no |
+| lifecycle\_glacier\_object\_prefix | Object key prefix identifying one or more objects to which the lifecycle rule applies. | string | `""` | no |
+| lifecycle\_glacier\_transition\_enabled | Specifies Glacier transition lifecycle rule status. | bool | `"false"` | no |
+| lifecycle\_infrequent\_storage\_object\_prefix | Object key prefix identifying one or more objects to which the lifecycle rule applies. | string | `""` | no |
+| lifecycle\_infrequent\_storage\_transition\_enabled | Specifies infrequent storage transition lifecycle rule status. | bool | `"false"` | no |
+| managedby | ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'. | string | `"anmol@clouddrove.com"` | no |
+| name | Name  \(e.g. `app` or `cluster`\). | string | `""` | no |
+| region | Region Where you want to host S3. | string | `""` | no |
+| sse\_algorithm | The server-side encryption algorithm to use. Valid values are AES256 and aws:kms. | string | `"AES256"` | no |
+| tags | Additional tags \(e.g. map\(`BusinessUnit`,`XYZ`\). | map | `<map>` | no |
+| target\_bucket | The name of the bucket that will receive the log objects. | string | `""` | no |
+| target\_prefix | To specify a key prefix for log objects. | string | `""` | no |
+| versioning | Enable Versioning of S3. | bool | `"false"` | no |
+| website\_error | An absolute path to the document to return in case of a 4XX error. | string | `"error.html"` | no |
+| website\_hosting\_bucket | Enable website hosting of S3. | bool | `"false"` | no |
+| website\_index | Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders. | string | `"index.html"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | arn | The ARN of the s3 bucket. |
-| bucket_domain_name | The Domain of the s3 bucket. |
+| bucket\_domain\_name | The Domain of the s3 bucket. |
 | id | The ID of the s3 bucket. |
 | tags | A mapping of tags to assign to the resource. |
 
 
 
-## Testing
 
+## Testing
 In this module testing is performed with [terratest](https://github.com/gruntwork-io/terratest) and it creates a small piece of infrastructure, matches the output like ARN, ID and Tags name etc and destroy infrastructure in your AWS account. This testing is written in GO, so you need a [GO environment](https://golang.org/doc/install) in your system.
 
 You need to run the following command in the testing folder:
@@ -212,7 +218,7 @@ You need to run the following command in the testing folder:
 ## Feedback
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/terraform-aws-s3/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
 
-If you have found it worth your time, go ahead and give us a * on [our GitHub](https://github.com/clouddrove/terraform-aws-s3)!
+If you have found it worth your time, go ahead and give us a ★ on [our GitHub](https://github.com/clouddrove/terraform-aws-s3)!
 
 ## About us
 
