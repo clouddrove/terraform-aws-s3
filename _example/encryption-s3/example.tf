@@ -10,9 +10,9 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["environment", "application", "name"]
 
-  region             = "eu-west-1"
-  versioning         = true
-  acl                = "private"
-  encryption_enabled = true
-  sse_algorithm      = "AES256"
+  region                    = "eu-west-1"
+  versioning                = true
+  acl                       = "private"
+  bucket_encryption_enabled = true
+  sse_algorithm             = "AES256"
 }
