@@ -86,10 +86,16 @@ variable "bucket_logging_enabled" {
   description = "Enable logging of S3."
 }
 
-variable "encryption_enabled" {
+variable "bucket_encryption_enabled" {
   type        = bool
   default     = false
   description = "Enable encryption of S3."
+}
+
+variable "bucket_logging_encryption_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable logging encryption of S3."
 }
 
 variable "website_hosting_bucket" {
