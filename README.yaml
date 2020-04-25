@@ -59,7 +59,8 @@ usage : |-
     versioning                 = true
     acl                        = "private"
     bucket_encryption_enabled  = true
-    sse_algorithm              = "AES256"
+    sse_algorithm              = "aws:kms"
+    kms_master_key_id          = module.kms_key.key_arn
   }
   ### Logging-Encryption Bucket
   ```hcl
