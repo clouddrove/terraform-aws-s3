@@ -75,7 +75,7 @@ resource "aws_s3_bucket" "s3_default" {
 resource "aws_s3_bucket_policy" "s3_default" {
   count = var.create_bucket && var.bucket_policy && var.bucket_enabled == true ? 1 : 0
 
-  bucket = aws_s3_bucket.s3_default[count.index].id
+  bucket = join("", aws_s3_bucket.s3_default.*.id)
   policy = var.aws_iam_policy_document
 }
 
@@ -144,7 +144,7 @@ resource "aws_s3_bucket" "s3_website" {
 resource "aws_s3_bucket_policy" "s3_website" {
   count = var.create_bucket && var.bucket_policy && var.website_hosting_bucket == true ? 1 : 0
 
-  bucket = aws_s3_bucket.s3_website[count.index].id
+  bucket = join("", aws_s3_bucket.s3_website.*.id)
   policy = var.aws_iam_policy_document
 }
 
@@ -277,7 +277,7 @@ resource "aws_s3_bucket" "s3_logging_encryption" {
 resource "aws_s3_bucket_policy" "s3_logging_encryption" {
   count = var.create_bucket && var.bucket_policy && var.bucket_logging_encryption_enabled == true ? 1 : 0
 
-  bucket = aws_s3_bucket.s3_logging[count.index].id
+  bucket = join("", aws_s3_bucket.s3_logging.*.id)
   policy = var.aws_iam_policy_document
 }
 
@@ -287,7 +287,7 @@ resource "aws_s3_bucket_policy" "s3_logging_encryption" {
 resource "aws_s3_bucket_policy" "s3_logging" {
   count = var.create_bucket && var.bucket_policy && var.bucket_logging_enabled == true ? 1 : 0
 
-  bucket = aws_s3_bucket.s3_logging[count.index].id
+  bucket = join("", aws_s3_bucket.s3_logging.*.id)
   policy = var.aws_iam_policy_document
 }
 
@@ -358,6 +358,6 @@ resource "aws_s3_bucket" "s3_encryption" {
 resource "aws_s3_bucket_policy" "s3_encryption" {
   count = var.create_bucket && var.bucket_policy && var.bucket_encryption_enabled == true ? 1 : 0
 
-  bucket = aws_s3_bucket.s3_encryption[count.index].id
+  bucket = join("", aws_s3_bucket.s3_encryption.*.id)
   policy = var.aws_iam_policy_document
 }
