@@ -10,7 +10,6 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["environment", "application", "name"]
 
-  region                             = "eu-west-1"
   versioning                         = true
   acl                                = "private"
   website_hosting_bucket             = true

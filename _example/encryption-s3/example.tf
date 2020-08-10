@@ -37,8 +37,6 @@ module "s3_bucket" {
   application = "clouddrove"
   environment = "test"
   label_order = ["environment", "application", "name"]
-
-  region                    = "eu-west-1"
   versioning                = true
   acl                       = "private"
   bucket_encryption_enabled = true
