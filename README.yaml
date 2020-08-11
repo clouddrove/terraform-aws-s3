@@ -36,9 +36,8 @@ usage : |-
   ### Basic Bucket
   ```hcl
   module "s3_bucket" {
-    source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.5"
+    source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
     name                = "secure-bucket"
-    region              = "eu-west-1"
     application         = "clouddrove"
     environment         = "test"
     label_order         = ["environment", "application", "name"]
@@ -50,9 +49,8 @@ usage : |-
   ### Encryption Bucket
   ```hcl
   module "s3_bucket" {
-    source                     = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.5"
+    source                     = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
     name                       = "encryption-bucket"
-    region                     = "eu-west-1"
     application                = "clouddrove"
     environment                = "test"
     label_order                = ["environment", "application", "name"]
@@ -65,9 +63,8 @@ usage : |-
   ### Logging-Encryption Bucket
   ```hcl
   module "s3_bucket" {
-    source                             = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.5"
+    source                             = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
     name                               = "logging-encryption-bucket"
-    region                             = "eu-west-1"
     application                        = "clouddrove"
     environment                        = "test"
     label_order                        = ["environment", "application", "name"]
@@ -82,9 +79,8 @@ usage : |-
   ### Logging Bucket
   ```hcl
   module "s3_bucket" {
-    source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.5"
+    source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
     name                    = "logging-bucket"
-    region                  = "eu-west-1"
     application             = "clouddrove"
     environment             = "test"
     label_order             = ["environment", "application", "name"]
@@ -98,9 +94,8 @@ usage : |-
   ### Website Host Bucket
   ```hcl
   module "s3_bucket" {
-    source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.5"
+    source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
     name                                = "website-bucket"
-    region                              = "eu-west-1"
     application                         = "clouddrove"
     environment                         = "test"
     label_order                         = ["environment", "application", "name"]

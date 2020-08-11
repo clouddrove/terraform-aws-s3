@@ -33,12 +33,10 @@ data "aws_iam_policy_document" "default" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "encryption-bucket"
-  application = "clouddrove"
-  environment = "test"
-  label_order = ["environment", "application", "name"]
-
-  region                    = "eu-west-1"
+  name                      = "encryption-bucket"
+  application               = "clouddrove"
+  environment               = "test"
+  label_order               = ["environment", "application", "name"]
   versioning                = true
   acl                       = "private"
   bucket_encryption_enabled = true

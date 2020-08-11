@@ -79,29 +79,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Terratest for default-s3'
-        uses: clouddrove/github-actions@v2.0
-        with:
-          actions_subcommand: 'terratest'
-          tf_actions_working_dir: ./_test/default-s3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: 'Terratest for default-s3'
+      #   uses: clouddrove/github-actions@v2.0
+      #   with:
+      #     actions_subcommand: 'terratest'
+      #     tf_actions_working_dir: ./_test/default-s3
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Terratest for encryption-s3'
-        uses: clouddrove/github-actions@v2.0
-        with:
-          actions_subcommand: 'terratest'
-          tf_actions_working_dir: ./_test/encryption-s3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: 'Terratest for encryption-s3'
+      #   uses: clouddrove/github-actions@v2.0
+      #   with:
+      #     actions_subcommand: 'terratest'
+      #     tf_actions_working_dir: ./_test/encryption-s3
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Terratest for website-s3'
-        uses: clouddrove/github-actions@v2.0
-        with:
-          actions_subcommand: 'terratest'
-          tf_actions_working_dir: ./_test/website-s3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: 'Terratest for website-s3'
+      #   uses: clouddrove/github-actions@v2.0
+      #   with:
+      #     actions_subcommand: 'terratest'
+      #     tf_actions_working_dir: ./_test/website-s3
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 'Slack Notification'
         uses: clouddrove/action-slack@v2
