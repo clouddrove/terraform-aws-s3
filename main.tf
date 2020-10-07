@@ -90,7 +90,8 @@ resource "aws_s3_bucket" "s3_website" {
   acl           = var.acl
 
   versioning {
-    enabled = var.versioning
+    enabled    = var.versioning
+    mfa_delete = var.mfa_delete
   }
 
   website {
@@ -157,7 +158,8 @@ resource "aws_s3_bucket" "s3_logging" {
   acl           = var.acl
 
   versioning {
-    enabled = var.versioning
+    enabled    = var.versioning
+    mfa_delete = var.mfa_delete
   }
 
   lifecycle_rule {
@@ -213,7 +215,8 @@ resource "aws_s3_bucket" "s3_logging_encryption" {
   acl           = var.acl
 
   versioning {
-    enabled = var.versioning
+    enabled    = var.versioning
+    mfa_delete = var.mfa_delete
   }
 
   lifecycle_rule {
@@ -298,7 +301,8 @@ resource "aws_s3_bucket" "s3_encryption" {
   acl           = var.acl
 
   versioning {
-    enabled = var.versioning
+    enabled    = var.versioning
+    mfa_delete = var.mfa_delete
   }
 
   lifecycle_rule {
