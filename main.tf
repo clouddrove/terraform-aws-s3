@@ -27,7 +27,8 @@ resource "aws_s3_bucket" "s3_default" {
   acl           = var.acl
 
   versioning {
-    enabled = var.versioning
+    enabled    = var.versioning
+    mfa_delete = var.mfa_delete
   }
 
   lifecycle_rule {
