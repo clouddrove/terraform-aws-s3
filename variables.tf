@@ -207,3 +207,9 @@ variable "force_destroy" {
   default     = false
   description = "A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
 }
+
+variable "mfa_delete" {
+  type        = bool
+  default     = false
+  description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
+}
