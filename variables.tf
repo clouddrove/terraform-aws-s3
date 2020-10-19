@@ -74,6 +74,12 @@ variable "bucket_enabled" {
   description = "Enable simple S3."
 }
 
+variable "mfa_delete" {
+  type        = bool
+  default     = false
+  description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
+}
+
 variable "bucket_logging_enabled" {
   type        = bool
   default     = false
@@ -162,12 +168,6 @@ variable "lifecycle_glacier_object_prefix" {
   type        = string
   default     = ""
   description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "mfa_delete" {
-  type        = bool
-  default     = false
-  description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
 }
 
 variable "lifecycle_days_to_glacier_transition" {
