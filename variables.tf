@@ -164,6 +164,12 @@ variable "lifecycle_glacier_object_prefix" {
   description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
 }
 
+variable "mfa_delete" {
+  type        = bool
+  default     = false
+  description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
+}
+
 variable "lifecycle_days_to_glacier_transition" {
   type        = number
   default     = 180
@@ -206,10 +212,4 @@ variable "force_destroy" {
   type        = bool
   default     = false
   description = "A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
-}
-
-variable "mfa_delete" {
-  type        = bool
-  default     = false
-  description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
 }
