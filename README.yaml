@@ -38,7 +38,8 @@ usage: |-
   ### Basic Bucket
   ```hcl
   module "s3_bucket" {
-    source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.13.0"
+    source              = "clouddrove/s3/aws"
+    version             = "0.13.0"
     name                = "secure-bucket"
     application         = "clouddrove"
     environment         = "test"
@@ -51,7 +52,8 @@ usage: |-
   ### Encryption Bucket
   ```hcl
   module "s3_bucket" {
-    source                     = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.13.0"
+    source                     = "clouddrove/s3/aws"
+    version                    = "0.13.0"
     name                       = "encryption-bucket"
     application                = "clouddrove"
     environment                = "test"
@@ -65,7 +67,8 @@ usage: |-
   ### Logging-Encryption Bucket
   ```hcl
   module "s3_bucket" {
-    source                             = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.13.0"
+    source                             = "clouddrove/s3/aws"
+    version                            = "0.13.0"
     name                               = "logging-encryption-bucket"
     application                        = "clouddrove"
     environment                        = "test"
@@ -81,7 +84,8 @@ usage: |-
   ### Logging Bucket
   ```hcl
   module "s3_bucket" {
-    source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.13.0"
+    source                  = "clouddrove/s3/aws"
+    version                 = "0.13.0"
     name                    = "logging-bucket"
     application             = "clouddrove"
     environment             = "test"
@@ -96,7 +100,8 @@ usage: |-
   ### Website Host Bucket
   ```hcl
   module "s3_bucket" {
-    source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.13.0"
+    source                              = "clouddrove/s3/aws"
+    version                             = "0.13.0"
     name                                = "website-bucket"
     application                         = "clouddrove"
     environment                         = "test"
