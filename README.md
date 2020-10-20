@@ -7,14 +7,14 @@
     Terraform AWS S3
 </h1>
 
-<p align="center" style="font-size: 1.2rem;">
+<p align="center" style="font-size: 1.2rem;"> 
     Terraform module to create default S3 bucket with logging and encryption type specific features.
      </p>
 
 <p align="center">
 
 <a href="https://www.terraform.io">
-  <img src="https://img.shields.io/badge/Terraform-v0.12-green" alt="Terraform">
+  <img src="https://img.shields.io/badge/Terraform-v0.13-green" alt="Terraform">
 </a>
 <a href="LICENSE.md">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="Licence">
@@ -38,7 +38,7 @@
 <hr>
 
 
-We eat, drink, sleep and most importantly love **DevOps**. We are working towards strategies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure.
+We eat, drink, sleep and most importantly love **DevOps**. We are working towards strategies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure. 
 
 This module is basically combination of [Terraform open source](https://www.terraform.io/) and includes automatation tests and examples. It also helps to create and improve your infrastructure with minimalistic code instead of maintaining the whole infrastructure code yourself.
 
@@ -49,7 +49,7 @@ We have [*fifty plus terraform modules*][terraform_modules]. A few of them are c
 
 ## Prerequisites
 
-This module has a few dependencies:
+This module has a few dependencies: 
 
 - [Terraform 0.13](https://learn.hashicorp.com/terraform/getting-started/install.html)
 - [Go](https://golang.org/doc/install)
@@ -72,7 +72,8 @@ Here are some examples of how you can use this module in your inventory structur
 ### Basic Bucket
 ```hcl
 module "s3_bucket" {
-  source              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
+  source              = "clouddrove/s3/aws"
+  version             = "0.13.0"
   name                = "secure-bucket"
   application         = "clouddrove"
   environment         = "test"
@@ -85,7 +86,8 @@ module "s3_bucket" {
 ### Encryption Bucket
 ```hcl
 module "s3_bucket" {
-  source                     = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
+  source                     = "clouddrove/s3/aws"
+  version                    = "0.13.0"
   name                       = "encryption-bucket"
   application                = "clouddrove"
   environment                = "test"
@@ -99,7 +101,8 @@ module "s3_bucket" {
 ### Logging-Encryption Bucket
 ```hcl
 module "s3_bucket" {
-  source                             = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
+  source                             = "clouddrove/s3/aws"
+  version                            = "0.13.0"
   name                               = "logging-encryption-bucket"
   application                        = "clouddrove"
   environment                        = "test"
@@ -115,7 +118,8 @@ module "s3_bucket" {
 ### Logging Bucket
 ```hcl
 module "s3_bucket" {
-  source                  = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
+  source                  = "clouddrove/s3/aws"
+  version                 = "0.13.0"
   name                    = "logging-bucket"
   application             = "clouddrove"
   environment             = "test"
@@ -130,7 +134,8 @@ module "s3_bucket" {
 ### Website Host Bucket
 ```hcl
 module "s3_bucket" {
-  source                              = "https://github.com/clouddrove/terraform-aws-s3?ref=tags/0.12.7"
+  source                              = "clouddrove/s3/aws"
+  version                             = "0.13.0"
   name                                = "website-bucket"
   application                         = "clouddrove"
   environment                         = "test"
@@ -219,7 +224,7 @@ data "aws_iam_policy_document" "default" {
 
 
 ## Testing
-In this module testing is performed with [terratest](https://github.com/gruntwork-io/terratest) and it creates a small piece of infrastructure, matches the output like ARN, ID and Tags name etc and destroy infrastructure in your AWS account. This testing is written in GO, so you need a [GO environment](https://golang.org/doc/install) in your system.
+In this module testing is performed with [terratest](https://github.com/gruntwork-io/terratest) and it creates a small piece of infrastructure, matches the output like ARN, ID and Tags name etc and destroy infrastructure in your AWS account. This testing is written in GO, so you need a [GO environment](https://golang.org/doc/install) in your system. 
 
 You need to run the following command in the testing folder:
 ```hcl
@@ -228,7 +233,7 @@ You need to run the following command in the testing folder:
 
 
 
-## Feedback
+## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/terraform-aws-s3/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
 
 If you have found it worth your time, go ahead and give us a ★ on [our GitHub](https://github.com/clouddrove/terraform-aws-s3)!
