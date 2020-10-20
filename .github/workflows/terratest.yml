@@ -21,7 +21,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.TEST_AWS_ACCESS_SECRET_KEY }}
           aws-region: us-east-2
 
-      - name: 'Terratest'
+      - name: 'Terratest default-s3'
         if: ${{ github.event.label.name == 'terratest' }}
         uses: 'clouddrove/github-actions@v4.0'
         with:
@@ -29,6 +29,43 @@ jobs:
           tf_actions_working_dir: '_test/default-s3'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Terratest encryption-s3 '
+        if: ${{ github.event.label.name == 'terratest' }}
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'terratest'
+          tf_actions_working_dir: '_test/encryption-s3'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Terratest logging-encryption-s3 '
+        if: ${{ github.event.label.name == 'terratest' }}
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'terratest'
+          tf_actions_working_dir: '_test/logging-encryption-s3'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Terratest logging-s3'
+        if: ${{ github.event.label.name == 'terratest' }}
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'terratest'
+          tf_actions_working_dir: '_test/logging-s3'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Terratest website-s3'
+        if: ${{ github.event.label.name == 'terratest' }}
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'terratest'
+          tf_actions_working_dir: '_test/website-s3'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: 'Slack Notification'
         uses: clouddrove/action-slack@v2

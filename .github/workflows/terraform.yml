@@ -42,6 +42,78 @@ jobs:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/default-s3
 
+      - name: 'Terraform init encryption-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/encryption-s3
+
+      - name: 'Terraform validate encryption-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/encryption-s3
+
+      - name: 'Terraform plan encryption-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'plan'
+          tf_actions_working_dir: ./_example/encryption-s3
+
+      - name: 'Terraform init logging-encryption-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/logging-encryption-s3
+
+      - name: 'Terraform validate logging-encryption-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/logging-encryption-s3
+
+      - name: 'Terraform plan logging-encryption-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'plan'
+          tf_actions_working_dir: ./_example/logging-encryption-s3
+
+      - name: 'Terraform init logging-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/logging-s3
+
+      - name: 'Terraform validate logging-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/logging-s3
+
+      - name: 'Terraform plan logging-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'plan'
+          tf_actions_working_dir: ./_example/logging-s3
+
+      - name: 'Terraform init website-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/website-s3
+
+      - name: 'Terraform validate website-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/website-s3
+
+      - name: 'Terraform plan website-s3'
+        uses: 'clouddrove/github-actions@v4.0'
+        with:
+          actions_subcommand: 'plan'
+          tf_actions_working_dir: ./_example/website-s3
+
       - name: 'Slack Notification'
         uses: clouddrove/action-slack@v2
         with:
