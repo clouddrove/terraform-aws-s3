@@ -13,6 +13,6 @@ module "s3_bucket" {
   acl                    = "private"
   bucket_logging_enabled = true
 
-  target_bucket = "bucket-logs12"
+  target_bucket = "terraform-gitlab-ajay-test"
   target_prefix = "logs"
 }
