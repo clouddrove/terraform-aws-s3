@@ -6,9 +6,9 @@ module "kms_key" {
   source                  = "clouddrove/kms/aws"
   version                 = "0.13.0"
   name                    = "kms"
-  application             = "clouddrove"
+  repository              = "https://registry.terraform.io/modules/clouddrove/kms/aws/0.14.0"
   environment             = "test"
-  label_order             = ["environment", "application", "name"]
+  label_order             = ["name", "environment"]
   enabled                 = true
   description             = "KMS key for cloudtrail"
   deletion_window_in_days = 7
@@ -35,9 +35,9 @@ module "s3_bucket" {
   source = "./../../"
 
   name                      = "encryption-bucket"
-  application               = "clouddrove"
+  repository                = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
   environment               = "test"
-  label_order               = ["environment", "application", "name"]
+  label_order               = ["name", "environment"]
   versioning                = true
   acl                       = "private"
   bucket_encryption_enabled = true

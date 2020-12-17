@@ -6,9 +6,9 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "website-bucket"
-  application = "clouddrove"
+  repository  = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
   environment = "test"
-  label_order = ["environment", "application", "name"]
+  label_order = ["name", "environment"]
 
   versioning                         = true
   acl                                = "private"
