@@ -5,11 +5,11 @@ provider "aws" {
 module "s3_bucket" {
   source = "./../../"
 
-  name           = "secure-bucket"
-  repository     = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
-  environment    = "test"
-  label_order    = ["name", "environment"]
+  name        = "clouddrove-secure-bucket"
+  environment = "test"
+  label_order = ["name", "environment"]
+
+  bucket_enabled = true
   versioning     = true
   acl            = "private"
-  bucket_enabled = true
 }

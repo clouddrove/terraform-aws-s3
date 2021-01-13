@@ -3,16 +3,15 @@ provider "aws" {
 }
 
 module "kms_key" {
-  source                  = "git::https://github.com/terraform-aws-kms.git?ref=0.14"
+  source                  = "git::https://github.com/clouddrove/terraform-aws-kms.git?ref=0.14"
   name                    = "kms"
-  repository              = "https://registry.terraform.io/modules/clouddrove/kms/aws/0.14.0"
   environment             = "test"
   label_order             = ["name", "environment"]
   enabled                 = true
-  description             = "KMS key for cloudtrail"
+  description             = "KMS key for s3"
   deletion_window_in_days = 7
   enable_key_rotation     = true
-  alias                   = "alias/cloudtrail"
+  alias                   = "alias/s3"
   policy                  = data.aws_iam_policy_document.default.json
 }
 
@@ -30,11 +29,11 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+
 module "s3_bucket" {
   source = "./../../"
 
-  name                      = "encryption-bucket"
-  repository                = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
+  name                      = "clouddrove-encryption-bucket"
   environment               = "test"
   label_order               = ["name", "environment"]
   versioning                = true

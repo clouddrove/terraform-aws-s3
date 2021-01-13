@@ -5,14 +5,13 @@ provider "aws" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "website-bucket"
-  repository  = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
+  name        = "clouddrove-website-bucket"
   environment = "test"
   label_order = ["name", "environment"]
 
+  website_hosting_bucket             = true
   versioning                         = true
   acl                                = "private"
-  website_hosting_bucket             = true
   website_index                      = "index.html"
   website_error                      = "error.html"
   lifecycle_expiration_enabled       = true
@@ -33,6 +32,6 @@ data "aws_iam_policy_document" "default" {
       identifiers = ["*"]
     }
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::test-clouddrove-website-bucket/*"]
+    resources = ["arn:aws:s3:::clouddrove-website-bucket-test/*"]
   }
 }

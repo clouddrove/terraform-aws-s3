@@ -8,14 +8,9 @@ variable "name" {
 
 variable "repository" {
   type        = string
-  default     = ""
+  default     = "https://registry.terraform.io/modules/clouddrove/s3/aws"
   description = "Terraform current module repo"
 
-  validation {
-    # regex(...) fails if it cannot find a match
-    condition     = can(regex("^https://", var.repository))
-    error_message = "The module-repo value must be a valid Git repo link."
-  }
 }
 
 variable "environment" {
@@ -64,7 +59,7 @@ variable "create_bucket" {
 
 variable "versioning" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable Versioning of S3."
 }
 

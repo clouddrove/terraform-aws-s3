@@ -5,10 +5,10 @@ provider "aws" {
 module "s3_bucket" {
   source = "./../../"
 
-  name                              = "logging-encryption-bucket"
-  repository                        = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
-  environment                       = "test"
-  label_order                       = ["name", "environment"]
+  name        = "logging-encryption-bucket"
+  environment = "test"
+  label_order = ["name", "environment"]
+
   versioning                        = true
   acl                               = "private"
   bucket_logging_encryption_enabled = true
