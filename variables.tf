@@ -10,7 +10,6 @@ variable "repository" {
   type        = string
   default     = "https://registry.terraform.io/modules/clouddrove/s3/aws"
   description = "Terraform current module repo"
-
 }
 
 variable "environment" {
