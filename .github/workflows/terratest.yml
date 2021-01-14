@@ -6,7 +6,7 @@ on:
     types: [labeled]
 
 jobs:
-  terraform:
+  Terratest:
     name: 'Terratest'
     runs-on: ubuntu-latest
     steps:

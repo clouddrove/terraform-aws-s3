@@ -5,8 +5,8 @@ on:
       - master
 
 jobs:
-  common:
-    name: 'common'
+  terraform:
+    name: 'Terraform'
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
@@ -23,15 +23,23 @@ jobs:
         uses: 'clouddrove/github-actions@CD-101'
         with:
           actions_subcommand: 'fmt'
-  init:
-    name: 'init'
-    needs: common
-    runs-on: ubuntu-latest
-    steps:
+
       - name: 'Terraform init'
         uses: 'clouddrove/github-actions@CD-101'
         with:
           actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/default-s3
+
+      - name: 'Terraform validate'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/default-s3
+
+      - name: 'Terraform plan'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/default-s3
 
       - name: 'Terraform init encryption-s3'
@@ -40,69 +48,11 @@ jobs:
           actions_subcommand: 'init'
           tf_actions_working_dir: ./_example/encryption-s3
 
-      - name: 'Terraform init logging-encryption-s3'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'init'
-          tf_actions_working_dir: ./_example/logging-encryption-s3
-
-      - name: 'Terraform init website-s3'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'init'
-          tf_actions_working_dir: ./_example/website-s3
-
-      - name: 'Terraform init logging-s3'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'init'
-          tf_actions_working_dir: ./_example/logging-s3
-
-  validate:
-    name: 'validate'
-    needs: init
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Terraform validate'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'validate'
-          tf_actions_working_dir: ./_example/default-s3
-
       - name: 'Terraform validate encryption-s3'
         uses: 'clouddrove/github-actions@CD-101'
         with:
           actions_subcommand: 'validate'
           tf_actions_working_dir: ./_example/encryption-s3
-
-      - name: 'Terraform validate logging-s3'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'validate'
-          tf_actions_working_dir: ./_example/logging-s3
-
-      - name: 'Terraform validate website-s3'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'validate'
-          tf_actions_working_dir: ./_example/website-s3
-
-      - name: 'Terraform validate logging-encryption-s3'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'validate'
-          tf_actions_working_dir: ./_example/logging-encryption-s3
-
-  plan:
-    name: 'plan'
-    needs: validate
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Terraform plan'
-        uses: 'clouddrove/github-actions@CD-101'
-        with:
-          actions_subcommand: 'plan'
-          tf_actions_working_dir: ./_example/default-s3
 
       - name: 'Terraform plan encryption-s3'
         uses: 'clouddrove/github-actions@CD-101'
@@ -110,17 +60,53 @@ jobs:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/encryption-s3
 
+      - name: 'Terraform init logging-encryption-s3'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/logging-encryption-s3
+
+      - name: 'Terraform validate logging-encryption-s3'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/logging-encryption-s3
+
       - name: 'Terraform plan logging-encryption-s3'
         uses: 'clouddrove/github-actions@CD-101'
         with:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/logging-encryption-s3
 
+      - name: 'Terraform init logging-s3'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/logging-s3
+
+      - name: 'Terraform validate logging-s3'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/logging-s3
+
       - name: 'Terraform plan logging-s3'
         uses: 'clouddrove/github-actions@CD-101'
         with:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/logging-s3
+
+      - name: 'Terraform init website-s3'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'init'
+          tf_actions_working_dir: ./_example/website-s3
+
+      - name: 'Terraform validate website-s3'
+        uses: 'clouddrove/github-actions@CD-101'
+        with:
+          actions_subcommand: 'validate'
+          tf_actions_working_dir: ./_example/website-s3
 
       - name: 'Terraform plan website-s3'
         uses: 'clouddrove/github-actions@CD-101'

@@ -3,10 +3,12 @@ provider "aws" {
 }
 
 module "kms_key" {
-  source                  = "git::https://github.com/clouddrove/terraform-aws-kms.git?ref=0.14"
-  name                    = "kms"
-  environment             = "test"
-  label_order             = ["name", "environment"]
+  source = "git::https://github.com/clouddrove/terraform-aws-kms.git?ref=0.14"
+
+  name        = "kms"
+  environment = "test"
+  label_order = ["name", "environment"]
+
   enabled                 = true
   description             = "KMS key for s3"
   deletion_window_in_days = 7
