@@ -1,5 +1,10 @@
 name: 'Terratest GitHub Actions'
-on: push
+on:
+  pull_request:
+    branches:
+      - master
+    types: [labeled]
+
 jobs:
   terraform:
     name: 'Terratest'
@@ -20,24 +25,25 @@ jobs:
         uses: 'clouddrove/github-actions@CD-101'
         with:
           actions_subcommand: 'terratest'
+          if: ${{ github.event.label.name == 'terratest' }}
           tf_actions_working_dir: '_test/default-s3'
 
-#      - name: 'Terratest encryption-s3 '
-#        if: ${{ github.event.label.name == 'terratest' }}
-#        uses: 'clouddrove/github-actions@v4.0'
-#        with:
-#          actions_subcommand: 'terratest'
-#          tf_actions_working_dir: '_test/encryption-s3'
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: 'Slack Notification'
-#        uses: clouddrove/action-slack@v2
-#        with:
-#          status: ${{ job.status }}
-#          fields: repo,author
-#          author_name: 'CloudDrove'
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
-#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_TERRAFORM }} # required
-#        if: always()
+      - name: 'Terratest encryption-s3 '
+        if: ${{ github.event.label.name == 'terratest' }}
+        uses: 'clouddrove/github-actions@v5.0'
+        with:
+          actions_subcommand: 'terratest'
+          tf_actions_working_dir: '_test/encryption-s3'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Slack Notification'
+        uses: clouddrove/action-slack@v2
+        with:
+          status: ${{ job.status }}
+          fields: repo,author
+          author_name: 'CloudDrove'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_TERRAFORM }} # required
+        if: always()
