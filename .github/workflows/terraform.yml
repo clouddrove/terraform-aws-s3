@@ -7,7 +7,7 @@ on:
 jobs:
   common:
     name: 'common'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
         uses: actions/checkout@master
@@ -25,7 +25,7 @@ jobs:
           actions_subcommand: 'fmt'
   init:
     name: 'init'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 'Terraform init'
         uses: 'clouddrove/github-actions@CD-101'
@@ -59,7 +59,7 @@ jobs:
 
   validate:
     name: 'validate'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 'Terraform validate'
         uses: 'clouddrove/github-actions@CD-101'
@@ -93,7 +93,7 @@ jobs:
 
   plan:
     name: 'plan'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 'Terraform plan'
         uses: 'clouddrove/github-actions@CD-101'
