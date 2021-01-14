@@ -7,7 +7,7 @@ on:
 
 jobs:
   terraform:
-    name: 'Terraform'
+    name: 'Terratest'
     runs-on: ubuntu-latest
     steps:
 
@@ -21,14 +21,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.TEST_AWS_ACCESS_SECRET_KEY }}
           aws-region: us-east-2
 
-      - name: 'Terratest default-s3'
-        if: ${{ github.event.label.name == 'terratest' }}
-        uses: 'clouddrove/github-actions@CD-101'
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
         with:
-          actions_subcommand: 'terratest'
-          tf_actions_working_dir: '_test/default-s3'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          go-version: 1.13
+        id: go
+
+      - name: Get dependencies
+        run: |
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          else
+            go get -v -d -t ./...
+          fi
+      - name: Test
+        working-directory: /home/runner/work/terraform-aws-s3/terraform-aws-s3/_test/default-s3
+        run: sudo go test -v
 
 #      - name: 'Terratest encryption-s3 '
 #        if: ${{ github.event.label.name == 'terratest' }}
