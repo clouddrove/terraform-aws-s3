@@ -37,7 +37,9 @@ jobs:
           fi
       - name: Test
         working-directory: /home/runner/work/terraform-aws-s3/terraform-aws-s3/_test/default-s3
-        run: sudo go test -v
+        run: |
+        sudo go get github.com/gruntwork-io/terratest/modules/terraform
+        sudo go test -v
 
 #      - name: 'Terratest encryption-s3 '
 #        if: ${{ github.event.label.name == 'terratest' }}
