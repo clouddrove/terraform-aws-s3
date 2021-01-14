@@ -59,8 +59,8 @@ jobs:
           tf_actions_working_dir: ./_example/logging-s3
 
   validate:
-    name: 'init'
-    needs: common
+    name: 'validate'
+    needs: init
     runs-on: ubuntu-latest
     steps:
       - name: 'Terraform validate'
