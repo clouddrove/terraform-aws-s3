@@ -30,7 +30,7 @@ jobs:
 
       - name: 'Terratest encryption-s3 '
         if: ${{ github.event.label.name == 'terratest' }}
-        uses: 'clouddrove/github-actions@v5.0'
+        uses: 'clouddrove/github-actions@CD-101'
         with:
           actions_subcommand: 'terratest'
           tf_actions_working_dir: '_test/encryption-s3'
