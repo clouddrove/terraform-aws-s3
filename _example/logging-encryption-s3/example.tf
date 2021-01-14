@@ -5,7 +5,7 @@ provider "aws" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "logging-encryption-bucket"
+  name        = "clouddrove-logging-encryption-bucket"
   environment = "test"
   label_order = ["name", "environment"]
 
