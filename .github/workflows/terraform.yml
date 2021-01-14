@@ -94,7 +94,8 @@ jobs:
           tf_actions_working_dir: ./_example/logging-encryption-s3
 
   plan:
-    name: 'validate'
+    name: 'plan'
+    needs: validate
     runs-on: ubuntu-latest
     steps:
       - name: 'Terraform plan'
