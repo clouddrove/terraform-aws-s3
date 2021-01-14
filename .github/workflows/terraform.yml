@@ -25,6 +25,7 @@ jobs:
           actions_subcommand: 'fmt'
   init:
     name: 'init'
+    needs: common
     runs-on: ubuntu-latest
     steps:
       - name: 'Terraform init'
@@ -59,6 +60,7 @@ jobs:
 
   validate:
     name: 'validate'
+    needs: common
     runs-on: ubuntu-latest
     steps:
       - name: 'Terraform validate'
@@ -92,7 +94,7 @@ jobs:
           tf_actions_working_dir: ./_example/logging-encryption-s3
 
   plan:
-    name: 'plan'
+    name: 'init'
     runs-on: ubuntu-latest
     steps:
       - name: 'Terraform plan'
