@@ -35,12 +35,13 @@ data "aws_iam_policy_document" "default" {
 module "s3_bucket" {
   source = "./../../"
 
-  name                      = "clouddrove-encryption-bucket"
-  environment               = "test"
-  label_order               = ["name", "environment"]
+  name        = "clouddrove-encryption-bucket"
+  environment = "test"
+  label_order = ["name", "environment"]
+
+  bucket_encryption_enabled = true
   versioning                = true
   acl                       = "private"
-  bucket_encryption_enabled = true
   sse_algorithm             = "aws:kms"
   kms_master_key_id         = module.kms_key.key_arn
 }
