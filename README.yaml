@@ -40,8 +40,7 @@ usage: |-
   module "s3_bucket" {
     source              = "clouddrove/s3/aws"
     version             = "0.14.0"
-    name                = "secure-bucket"
-    repository          = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
+    name                = "clouddrove-secure-bucket"
     environment         = "test"
     label_order         = ["name", "environment"]
     versioning          = true
@@ -54,8 +53,7 @@ usage: |-
   module "s3_bucket" {
     source                     = "clouddrove/s3/aws"
     version                    = "0.14.0"
-    name                       = "encryption-bucket"
-    repository                 = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
+    name                       = "clouddrove-encryption-bucket"
     environment                = "test"
     label_order                = ["name", "environment"]
     versioning                 = true
@@ -69,8 +67,7 @@ usage: |-
   module "s3_bucket" {
     source                             = "clouddrove/s3/aws"
     version                            = "0.14.0"
-    name                               = "logging-encryption-bucket"
-    repository                         = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
+    name                               = "clouddrove-logging-encryption-bucket"
     environment                        = "test"
     label_order                        = ["name", "environment"]
     versioning                         = true
@@ -86,8 +83,7 @@ usage: |-
   module "s3_bucket" {
     source                  = "clouddrove/s3/aws"
     version                 = "0.14.0"
-    name                    = "logging-bucket"
-    repository              = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
+    name                    = "clouddrove-logging-bucket"
     environment             = "test"
     label_order             = ["name", "environment"]
     versioning              = true
@@ -102,8 +98,7 @@ usage: |-
   module "s3_bucket" {
     source                              = "clouddrove/s3/aws"
     version                             = "0.14.0"
-    name                                = "website-bucket"
-    repository                          = "https://registry.terraform.io/modules/clouddrove/s3/aws/0.14.0"
+    name                                = "clouddrove-website-bucket"
     environment                         = "test"
     label_order                         = ["name", "environment"]
     versioning                          = true
@@ -127,7 +122,7 @@ usage: |-
               identifiers = ["*"]
             }
          actions = ["s3:GetObject"]
-         resources = ["arn:aws:s3:::test-website-bucket-clouddrove/*"]
+         resources = ["arn:aws:s3:::clouddrove-website-bucket-test/*"]
      }
   }
   ```
