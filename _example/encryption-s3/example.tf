@@ -3,8 +3,8 @@ provider "aws" {
 }
 
 module "kms_key" {
-  source = "git::https://github.com/clouddrove/terraform-aws-kms.git?ref=tags/0.14.0"
-
+  source      = "clouddrove/kms/aws"
+  version     = "0.14.0"
   name        = "kms"
   environment = "test"
   label_order = ["name", "environment"]
