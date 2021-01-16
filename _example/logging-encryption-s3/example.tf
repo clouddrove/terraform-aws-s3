@@ -5,13 +5,13 @@ provider "aws" {
 module "s3_bucket" {
   source = "./../../"
 
-  name                              = "logging-encryption-bucket"
-  application                       = "clouddrove"
-  environment                       = "test"
-  label_order                       = ["environment", "application", "name"]
+  name        = "clouddrove-logging-encryption-bucket"
+  environment = "test"
+  label_order = ["name", "environment"]
+
+  bucket_logging_encryption_enabled = true
   versioning                        = true
   acl                               = "private"
-  bucket_logging_encryption_enabled = true
   sse_algorithm                     = "AES256"
   target_bucket                     = "bucket-logs12"
   target_prefix                     = "logs"

@@ -7,6 +7,7 @@ output "id" {
 
 }
 
+
 output "arn" {
   value       = var.bucket_enabled ? join("", aws_s3_bucket.s3_default.*.arn) : (var.website_hosting_bucket ? join("", aws_s3_bucket.s3_website.*.arn) : (var.bucket_logging_enabled ? join("", aws_s3_bucket.s3_logging.*.arn) : join("", aws_s3_bucket.s3_encryption.*.arn)))
   description = "The ARN of the s3 bucket."

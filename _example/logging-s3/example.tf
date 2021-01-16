@@ -5,14 +5,13 @@ provider "aws" {
 module "s3_bucket" {
   source = "./../../"
 
-  name                   = "logging-bucket"
-  application            = "clouddrove"
-  environment            = "test"
-  label_order            = ["environment", "application", "name"]
+  name        = "clouddrove-logging-bucket"
+  environment = "test"
+  label_order = ["name", "environment"]
+
+  bucket_logging_enabled = true
   versioning             = true
   acl                    = "private"
-  bucket_logging_enabled = true
-
-  target_bucket = "terraform-gitlab-ajay-test"
-  target_prefix = "logs"
+  target_bucket          = "terraform-clouddrove-test"
+  target_prefix          = "logs"
 }

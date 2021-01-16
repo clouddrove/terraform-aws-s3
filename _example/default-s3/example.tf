@@ -5,11 +5,11 @@ provider "aws" {
 module "s3_bucket" {
   source = "./../../"
 
-  name           = "secure-bucket"
-  application    = "clouddrove"
-  environment    = "test"
-  label_order    = ["environment", "application", "name"]
+  name        = "clouddrove-secure-bucket"
+  environment = "test"
+  label_order = ["name", "environment"]
+
+  bucket_enabled = true
   versioning     = true
   acl            = "private"
-  bucket_enabled = true
 }

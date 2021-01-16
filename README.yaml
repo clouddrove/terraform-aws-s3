@@ -16,7 +16,7 @@ github_repo: clouddrove/terraform-aws-s3
 # Badges to display
 badges:
   - name: "Terraform"
-    image: "https://img.shields.io/badge/Terraform-v0.13-green"
+    image: "https://img.shields.io/badge/Terraform-v0.14-green"
     url: "https://www.terraform.io"
   - name: "Licence"
     image: "https://img.shields.io/badge/License-MIT-blue.svg"
@@ -39,11 +39,10 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source              = "clouddrove/s3/aws"
-    version             = "0.13.0"
-    name                = "secure-bucket"
-    application         = "clouddrove"
+    version             = "0.14.0"
+    name                = "clouddrove-secure-bucket"
     environment         = "test"
-    label_order         = ["environment", "application", "name"]
+    label_order         = ["name", "environment"]
     versioning          = true
     acl                 = "private"
     bucket_enabled      = true
@@ -53,11 +52,10 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                     = "clouddrove/s3/aws"
-    version                    = "0.13.0"
-    name                       = "encryption-bucket"
-    application                = "clouddrove"
+    version                    = "0.14.0"
+    name                       = "clouddrove-encryption-bucket"
     environment                = "test"
-    label_order                = ["environment", "application", "name"]
+    label_order                = ["name", "environment"]
     versioning                 = true
     acl                        = "private"
     bucket_encryption_enabled  = true
@@ -68,11 +66,10 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                             = "clouddrove/s3/aws"
-    version                            = "0.13.0"
-    name                               = "logging-encryption-bucket"
-    application                        = "clouddrove"
+    version                            = "0.14.0"
+    name                               = "clouddrove-logging-encryption-bucket"
     environment                        = "test"
-    label_order                        = ["environment", "application", "name"]
+    label_order                        = ["name", "environment"]
     versioning                         = true
     acl                                = "private"
     bucket_logging_encryption_enabled  = true
@@ -85,11 +82,10 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                  = "clouddrove/s3/aws"
-    version                 = "0.13.0"
-    name                    = "logging-bucket"
-    application             = "clouddrove"
+    version                 = "0.14.0"
+    name                    = "clouddrove-logging-bucket"
     environment             = "test"
-    label_order             = ["environment", "application", "name"]
+    label_order             = ["name", "environment"]
     versioning              = true
     acl                     = "private"
     bucket_logging_enabled  = true
@@ -101,11 +97,10 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                              = "clouddrove/s3/aws"
-    version                             = "0.13.0"
-    name                                = "website-bucket"
-    application                         = "clouddrove"
+    version                             = "0.14.0"
+    name                                = "clouddrove-website-bucket"
     environment                         = "test"
-    label_order                         = ["environment", "application", "name"]
+    label_order                         = ["name", "environment"]
     versioning                          = true
     acl                                 = "private"
     website_hosting_bucket              = true
@@ -127,7 +122,7 @@ usage: |-
               identifiers = ["*"]
             }
          actions = ["s3:GetObject"]
-         resources = ["arn:aws:s3:::test-website-bucket-clouddrove/*"]
+         resources = ["arn:aws:s3:::clouddrove-website-bucket-test/*"]
      }
   }
   ```

@@ -6,10 +6,10 @@ variable "name" {
   description = "Name  (e.g. `app` or `cluster`)."
 }
 
-variable "application" {
+variable "repository" {
   type        = string
-  default     = ""
-  description = "Application (e.g. `cd` or `clouddrove`)."
+  default     = "https://registry.terraform.io/modules/clouddrove/s3/aws"
+  description = "Terraform current module repo"
 }
 
 variable "environment" {
@@ -19,19 +19,19 @@ variable "environment" {
 }
 
 variable "label_order" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "Label order, e.g. `name`,`application`."
 }
 
 variable "managedby" {
   type        = string
-  default     = "anmol@clouddrove.com"
-  description = "ManagedBy, eg 'CloudDrove' or 'AnmolNagpal'."
+  default     = "hello@clouddrove.com"
+  description = "ManagedBy, eg 'CloudDrove'."
 }
 
 variable "attributes" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "Additional attributes (e.g. `1`)."
 }
@@ -43,7 +43,7 @@ variable "delimiter" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   default     = {}
   description = "Additional tags (e.g. map(`BusinessUnit`,`XYZ`)."
 }
@@ -58,7 +58,7 @@ variable "create_bucket" {
 
 variable "versioning" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable Versioning of S3."
 }
 
@@ -132,12 +132,14 @@ variable "website_index" {
   type        = string
   default     = "index.html"
   description = "Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders."
+  sensitive   = true
 }
 
 variable "website_error" {
   type        = string
   default     = "error.html"
   description = "An absolute path to the document to return in case of a 4XX error."
+  sensitive   = true
 }
 
 variable "lifecycle_infrequent_storage_transition_enabled" {
@@ -150,6 +152,7 @@ variable "lifecycle_infrequent_storage_object_prefix" {
   type        = string
   default     = ""
   description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
+  sensitive   = true
 }
 
 variable "lifecycle_days_to_infrequent_storage_transition" {
@@ -168,6 +171,7 @@ variable "lifecycle_glacier_object_prefix" {
   type        = string
   default     = ""
   description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
+  sensitive   = true
 }
 
 variable "lifecycle_days_to_glacier_transition" {
@@ -200,6 +204,7 @@ variable "aws_iam_policy_document" {
   type        = string
   default     = ""
   description = "Specifies the number of days after object creation when the object expires."
+  sensitive   = true
 }
 
 variable "bucket_policy" {

@@ -3,17 +3,17 @@ provider "aws" {
 }
 
 module "kms_key" {
-  source                  = "clouddrove/kms/aws"
-  version                 = "0.13.0"
-  name                    = "kms"
-  application             = "clouddrove"
-  environment             = "test"
-  label_order             = ["environment", "application", "name"]
+  source      = "clouddrove/kms/aws"
+  version     = "0.14.0"
+  name        = "kms"
+  environment = "test"
+  label_order = ["name", "environment"]
+
   enabled                 = true
-  description             = "KMS key for cloudtrail"
+  description             = "KMS key for s3"
   deletion_window_in_days = 7
   enable_key_rotation     = true
-  alias                   = "alias/cloudtrail"
+  alias                   = "alias/s3"
   policy                  = data.aws_iam_policy_document.default.json
 }
 
@@ -31,16 +31,17 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+
 module "s3_bucket" {
   source = "./../../"
 
-  name                      = "encryption-bucket"
-  application               = "clouddrove"
-  environment               = "test"
-  label_order               = ["environment", "application", "name"]
+  name        = "clouddrove-encryption-bucket"
+  environment = "test"
+  label_order = ["name", "environment"]
+
+  bucket_encryption_enabled = true
   versioning                = true
   acl                       = "private"
-  bucket_encryption_enabled = true
   sse_algorithm             = "aws:kms"
   kms_master_key_id         = module.kms_key.key_arn
 }

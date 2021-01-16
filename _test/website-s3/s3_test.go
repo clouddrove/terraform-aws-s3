@@ -1,5 +1,5 @@
 // Managed By : CloudDrove
-// Description : This Terratest is used to test the Terraform VPC module.
+// Description : This Terratest is used to test the Terraform S3 module.
 // Copyright @ CloudDrove. All Right Reserved.
 package test
 
@@ -30,6 +30,6 @@ func Test(t *testing.T) {
 	Tags := terraform.OutputMap(t, terraformOptions, "tags")
 
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, "test-clouddrove-website-bucket", s3BucketId)
-	assert.Equal(t, "test-clouddrove-website-bucket", Tags["Name"])
+	assert.Equal(t, "clouddrove-website-bucket-test", s3BucketId)
+	assert.Equal(t, "clouddrove-website-bucket-test", Tags["Name"])
 }
