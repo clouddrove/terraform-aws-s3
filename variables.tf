@@ -190,37 +190,60 @@ variable "bucket_prefix" {
 
 variable "grants" {
   type = list(object({
-    id         = string
-    type       = string
+    id          = string
+    type        = string
     permissions = list(string)
-    uri        = string
+    uri         = string
   }))
-  default      = null
+  default     = null
   description = "ACL Policy grant.conflict with acl.set acl null to use this"
 }
 
 variable "website" {
-  type = map(string)
+  type        = map(string)
   description = "Static website configuration"
-  default = {}
-  
+  default     = {}
+
 }
 
 variable "logging" {
-  type =map(string)
+  type        = map(string)
   description = "Logging Object Configuration details"
-  default = {}
-  
+  default     = {}
+
 }
 
 variable "acceleration_status" {
-  type = string
+  type        = string
   description = "Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended"
-  default = null
+  default     = null
 }
 
 variable "request_payer" {
-  type = string
+  type        = string
   description = "Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer"
+  default     = null
+}
+
+variable "object_lock_configuration" {
+  type = object ({
+  mode = string
+  days = number
+  years = number
+  })
   default = null
+  description = "With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely."
+  
+}
+
+variable "cors_rule"{
+  type = list(object({
+    allowed_headers = list(string)
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+    expose_headers  = list(string)
+    max_age_seconds = number
+  }))
+  default = null
+  description = "CORS Configuration specification for this bucket"
 }
