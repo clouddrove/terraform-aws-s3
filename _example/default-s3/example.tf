@@ -7,9 +7,9 @@ module "s3_bucket" {
 
   name        = "clouddrove-secure-bucket"
   environment = "test"
-  label_order = ["name", "environment"]
+  attributes  = ["public"]
+  label_order = ["name", "environment", "attributes"]
 
-  bucket_enabled = true
   versioning     = true
   acl            = "private"
 }

@@ -7,11 +7,10 @@ module "s3_bucket" {
 
   name        = "clouddrove-logging-bucket"
   environment = "test"
-  label_order = ["name", "environment"]
+  attributes = ["public"]
+  label_order = ["name", "environment", "attributes"]
 
-  bucket_logging_enabled = true
   versioning             = true
   acl                    = "private"
-  target_bucket          = "terraform-clouddrove-test"
-  target_prefix          = "logs"
+  logging                = {target_bucket:"bucket-logs12",target_prefix= "logs"}
 }
