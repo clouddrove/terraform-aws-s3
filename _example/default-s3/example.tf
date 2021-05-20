@@ -10,6 +10,5 @@ module "s3_bucket" {
   label_order = ["name", "environment"]
 
   bucket_enabled = true
-  versioning     = true
-  acl            = "private"
+ 
 }

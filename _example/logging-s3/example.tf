@@ -10,8 +10,6 @@ module "s3_bucket" {
   label_order = ["name", "environment"]
 
   bucket_logging_enabled = true
-  versioning             = true
-  acl                    = "private"
   target_bucket          = "terraform-clouddrove-test"
   target_prefix          = "logs"
 }

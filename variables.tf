@@ -56,18 +56,6 @@ variable "create_bucket" {
   description = "Conditionally create S3 bucket."
 }
 
-variable "versioning" {
-  type        = bool
-  default     = true
-  description = "Enable Versioning of S3."
-}
-
-variable "acl" {
-  type        = string
-  default     = ""
-  description = "Canned ACL to apply to the S3 bucket."
-}
-
 variable "bucket_enabled" {
   type        = bool
   default     = false
@@ -114,12 +102,6 @@ variable "target_prefix" {
   type        = string
   default     = ""
   description = "To specify a key prefix for log objects."
-}
-
-variable "sse_algorithm" {
-  type        = string
-  default     = "AES256"
-  description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms."
 }
 
 variable "kms_master_key_id" {
