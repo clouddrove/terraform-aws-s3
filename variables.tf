@@ -56,6 +56,12 @@ variable "create_bucket" {
   description = "Conditionally create S3 bucket."
 }
 
+variable "acl" {
+  type        = string
+  default     = ""
+  description = "Canned ACL to apply to the S3 bucket."
+}
+
 variable "bucket_enabled" {
   type        = bool
   default     = false

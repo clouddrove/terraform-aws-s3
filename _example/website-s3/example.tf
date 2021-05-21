@@ -10,6 +10,7 @@ module "s3_bucket" {
   label_order = ["name", "environment"]
 
   website_hosting_bucket             = true
+  acl                                = "private"
   website_index                      = "index.html"
   website_error                      = "error.html"
   lifecycle_expiration_enabled       = true

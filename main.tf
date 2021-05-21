@@ -25,7 +25,7 @@ resource "aws_s3_bucket" "s3_default" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  acl           = "public-read"
+  acl           = var.acl
 
   versioning {
     enabled    = true
@@ -72,7 +72,7 @@ resource "aws_s3_bucket" "s3_default" {
     target_prefix = var.target_prefix
   }
 
-    server_side_encryption_configuration {
+  server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
         sse_algorithm     = "aws:kms"
@@ -102,7 +102,7 @@ resource "aws_s3_bucket" "s3_website" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  acl           = "public-read"
+  acl           = var.acl
 
   versioning {
     enabled    = true
@@ -179,7 +179,7 @@ resource "aws_s3_bucket" "s3_logging" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  acl           = "public-read"
+  acl           = var.acl
 
   versioning {
     enabled    = true
@@ -244,7 +244,7 @@ resource "aws_s3_bucket" "s3_logging_encryption" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  acl           = "public-read"
+  acl           = var.acl
 
   versioning {
     enabled    = true
@@ -330,7 +330,7 @@ resource "aws_s3_bucket" "s3_encryption" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  acl           = "public-read"
+  acl           = var.acl
 
   versioning {
     enabled    = true

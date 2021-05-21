@@ -10,6 +10,7 @@ module "s3_bucket" {
   label_order = ["name", "environment"]
 
   bucket_logging_encryption_enabled = true
+  acl                               = "private"
   target_bucket                     = "bucket-logs12"
   target_prefix                     = "logs"
 }

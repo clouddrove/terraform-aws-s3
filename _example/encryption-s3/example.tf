@@ -40,5 +40,6 @@ module "s3_bucket" {
   label_order = ["name", "environment"]
 
   bucket_encryption_enabled = true
+  acl                       = "private"
   kms_master_key_id         = module.kms_key.key_arn
 }
