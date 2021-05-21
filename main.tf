@@ -72,6 +72,15 @@ resource "aws_s3_bucket" "s3_default" {
     target_prefix = var.target_prefix
   }
 
+    server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm     = "aws:kms"
+        kms_master_key_id = var.kms_master_key_id
+      }
+    }
+  }
+
   tags = module.labels.tags
 
 }
