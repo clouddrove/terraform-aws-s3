@@ -197,11 +197,9 @@ data "aws_iam_policy_document" "default" {
 | mfa\_delete | Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. | `bool` | `false` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
 | repository | Terraform current module repo | `string` | `"https://registry.terraform.io/modules/clouddrove/s3/aws"` | no |
-| sse\_algorithm | The server-side encryption algorithm to use. Valid values are AES256 and aws:kms. | `string` | `"AES256"` | no |
 | tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | `map(any)` | `{}` | no |
 | target\_bucket | The name of the bucket that will receive the log objects. | `string` | `""` | no |
 | target\_prefix | To specify a key prefix for log objects. | `string` | `""` | no |
-| versioning | Enable Versioning of S3. | `bool` | `true` | no |
 | website\_error | An absolute path to the document to return in case of a 4XX error. | `string` | `"error.html"` | no |
 | website\_hosting\_bucket | Enable website hosting of S3. | `bool` | `false` | no |
 | website\_index | Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders. | `string` | `"index.html"` | no |
