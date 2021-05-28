@@ -64,7 +64,7 @@ variable "versioning" {
 
 variable "acl" {
   type        = string
-  default     = ""
+  default     = null
   description = "Canned ACL to apply to the S3 bucket."
 }
 
@@ -95,8 +95,8 @@ variable "lifecycle_infrequent_storage_transition_enabled" {
 variable "lifecycle_infrequent_storage_object_prefix" {
   type        = string
   default     = ""
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
   sensitive   = true
+  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
 }
 
 variable "lifecycle_days_to_infrequent_storage_transition" {
@@ -114,8 +114,8 @@ variable "lifecycle_glacier_transition_enabled" {
 variable "lifecycle_glacier_object_prefix" {
   type        = string
   default     = ""
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
   sensitive   = true
+  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
 }
 
 variable "lifecycle_days_to_deep_archive_transition" {
@@ -133,8 +133,8 @@ variable "lifecycle_deep_archive_transition_enabled" {
 variable "lifecycle_deep_archive_object_prefix" {
   type        = string
   default     = ""
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
   sensitive   = true
+  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
 }
 
 variable "lifecycle_days_to_glacier_transition" {
@@ -166,8 +166,8 @@ variable "lifecycle_days_to_expiration" {
 variable "aws_iam_policy_document" {
   type        = string
   default     = ""
-  description = "Specifies the number of days after object creation when the object expires."
   sensitive   = true
+  description = "Specifies the number of days after object creation when the object expires."
 }
 
 variable "bucket_policy" {
@@ -201,42 +201,41 @@ variable "grants" {
 
 variable "website" {
   type        = map(string)
-  description = "Static website configuration"
   default     = {}
+  description = "Static website configuration"
 
 }
 
 variable "logging" {
   type        = map(string)
-  description = "Logging Object Configuration details"
   default     = {}
-
+  description = "Logging Object Configuration details"
 }
 
 variable "acceleration_status" {
   type        = string
-  description = "Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended"
   default     = null
+  description = "Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended"
 }
 
 variable "request_payer" {
   type        = string
-  description = "Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer"
   default     = null
+  description = "Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer"
 }
 
 variable "object_lock_configuration" {
-  type = object ({
-  mode = string
-  days = number
-  years = number
+  type = object({
+    mode  = string
+    days  = number
+    years = number
   })
-  default = null
+  default     = null
   description = "With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely."
-  
+
 }
 
-variable "cors_rule"{
+variable "cors_rule" {
   type = list(object({
     allowed_headers = list(string)
     allowed_methods = list(string)
@@ -244,6 +243,6 @@ variable "cors_rule"{
     expose_headers  = list(string)
     max_age_seconds = number
   }))
-  default = null
+  default     = null
   description = "CORS Configuration specification for this bucket"
 }

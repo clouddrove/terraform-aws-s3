@@ -26,7 +26,7 @@ resource "aws_s3_bucket" "s3_default" {
   bucket              = module.labels.id
   bucket_prefix       = var.bucket_prefix
   force_destroy       = var.force_destroy
-  acl                 = try(length(var.acl),0) == 0 ? var.acl : null
+  acl                 = try(length(var.acl), 0) == 0 ? var.acl : null
   acceleration_status = var.acceleration_status
   request_payer       = var.request_payer
 
@@ -34,28 +34,27 @@ resource "aws_s3_bucket" "s3_default" {
     enabled    = var.versioning
     mfa_delete = var.mfa_delete
   }
-  
   dynamic "website" {
     for_each = length(keys(var.website)) == 0 ? [] : [var.website]
 
     content {
-      index_document           = lookup(website.value,"index_document",null)
-      error_document           = lookup(website.value,"error_document",null)
-      redirect_all_requests_to = lookup(website.value,"redirect_all_requests_to",null)
-      routing_rules            = lookup(website.value,"routing_rules",null)
+      index_document           = lookup(website.value, "index_document", null)
+      error_document           = lookup(website.value, "error_document", null)
+      redirect_all_requests_to = lookup(website.value, "redirect_all_requests_to", null)
+      routing_rules            = lookup(website.value, "routing_rules", null)
     }
   }
 
   dynamic "logging" {
-    for_each = length (keys(var.logging)) == 0 ? [] : [var.logging]
+    for_each = length(keys(var.logging)) == 0 ? [] : [var.logging]
 
     content {
-    target_bucket = logging.value.target_bucket
-    target_prefix = lookup(logging.value,"target_prefix",null)
+      target_bucket = logging.value.target_bucket
+      target_prefix = lookup(logging.value, "target_prefix", null)
     }
   }
 
- server_side_encryption_configuration {
+  server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
         sse_algorithm     = var.sse_algorithm
@@ -65,34 +64,34 @@ resource "aws_s3_bucket" "s3_default" {
   }
 
   dynamic "grant" {
-    for_each = try(length(var.grants),0) == 0 || try(length(var.acl),0) > 0 ? [] : var.grants
+    for_each = try(length(var.grants), 0) == 0 || try(length(var.acl), 0) > 0 ? [] : var.grants
     content {
-      id = grant.value.id
-      type = grant.value.type
+      id          = grant.value.id
+      type        = grant.value.type
       permissions = grant.value.permissions
-      uri = grant.value.uri
+      uri         = grant.value.uri
     }
   }
 
   dynamic "object_lock_configuration" {
-  for_each = var.object_lock_configuration != null ? [1] : []
+    for_each = var.object_lock_configuration != null ? [1] : []
 
-    content{
-      object_lock_enabled= "Enabled"
+    content {
+      object_lock_enabled = "Enabled"
       rule {
-        default_retention{
-          mode = var.object_lock_configuration.mode
-          days = var.object_lock_configuration.days
-          years = var.object_lock_configuration.years 
+        default_retention {
+          mode  = var.object_lock_configuration.mode
+          days  = var.object_lock_configuration.days
+          years = var.object_lock_configuration.years
         }
       }
     }
   }
-  
+
   dynamic "cors_rule" {
     for_each = var.cors_rule == null ? [] : var.cors_rule
 
-    content{
+    content {
       allowed_headers = cors_rule.value.allowed_headers
       allowed_methods = cors_rule.value.allowed_methods
       allowed_origins = cors_rule.value.allowed_origins
@@ -126,7 +125,7 @@ resource "aws_s3_bucket" "s3_default" {
     }
   }
 
-   lifecycle_rule {
+  lifecycle_rule {
     id      = "transition-to-deep-archive"
     enabled = var.lifecycle_deep_archive_transition_enabled
     prefix  = var.lifecycle_deep_archive_object_prefix
@@ -159,8 +158,7 @@ resource "aws_s3_bucket" "s3_default" {
 # Description : Terraform module which creates policy for S3 bucket on AWS
 resource "aws_s3_bucket_policy" "s3_default" {
   # count = var.create_bucket && var.bucket_policy && var.bucket_enabled == true ? 1 : 0
-  count =  var.bucket_policy  == true ? 1 : 0
+  count  = var.bucket_policy == true ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default.*.id)
   policy = var.aws_iam_policy_document
 }
-

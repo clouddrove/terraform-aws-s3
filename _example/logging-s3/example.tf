@@ -7,10 +7,10 @@ module "s3_bucket" {
 
   name        = "clouddrove-logging-bucket"
   environment = "test"
-  attributes = ["public"]
+  attributes  = ["public"]
   label_order = ["name", "environment", "attributes"]
 
-  versioning             = true
-  acl                    = "private"
-  logging                = {target_bucket:"bucket-logs12",target_prefix= "logs"}
+  versioning = true
+  acl        = "private"
+  logging    = { target_bucket : "bucket-logs12", target_prefix = "logs" }
 }

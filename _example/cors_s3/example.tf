@@ -10,12 +10,12 @@ module "s3_bucket" {
   attributes  = ["public"]
   label_order = ["name", "environment", "attributes"]
 
-  versioning     = true
-  acl            = "public"
+  versioning = true
+  acl        = "public"
   cors_rule = [{
-    "allowed_headers" : ["*"] 
+    "allowed_headers" : ["*"]
     allowed_methods = ["PUT", "POST"],
     allowed_origins = ["https://s3-website-test.hashicorp.com"],
     expose_headers  = ["ETag"],
-    max_age_seconds = 3000 }]
+  max_age_seconds = 3000 }]
 }
