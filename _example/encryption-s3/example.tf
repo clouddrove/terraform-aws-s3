@@ -40,8 +40,6 @@ module "s3_bucket" {
   label_order = ["name", "environment"]
 
   bucket_encryption_enabled = true
-  versioning                = true
   acl                       = "private"
-  sse_algorithm             = "aws:kms"
   kms_master_key_id         = module.kms_key.key_arn
 }
