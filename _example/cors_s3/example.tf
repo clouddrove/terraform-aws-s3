@@ -17,5 +17,5 @@ module "s3_bucket" {
     allowed_methods = ["PUT", "POST"],
     allowed_origins = ["https://s3-website-test.hashicorp.com"],
     expose_headers  = ["ETag"],
-  max_age_seconds = 3000 }]
+    max_age_seconds = 3000 }]
 }
