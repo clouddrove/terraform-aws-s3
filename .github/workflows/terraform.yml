@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: 'Terraform Format'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'fmt'
 
@@ -34,19 +34,19 @@ jobs:
           aws-region: us-east-2
 
       - name: 'Terraform init'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'init'
           tf_actions_working_dir: ./_example/default-s3
 
       - name: 'Terraform validate'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'validate'
           tf_actions_working_dir: ./_example/default-s3
 
       - name: 'Terraform plan'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/default-s3
@@ -67,19 +67,19 @@ jobs:
           aws-region: us-east-2
 
       - name: 'Terraform init encryption-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'init'
           tf_actions_working_dir: ./_example/encryption-s3
 
       - name: 'Terraform validate encryption-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'validate'
           tf_actions_working_dir: ./_example/encryption-s3
 
       - name: 'Terraform plan encryption-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/encryption-s3
@@ -101,19 +101,19 @@ jobs:
           aws-region: us-east-2
 
       - name: 'Terraform init logging-encryption-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'init'
           tf_actions_working_dir: ./_example/logging-encryption-s3
 
       - name: 'Terraform validate logging-encryption-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'validate'
           tf_actions_working_dir: ./_example/logging-encryption-s3
 
       - name: 'Terraform plan logging-encryption-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/logging-encryption-s3
@@ -135,19 +135,19 @@ jobs:
           aws-region: us-east-2
 
       - name: 'Terraform init logging-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'init'
           tf_actions_working_dir: ./_example/logging-s3
 
       - name: 'Terraform validate logging-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'validate'
           tf_actions_working_dir: ./_example/logging-s3
 
       - name: 'Terraform plan logging-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/logging-s3
@@ -169,19 +169,19 @@ jobs:
           aws-region: us-east-2
 
       - name: 'Terraform init website-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'init'
           tf_actions_working_dir: ./_example/website-s3
 
       - name: 'Terraform validate website-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'validate'
           tf_actions_working_dir: ./_example/website-s3
 
       - name: 'Terraform plan website-s3'
-        uses: 'clouddrove/github-actions@v6.0'
+        uses: 'clouddrove/github-actions@v7.0'
         with:
           actions_subcommand: 'plan'
           tf_actions_working_dir: ./_example/website-s3
