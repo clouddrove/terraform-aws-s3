@@ -7,11 +7,11 @@ module "s3_bucket" {
 
   name        = "clouddrove-secure-bucket"
   environment = "test"
-  attributes  = ["public"]
+  attributes  = ["private"]
   label_order = ["name", "environment", "attributes"]
 
   versioning = true
-  acl        = "public"
+  acl        = "private"
   cors_rule = [{
     "allowed_headers" : ["*"]
     allowed_methods = ["PUT", "POST"],

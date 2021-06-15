@@ -7,7 +7,10 @@
 #              tags for resources. You can use terraform-labels to implement a strict
 #              naming convention.
 module "labels" {
-  source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.15.0"
+  # source = "git::https://github.com/clouddrove/terraform-labels.git?ref=tags/0.15.0"
+  source  = "clouddrove/labels/aws"
+  version = "0.15.0"
+
 
   name        = var.name
   repository  = var.repository
@@ -26,7 +29,7 @@ resource "aws_s3_bucket" "s3_default" {
   bucket              = module.labels.id
   bucket_prefix       = var.bucket_prefix
   force_destroy       = var.force_destroy
-  acl                 = try(length(var.acl), 0) == 0 ? var.acl : null
+  acl                 = var.acl
   acceleration_status = var.acceleration_status
   request_payer       = var.request_payer
 
