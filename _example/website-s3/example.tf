@@ -7,12 +7,12 @@ module "s3_bucket" {
 
   name        = "clouddrove-website-bucket"
   environment = "test"
-  label_order = ["name", "environment"]
+  attributes  = ["public"]
+  label_order = ["name", "environment", "attributes"]
 
-  website_hosting_bucket             = true
+  versioning                         = true
   acl                                = "private"
-  website_index                      = "index.html"
-  website_error                      = "error.html"
+  website                            = { index_document : "index.html", error_document : "error.html" }
   lifecycle_expiration_enabled       = true
   lifecycle_expiration_object_prefix = "test"
   lifecycle_days_to_expiration       = 10
@@ -31,6 +31,6 @@ data "aws_iam_policy_document" "default" {
       identifiers = ["*"]
     }
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::clouddrove-website-bucket-test/*"]
+    resources = ["arn:aws:s3:::clouddrove-website-bucket-test-public/*"]
   }
 }

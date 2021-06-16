@@ -56,16 +56,16 @@ variable "create_bucket" {
   description = "Conditionally create S3 bucket."
 }
 
-variable "acl" {
-  type        = string
-  default     = ""
-  description = "Canned ACL to apply to the S3 bucket."
+variable "versioning" {
+  type        = bool
+  default     = true
+  description = "Enable Versioning of S3."
 }
 
-variable "bucket_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable simple S3."
+variable "acl" {
+  type        = string
+  default     = null
+  description = "Canned ACL to apply to the S3 bucket."
 }
 
 variable "mfa_delete" {
@@ -74,60 +74,16 @@ variable "mfa_delete" {
   description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
 }
 
-variable "bucket_logging_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable logging of S3."
-}
-
-variable "bucket_encryption_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable encryption of S3."
-}
-
-variable "bucket_logging_encryption_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable logging encryption of S3."
-}
-
-variable "website_hosting_bucket" {
-  type        = bool
-  default     = false
-  description = "Enable website hosting of S3."
-}
-
-variable "target_bucket" {
+variable "sse_algorithm" {
   type        = string
-  default     = ""
-  description = "The name of the bucket that will receive the log objects."
-}
-
-variable "target_prefix" {
-  type        = string
-  default     = ""
-  description = "To specify a key prefix for log objects."
+  default     = "AES256"
+  description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms."
 }
 
 variable "kms_master_key_id" {
   type        = string
   default     = ""
   description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
-}
-
-variable "website_index" {
-  type        = string
-  default     = "index.html"
-  description = "Amazon S3 returns this index document when requests are made to the root domain or any of the subfolders."
-  sensitive   = true
-}
-
-variable "website_error" {
-  type        = string
-  default     = "error.html"
-  description = "An absolute path to the document to return in case of a 4XX error."
-  sensitive   = true
 }
 
 variable "lifecycle_infrequent_storage_transition_enabled" {
@@ -139,8 +95,8 @@ variable "lifecycle_infrequent_storage_transition_enabled" {
 variable "lifecycle_infrequent_storage_object_prefix" {
   type        = string
   default     = ""
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
   sensitive   = true
+  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
 }
 
 variable "lifecycle_days_to_infrequent_storage_transition" {
@@ -158,8 +114,27 @@ variable "lifecycle_glacier_transition_enabled" {
 variable "lifecycle_glacier_object_prefix" {
   type        = string
   default     = ""
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
   sensitive   = true
+  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
+}
+
+variable "lifecycle_days_to_deep_archive_transition" {
+  type        = number
+  default     = 180
+  description = "Specifies the number of days after object creation when it will be moved to DEEP ARCHIVE ."
+}
+
+variable "lifecycle_deep_archive_transition_enabled" {
+  type        = bool
+  default     = false
+  description = "Specifies DEEP ARCHIVE transition lifecycle rule status."
+}
+
+variable "lifecycle_deep_archive_object_prefix" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
 }
 
 variable "lifecycle_days_to_glacier_transition" {
@@ -191,8 +166,8 @@ variable "lifecycle_days_to_expiration" {
 variable "aws_iam_policy_document" {
   type        = string
   default     = ""
-  description = "Specifies the number of days after object creation when the object expires."
   sensitive   = true
+  description = "Specifies the number of days after object creation when the object expires."
 }
 
 variable "bucket_policy" {
@@ -205,4 +180,69 @@ variable "force_destroy" {
   type        = bool
   default     = false
   description = "A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
+}
+
+variable "bucket_prefix" {
+  type        = string
+  default     = null
+  description = " (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix."
+}
+
+variable "grants" {
+  type = list(object({
+    id          = string
+    type        = string
+    permissions = list(string)
+    uri         = string
+  }))
+  default     = null
+  description = "ACL Policy grant.conflict with acl.set acl null to use this"
+}
+
+variable "website" {
+  type        = map(string)
+  default     = {}
+  description = "Static website configuration"
+
+}
+
+variable "logging" {
+  type        = map(string)
+  default     = {}
+  description = "Logging Object Configuration details"
+}
+
+variable "acceleration_status" {
+  type        = string
+  default     = null
+  description = "Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended"
+}
+
+variable "request_payer" {
+  type        = string
+  default     = null
+  description = "Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer"
+}
+
+variable "object_lock_configuration" {
+  type = object({
+    mode  = string
+    days  = number
+    years = number
+  })
+  default     = null
+  description = "With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely."
+
+}
+
+variable "cors_rule" {
+  type = list(object({
+    allowed_headers = list(string)
+    allowed_methods = list(string)
+    allowed_origins = list(string)
+    expose_headers  = list(string)
+    max_age_seconds = number
+  }))
+  default     = null
+  description = "CORS Configuration specification for this bucket"
 }

@@ -37,9 +37,11 @@ module "s3_bucket" {
 
   name        = "clouddrove-encryption-bucket"
   environment = "test"
-  label_order = ["name", "environment"]
+  attributes  = ["public"]
+  label_order = ["name", "environment", "attributes"]
 
-  bucket_encryption_enabled = true
-  acl                       = "private"
-  kms_master_key_id         = module.kms_key.key_arn
+  versioning        = true
+  acl               = "private"
+  sse_algorithm     = "aws:kms"
+  kms_master_key_id = module.kms_key.key_arn
 }

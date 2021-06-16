@@ -16,7 +16,7 @@ github_repo: clouddrove/terraform-aws-s3
 # Badges to display
 badges:
   - name: "Terraform"
-    image: "https://img.shields.io/badge/Terraform-v0.14-green"
+    image: "https://img.shields.io/badge/Terraform-v0.15-green"
     url: "https://www.terraform.io"
   - name: "Licence"
     image: "https://img.shields.io/badge/License-MIT-blue.svg"
@@ -39,7 +39,7 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source              = "clouddrove/s3/aws"
-    version             = "0.14.0"
+    version             = "0.15.0"
     name                = "clouddrove-secure-bucket"
     environment         = "test"
     label_order         = ["name", "environment"]
@@ -52,7 +52,7 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                     = "clouddrove/s3/aws"
-    version                    = "0.14.0"
+    version                    = "0.15.0"
     name                       = "clouddrove-encryption-bucket"
     environment                = "test"
     label_order                = ["name", "environment"]
@@ -66,7 +66,7 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                             = "clouddrove/s3/aws"
-    version                            = "0.14.0"
+    version                            = "0.15.0"
     name                               = "clouddrove-logging-encryption-bucket"
     environment                        = "test"
     label_order                        = ["name", "environment"]
@@ -82,7 +82,7 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                  = "clouddrove/s3/aws"
-    version                 = "0.14.0"
+    version                 = "0.15.0"
     name                    = "clouddrove-logging-bucket"
     environment             = "test"
     label_order             = ["name", "environment"]
@@ -97,7 +97,7 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                              = "clouddrove/s3/aws"
-    version                             = "0.14.0"
+    version                             = "0.15.0"
     name                                = "clouddrove-website-bucket"
     environment                         = "test"
     label_order                         = ["name", "environment"]
@@ -115,7 +115,7 @@ usage: |-
   data "aws_iam_policy_document" "default" {
     version = "2012-10-17"
     statement {
-         sid = "Stmt1447315805704"
+         sid = "Stmt1547315805704"
          effect = "Allow"
          principals {
               type = "AWS"
