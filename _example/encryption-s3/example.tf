@@ -4,7 +4,7 @@ provider "aws" {
 
 module "kms_key" {
   source      = "clouddrove/kms/aws"
-  version     = "0.14.0"
+  version     = "0.15.0"
   name        = "kms"
   environment = "test"
   label_order = ["name", "environment"]
