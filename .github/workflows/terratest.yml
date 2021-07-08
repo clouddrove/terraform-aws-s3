@@ -40,32 +40,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'Terratest for logging-encryption-s3'
-        if: ${{ github.event.label.name == 'terratest' }}
-        uses: 'clouddrove/github-actions@v8.0'
-        with:
-          actions_subcommand: 'terratest'
-          tf_actions_working_dir: '_test/logging-encryption-s3'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 'Terratest for logging-s3'
-        if: ${{ github.event.label.name == 'terratest' }}
-        uses: 'clouddrove/github-actions@v8.0'
-        with:
-          actions_subcommand: 'terratest'
-          tf_actions_working_dir: '_test/logging-s3'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 'Terratest for website-s3'
-        if: ${{ github.event.label.name == 'terratest' }}
-        uses: 'clouddrove/github-actions@v8.0'
-        with:
-          actions_subcommand: 'terratest'
-          tf_actions_working_dir: '_test/website-s3'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 'Slack Notification'
         uses: clouddrove/action-slack@v2
