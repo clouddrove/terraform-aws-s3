@@ -6,7 +6,7 @@ provider "aws" {
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "test-logging"
+  name        = "logging"
   environment = "test"
   attributes  = ["public"]
   label_order = ["name", "environment"]
