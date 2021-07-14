@@ -69,7 +69,7 @@ This module has a few dependencies:
 
 
 Here are some examples of how you can use this module in your inventory structure:
-### Basic Bucket
+### Default Bucket
 ```hcl
 module "s3_bucket" {
   source              = "clouddrove/s3/aws"
@@ -159,6 +159,28 @@ data "aws_iam_policy_document" "default" {
        resources = ["arn:aws:s3:::clouddrove-website-bucket-test/*"]
    }
 }
+```
+
+ ### Cors Bucket
+```hcl
+  module "s3_bucket" {
+  source = "./../../"
+
+  name        = "clouddrove-secure-bucket"
+  environment = "test"
+  attributes  = ["private"]
+  label_order = ["name", "environment"]
+
+  versioning = true
+  acl        = "private"
+  cors_rule = [{
+  "allowed_headers" : ["*"]
+  allowed_methods = ["PUT", "POST"],
+  allowed_origins = ["https://s3-website-test.hashicorp.com"],
+  expose_headers  = ["ETag"],
+  max_age_seconds = 3000 }]
+}
+
 ```
 
 
