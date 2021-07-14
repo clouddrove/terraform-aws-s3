@@ -5,7 +5,6 @@ package test
 
 import (
 	"testing"
-	"strings"
 	"github.com/stretchr/testify/assert"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
@@ -30,6 +29,5 @@ func Test(t *testing.T) {
 	Tags := terraform.OutputMap(t, terraformOptions, "tags")
 
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, "clouddrove-logging-bucket-test", s3BucketId)
 	assert.Equal(t, "clouddrove-logging-bucket-test", Tags["Name"])
 }

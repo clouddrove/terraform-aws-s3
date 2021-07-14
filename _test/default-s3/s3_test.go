@@ -30,6 +30,6 @@ func Test(t *testing.T) {
 	Tags := terraform.OutputMap(t, terraformOptions, "tags")
 
 	// Verify we're getting back the outputs we expect
-	assert.Equal(t, "clouddrove-secure-bucket-test", s3BucketId)
-	assert.Equal(t, "clouddrove-secure-bucket-test", Tags["Name"])
+	assert.Equal(t, "clouddrove-secure-bucket-test-private", s3BucketId)
+	assert.Equal(t, "clouddrove-secure-bucket-test-private", Tags["Name"])
 }

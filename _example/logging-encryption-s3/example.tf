@@ -1,3 +1,4 @@
+
 provider "aws" {
   region = "eu-west-1"
 }
@@ -5,10 +6,10 @@ provider "aws" {
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "test-loging  "
+  name        = "logging"
   environment = "test"
   attributes  = ["public"]
-  label_order = ["name", "environment", "attributes"]
+  label_order = ["name", "environment"]
   acl         = "log-delivery-write"
 }
 
@@ -19,7 +20,7 @@ module "s3_bucket" {
   name        = "clouddrove-logging-encryption-bucket"
   environment = "test"
   attributes  = ["public"]
-  label_order = ["name", "environment", "attributes"]
+  label_order = ["name", "environment"]
 
   versioning    = true
   acl           = "private"

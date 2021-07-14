@@ -8,7 +8,7 @@ module "s3_bucket" {
   name        = "clouddrove-website-bucket"
   environment = "test"
   attributes  = ["public"]
-  label_order = ["name", "environment", "attributes"]
+  label_order = ["name", "environment"]
 
   versioning                         = true
   acl                                = "private"

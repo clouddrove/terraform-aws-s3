@@ -5,10 +5,10 @@ provider "aws" {
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "test-loging-cd"
+  name        = "logging-s3"
   environment = "test"
   attributes  = ["public"]
-  label_order = ["name", "environment", "attributes"]
+  label_order = ["name", "environment"]
   acl         = "log-delivery-write"
 }
 
@@ -18,7 +18,7 @@ module "s3_bucket" {
   name        = "clouddrove-logging-bucket"
   environment = "test"
   attributes  = ["public"]
-  label_order = ["name", "environment", "attributes"]
+  label_order = ["name", "environment"]
 
   versioning = true
   acl        = "private"
