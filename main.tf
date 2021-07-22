@@ -300,6 +300,11 @@ resource "aws_s3_bucket" "s3_encryption" {
     enabled = var.versioning
   }
 
+  logging {
+    target_bucket = var.target_bucket
+    target_prefix = var.target_prefix
+  }
+
   lifecycle_rule {
     id      = "transition-to-infrequent-access-storage"
     enabled = var.lifecycle_infrequent_storage_transition_enabled
