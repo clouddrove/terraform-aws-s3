@@ -19,7 +19,7 @@ variable "environment" {
 }
 
 variable "label_order" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "Label order, e.g. `name`,`application`."
 }
@@ -31,7 +31,7 @@ variable "managedby" {
 }
 
 variable "attributes" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "Additional attributes (e.g. `1`)."
 }
@@ -43,7 +43,7 @@ variable "delimiter" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   default     = {}
   description = "Additional tags (e.g. map(`BusinessUnit`,`XYZ`)."
 }
@@ -206,4 +206,34 @@ variable "force_destroy" {
   type        = bool
   default     = false
   description = "A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
+}
+
+variable "replication-role" {
+  type        = string
+  default     = ""
+  description = ""
+}
+
+variable "replication-id" {
+  type        = string
+  default     = ""
+  description = "A replication id for s3"
+}
+
+variable "replication-priority" {
+  type        = number
+  default     = ""
+  description = "replication-priority number exp. 0,1,2 etc"
+}
+
+variable "replication-status" {
+  type        = string
+  default     = ""
+  description = ""
+}
+
+variable "replication-bucket" {
+  type        = string
+  default     = ""
+  description = "s3 bucket arn for replication bucket "
 }

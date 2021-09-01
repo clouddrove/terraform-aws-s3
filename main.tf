@@ -65,10 +65,24 @@ resource "aws_s3_bucket" "s3_default" {
     }
   }
 
-  tags = module.labels.tags
+  replication_configuration {
+    role = var.replication-role
 
+    rules {
+      id       = var.replication-id
+      priority = var.replication-priority
+      status   = var.replication-status
+
+      destination {
+        bucket = var.replication-bucket
+      }
+
+      filter {}
+
+    }
+
+  }
 }
-
 # Module      : S3 BUCKET POLICY
 # Description : Terraform module which creates policy for S3 bucket on AWS
 resource "aws_s3_bucket_policy" "s3_default" {
