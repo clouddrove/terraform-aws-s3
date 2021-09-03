@@ -63,6 +63,7 @@ resource "aws_s3_bucket" "s3_default" {
     expiration {
       days = var.lifecycle_days_to_expiration
     }
+    tags = module.labels.tags
   }
 
   replication_configuration {
