@@ -116,6 +116,12 @@ variable "target_prefix" {
   description = "To specify a key prefix for log objects."
 }
 
+variable "target_log_prefix" {
+  type        = string
+  default     = ""
+  description = "To specify a key prefix for log objects."
+}
+
 variable "sse_algorithm" {
   type        = string
   default     = "AES256"
