@@ -110,6 +110,12 @@ variable "target_bucket" {
   description = "The name of the bucket that will receive the log objects."
 }
 
+variable "target_log_bucket" {
+  type        = string
+  default     = ""
+  description = "The name of the bucket that will receive the log objects."
+}
+
 variable "target_prefix" {
   type        = string
   default     = ""

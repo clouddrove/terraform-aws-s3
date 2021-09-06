@@ -67,7 +67,7 @@ resource "aws_s3_bucket" "s3_default" {
   }
 
   logging {
-    target_bucket = var.target_bucket
+    target_bucket = var.target_log_bucket
     target_prefix = var.target_log_prefix
   }
   server_side_encryption_configuration {
@@ -176,7 +176,7 @@ resource "aws_s3_bucket" "s3_logging" {
 
   server_side_encryption_configuration {
     rule {
-      bucket_key_enabled = true
+      bucket_key_enabled = false
       apply_server_side_encryption_by_default {
         sse_algorithm     = var.sse_algorithm
       }
