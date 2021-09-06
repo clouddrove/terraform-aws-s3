@@ -176,7 +176,7 @@ resource "aws_s3_bucket" "s3_logging" {
 
   server_side_encryption_configuration {
     rule {
-      bucket_key_enabled = 1
+      bucket_key_enabled = true
       apply_server_side_encryption_by_default {
         sse_algorithm     = var.sse_algorithm
       }
