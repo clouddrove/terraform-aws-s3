@@ -30,6 +30,19 @@ resource "aws_s3_bucket" "s3_default" {
     enabled = var.versioning
   }
 
+  logging {
+    target_bucket = var.target_bucket
+    target_prefix = var.target_prefix
+  }
+  server_side_encryption_configuration {
+    rule {
+      bucket_key_enabled = false
+      apply_server_side_encryption_by_default {
+        sse_algorithm     = var.sse_algorithm
+      }
+    }
+  }
+
   lifecycle_rule {
     id      = "transition-to-infrequent-access-storage"
     enabled = var.lifecycle_infrequent_storage_transition_enabled
