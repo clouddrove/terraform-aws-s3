@@ -222,7 +222,7 @@ variable "replication-id" {
 
 variable "replication-priority" {
   type        = number
-  default     = ""
+  default     = 1
   description = "replication-priority number exp. 0,1,2 etc"
 }
 
