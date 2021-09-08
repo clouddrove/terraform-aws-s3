@@ -25,6 +25,7 @@ resource "aws_s3_bucket" "s3_default" {
   bucket        = module.labels.id
   force_destroy = var.force_destroy
   acl           = var.acl
+  tags = module.labels.tags
 
   versioning {
     enabled = var.versioning
@@ -63,7 +64,6 @@ resource "aws_s3_bucket" "s3_default" {
     expiration {
       days = var.lifecycle_days_to_expiration
     }
-    tags = module.labels.tags
   }
 
   replication_configuration {
