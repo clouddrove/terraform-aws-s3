@@ -23,7 +23,6 @@ resource "aws_s3_bucket" "s3_default" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  region        = var.region
   acl           = var.acl
 
   versioning {
@@ -86,7 +85,6 @@ resource "aws_s3_bucket" "s3_website" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  region        = var.region
   acl           = var.acl
 
   versioning {
@@ -154,7 +152,6 @@ resource "aws_s3_bucket" "s3_logging" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  region        = var.region
   acl           = var.acl
 
   versioning {
@@ -220,7 +217,6 @@ resource "aws_s3_bucket" "s3_encryption" {
 
   bucket        = module.labels.id
   force_destroy = var.force_destroy
-  region        = var.region
   acl           = var.acl
 
   versioning {
