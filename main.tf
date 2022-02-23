@@ -125,44 +125,28 @@ resource "aws_s3_bucket_cors_configuration" "example" {
   }
 }
 
-# resource "aws_s3_bucket_website_configuration" "example" {
-#   for_each = var.create_bucket && var.website_inputs != null ? toset(var.website_inputs) : toset([])
+resource "aws_s3_bucket_website_configuration" "example" {
+  count = var.create_bucket && var.website_config_enable == true ? 1 : 0
 
-#   bucket = join("", aws_s3_bucket.s3_default.*.id)
+  bucket = join("", aws_s3_bucket.s3_default.*.id)
 
-#   index_document {
-#     suffix = each.value.index_document
-#   }
+  index_document {
+    suffix = "index.html"
+  }
 
-#   error_document {
-#     key = each.value.error_document
-#   }
+  error_document {
+    key = "error.html"
+  }
 
-#   redirect_all_requests_to {
-#     host_name = each.value.redirect_all_requests_to
-#     protocol  = each.value.protocol
-#   }
-
-#   dynamic "routing_rule" {
-#     for_each = length(jsondecode(each.value.routing_rules)) > 0 ? jsondecode(each.value.routing_rules) : []
-#     content {
-#       dynamic "condition" {
-#         for_each = routing_rule.value["Condition"]
-
-#         content {
-#           key_prefix_equals = lookup(condition.value, "KeyPrefixEquals")
-#         }
-#       }
-
-#       dynamic "redirect" {
-#         for_each = routing_rule.value["Redirect"]
-#         content {
-#           replace_key_prefix_with = lookup(redirect.value, "ReplaceKeyPrefixWith")
-#         }
-#       }
-#     }
-#   }
-# }
+  routing_rule {
+    condition {
+      key_prefix_equals = "docs/"
+    }
+    redirect {
+      replace_key_prefix_with = "documents/"
+    }
+  }
+}
 
 locals {
   acl_grants = var.grants == null ? var.acl_grants : flatten(

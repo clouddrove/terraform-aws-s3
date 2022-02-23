@@ -262,21 +262,32 @@ variable "owner_id" {
   description = "The canonical user ID associated with the AWS account."
 }
 
-variable "website_inputs" {
-
-  type = list(object({
-    index_document           = string
-    error_document           = string
-    redirect_all_requests_to = string
-    routing_rules            = string
-  }))
-  default = null
-
-  description = "Specifies the static website hosting configuration object."
+variable "website_config_enable" {
+  type = bool
+  default = false
+  description = "enable or disable aws_s3_bucket_website_configuration"
 }
 
-
-
+variable "index_document" {
+  type        = string
+  default     = "index.html"
+  description = "The name of the index document for the website"
+}
+variable "error_document" {
+  type        = string
+  default     = "error.html"
+  description = "he name of the error document for the website "
+}
+variable "routing_rule" {
+  type        = string
+  default     = "docs/"
+  description = "ist of rules that define when a redirect is applied and the redirect behavior "
+}
+variable "redirect" {
+  type        = string
+  default     = "documents/"
+  description = "The redirect behavior for every request to this bucket's website endpoint "
+}
 
 variable "logging" {
   type        = bool
