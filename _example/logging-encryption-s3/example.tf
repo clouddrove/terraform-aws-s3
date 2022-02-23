@@ -22,8 +22,8 @@ module "s3_bucket" {
   attributes  = ["public"]
   label_order = ["name", "environment"]
 
-  versioning    = true
-  acl           = "private"
+  versioning = true
+  acl        = "private"
 
   enable_server_side_encryption = true
   enable_kms                    = true

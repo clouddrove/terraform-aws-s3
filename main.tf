@@ -180,7 +180,7 @@ locals {
 
 
 resource "aws_s3_bucket_acl" "default" {
-  
+
   count  = var.create_bucket ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
   bucket = join("", aws_s3_bucket.s3_default.*.id)
 

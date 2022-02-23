@@ -43,7 +43,7 @@ module "s3_bucket" {
   versioning                    = true
   acl                           = "private"
   enable_server_side_encryption = true
-  
-  enable_kms                    = true
-  kms_master_key_id             = module.kms_key.key_arn
+
+  enable_kms        = true
+  kms_master_key_id = module.kms_key.key_arn
 }
