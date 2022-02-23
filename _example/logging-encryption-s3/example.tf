@@ -24,8 +24,14 @@ module "s3_bucket" {
 
   versioning    = true
   acl           = "private"
-  sse_algorithm = "AES256"
-  logging       = { target_bucket : module.logging_bucket.id, target_prefix = "logs" }
+
+  enable_server_side_encryption = true
+  enable_kms                    = true
+  kms_master_key_id             = module.kms_key.key_arn
+
+  logging       = true
+  target_bucket = module.logging_bucket.id
+  target_prefix = "logs"
 
   depends_on = [module.logging_bucket]
 }
