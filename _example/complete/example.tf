@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "default" {
     actions   = ["kms:*"]
     resources = ["*"]
   }
-} 
+}
 
 module "s3_bucket" {
   source = "./../../"
@@ -50,31 +50,31 @@ module "s3_bucket" {
   label_order = ["name", "environment"]
 
   acl = ""
-#enable of disable versioning of s3 
-  versioning          = true
+  #enable of disable versioning of s3 
+  versioning = true
 
- #acceleration and request payer enable or disable.  
+  #acceleration and request payer enable or disable.  
   acceleration_status = true
   request_payer       = true
 
-# logging of s3 bucket to destination bucket. 
+  # logging of s3 bucket to destination bucket. 
   logging       = true
   target_bucket = module.logging_bucket.id
   target_prefix = "logs"
 
-#encrption on s3 with default encryption and kms encryption . 
+  #encrption on s3 with default encryption and kms encryption . 
   enable_server_side_encryption = true
   enable_kms                    = true
   kms_master_key_id             = module.kms_key.key_arn
 
-#object locking of s3. 
+  #object locking of s3. 
   object_lock_configuration = {
     mode  = "GOVERNANCE"
     days  = 366
     years = null
   }
 
-#cross replicaton of s3 
+  #cross replicaton of s3 
   cors_rule = [{
     allowed_headers = ["*"],
     allowed_methods = ["PUT", "POST"],
@@ -83,7 +83,7 @@ module "s3_bucket" {
     max_age_seconds = 3000
   }]
 
-#acl grant permission 
+  #acl grant permission 
   grants = [
     {
       id          = null
@@ -95,7 +95,7 @@ module "s3_bucket" {
   owner_id = data.aws_canonical_user_id.current.id
 
 
-#lifecycle rule for s3 
+  #lifecycle rule for s3 
   enable_lifecycle_configuration_rules = true
   lifecycle_configuration_rules = [
     {
@@ -144,8 +144,8 @@ module "s3_bucket" {
     }
   ]
 
- #static website on s3
-    website_config_enable = true 
+  #static website on s3
+  website_config_enable = true
 
 }
 

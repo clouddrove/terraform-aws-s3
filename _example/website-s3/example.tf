@@ -10,10 +10,10 @@ module "s3_bucket" {
   attributes  = ["public"]
   label_order = ["name", "environment"]
 
-  versioning                         = true
-  acl                                = "private"
+  versioning = true
+  acl        = "private"
 
-  website_config_enable = true 
+  website_config_enable = true
 
   enable_lifecycle_configuration_rules = true
   lifecycle_configuration_rules = [

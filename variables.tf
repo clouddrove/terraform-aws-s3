@@ -263,8 +263,8 @@ variable "owner_id" {
 }
 
 variable "website_config_enable" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "enable or disable aws_s3_bucket_website_configuration"
 }
 
