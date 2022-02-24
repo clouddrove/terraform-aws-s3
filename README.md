@@ -51,7 +51,7 @@ We have [*fifty plus terraform modules*][terraform_modules]. A few of them are c
 
 This module has a few dependencies: 
 
-- [Terraform 0.13](https://learn.hashicorp.com/terraform/getting-started/install.html)
+- [Terraform 1.x.x](https://learn.hashicorp.com/terraform/getting-started/install.html)
 - [Go](https://golang.org/doc/install)
 - [github.com/stretchr/testify/assert](https://github.com/stretchr/testify)
 - [github.com/gruntwork-io/terratest/modules/terraform](https://github.com/gruntwork-io/terratest)
@@ -192,8 +192,9 @@ data "aws_iam_policy_document" "default" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| acceleration\_status | Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended | `string` | `null` | no |
+| acceleration\_status | Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended | `bool` | `false` | no |
 | acl | Canned ACL to apply to the S3 bucket. | `string` | `null` | no |
+| acl\_grants | A list of policy grants for the bucket. Conflicts with `acl`. Set `acl` to `null` to use this. | <pre>list(object({<br>    id         = string<br>    type       = string<br>    permission = string<br>    uri        = string<br>  }))</pre> | `null` | no |
 | attributes | Additional attributes (e.g. `1`). | `list(any)` | `[]` | no |
 | aws\_iam\_policy\_document | Specifies the number of days after object creation when the object expires. | `string` | `""` | no |
 | bucket\_policy | Conditionally create S3 bucket policy. | `bool` | `false` | no |
@@ -201,11 +202,17 @@ data "aws_iam_policy_document" "default" {
 | cors\_rule | CORS Configuration specification for this bucket | <pre>list(object({<br>    allowed_headers = list(string)<br>    allowed_methods = list(string)<br>    allowed_origins = list(string)<br>    expose_headers  = list(string)<br>    max_age_seconds = number<br>  }))</pre> | `null` | no |
 | create\_bucket | Conditionally create S3 bucket. | `bool` | `true` | no |
 | delimiter | Delimiter to be used between `organization`, `environment`, `name` and `attributes`. | `string` | `"-"` | no |
+| enable\_kms | Enable enable\_server\_side\_encryption | `bool` | `false` | no |
+| enable\_lifecycle\_configuration\_rules | enable or disable lifecycle\_configuration\_rules | `bool` | `false` | no |
+| enable\_server\_side\_encryption | Enable enable\_server\_side\_encryption | `bool` | `false` | no |
 | environment | Environment (e.g. `prod`, `dev`, `staging`). | `string` | `""` | no |
+| error\_document | he name of the error document for the website | `string` | `"error.html"` | no |
 | force\_destroy | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | grants | ACL Policy grant.conflict with acl.set acl null to use this | <pre>list(object({<br>    id          = string<br>    type        = string<br>    permissions = list(string)<br>    uri         = string<br>  }))</pre> | `null` | no |
+| index\_document | The name of the index document for the website | `string` | `"index.html"` | no |
 | kms\_master\_key\_id | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse\_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse\_algorithm is aws:kms. | `string` | `""` | no |
 | label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
+| lifecycle\_configuration\_rules | A list of lifecycle rules | <pre>list(object({<br>    id      = string<br>    prefix  = string<br>    enabled = bool<br>    tags    = map(string)<br><br>    enable_glacier_transition            = bool<br>    enable_deeparchive_transition        = bool<br>    enable_standard_ia_transition        = bool<br>    enable_current_object_expiration     = bool<br>    enable_noncurrent_version_expiration = bool<br><br>    abort_incomplete_multipart_upload_days         = number<br>    noncurrent_version_glacier_transition_days     = number<br>    noncurrent_version_deeparchive_transition_days = number<br>    noncurrent_version_expiration_days             = number<br><br>    standard_transition_days    = number<br>    glacier_transition_days     = number<br>    deeparchive_transition_days = number<br>    expiration_days             = number<br>  }))</pre> | `null` | no |
 | lifecycle\_days\_to\_deep\_archive\_transition | Specifies the number of days after object creation when it will be moved to DEEP ARCHIVE . | `number` | `180` | no |
 | lifecycle\_days\_to\_expiration | Specifies the number of days after object creation when the object expires. | `number` | `365` | no |
 | lifecycle\_days\_to\_glacier\_transition | Specifies the number of days after object creation when it will be moved to Glacier storage. | `number` | `180` | no |
@@ -218,17 +225,22 @@ data "aws_iam_policy_document" "default" {
 | lifecycle\_glacier\_transition\_enabled | Specifies Glacier transition lifecycle rule status. | `bool` | `false` | no |
 | lifecycle\_infrequent\_storage\_object\_prefix | Object key prefix identifying one or more objects to which the lifecycle rule applies. | `string` | `""` | no |
 | lifecycle\_infrequent\_storage\_transition\_enabled | Specifies infrequent storage transition lifecycle rule status. | `bool` | `false` | no |
-| logging | Logging Object Configuration details | `map(string)` | `{}` | no |
+| logging | Logging Object to enable and disable logging | `bool` | `false` | no |
 | managedby | ManagedBy, eg 'CloudDrove'. | `string` | `"hello@clouddrove.com"` | no |
 | mfa\_delete | Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. | `bool` | `false` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
-| object\_lock\_configuration | With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely. | <pre>object({<br>    mode  = string<br>    days  = number<br>    years = number<br>  })</pre> | `null` | no |
+| object\_lock\_configuration | With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely. | <pre>object({<br>    mode  = string #Valid values are GOVERNANCE and COMPLIANCE.<br>    days  = number<br>    years = number<br>  })</pre> | `null` | no |
+| owner\_id | The canonical user ID associated with the AWS account. | `string` | `""` | no |
+| redirect | The redirect behavior for every request to this bucket's website endpoint | `string` | `"documents/"` | no |
 | repository | Terraform current module repo | `string` | `"https://github.com/clouddrove/terraform-aws-s3"` | no |
-| request\_payer | Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer | `string` | `null` | no |
+| request\_payer | Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer | `bool` | `false` | no |
+| routing\_rule | ist of rules that define when a redirect is applied and the redirect behavior | `string` | `"docs/"` | no |
 | sse\_algorithm | The server-side encryption algorithm to use. Valid values are AES256 and aws:kms. | `string` | `"AES256"` | no |
 | tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | `map(any)` | `{}` | no |
+| target\_bucket | The bucket where you want Amazon S3 to store server access logs. | `string` | `""` | no |
+| target\_prefix | A prefix for all log object keys. | `string` | `""` | no |
 | versioning | Enable Versioning of S3. | `bool` | `true` | no |
-| website | Static website configuration | `map(string)` | `{}` | no |
+| website\_config\_enable | enable or disable aws\_s3\_bucket\_website\_configuration | `bool` | `false` | no |
 
 ## Outputs
 
