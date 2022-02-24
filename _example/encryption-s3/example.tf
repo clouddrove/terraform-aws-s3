@@ -40,8 +40,10 @@ module "s3_bucket" {
   attributes  = ["public"]
   label_order = ["name", "environment"]
 
-  versioning        = true
-  acl               = "private"
-  sse_algorithm     = "aws:kms"
+  versioning                    = true
+  acl                           = "private"
+  enable_server_side_encryption = true
+
+  enable_kms        = true
   kms_master_key_id = module.kms_key.key_arn
 }

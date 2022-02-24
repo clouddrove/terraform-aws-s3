@@ -74,16 +74,61 @@ variable "mfa_delete" {
   description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
 }
 
+variable "enable_server_side_encryption" {
+  type        = bool
+  default     = false
+  description = "Enable enable_server_side_encryption"
+}
+
 variable "sse_algorithm" {
   type        = string
   default     = "AES256"
   description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms."
 }
 
+variable "enable_kms" {
+  type        = bool
+  default     = false
+  description = "Enable enable_server_side_encryption"
+}
+
 variable "kms_master_key_id" {
   type        = string
   default     = ""
   description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
+}
+
+variable "enable_lifecycle_configuration_rules" {
+  type        = bool
+  default     = false
+  description = "enable or disable lifecycle_configuration_rules"
+}
+
+variable "lifecycle_configuration_rules" {
+  type = list(object({
+    id      = string
+    prefix  = string
+    enabled = bool
+    tags    = map(string)
+
+    enable_glacier_transition            = bool
+    enable_deeparchive_transition        = bool
+    enable_standard_ia_transition        = bool
+    enable_current_object_expiration     = bool
+    enable_noncurrent_version_expiration = bool
+
+    abort_incomplete_multipart_upload_days         = number
+    noncurrent_version_glacier_transition_days     = number
+    noncurrent_version_deeparchive_transition_days = number
+    noncurrent_version_expiration_days             = number
+
+    standard_transition_days    = number
+    glacier_transition_days     = number
+    deeparchive_transition_days = number
+    expiration_days             = number
+  }))
+  default     = null
+  description = "A list of lifecycle rules"
 }
 
 variable "lifecycle_infrequent_storage_transition_enabled" {
@@ -199,34 +244,85 @@ variable "grants" {
   description = "ACL Policy grant.conflict with acl.set acl null to use this"
 }
 
-variable "website" {
-  type        = map(string)
-  default     = {}
-  description = "Static website configuration"
+variable "acl_grants" {
+  type = list(object({
+    id         = string
+    type       = string
+    permission = string
+    uri        = string
+  }))
+  default = null
 
+  description = "A list of policy grants for the bucket. Conflicts with `acl`. Set `acl` to `null` to use this."
+}
+
+variable "owner_id" {
+  type        = string
+  default     = ""
+  description = "The canonical user ID associated with the AWS account."
+}
+
+variable "website_config_enable" {
+  type        = bool
+  default     = false
+  description = "enable or disable aws_s3_bucket_website_configuration"
+}
+
+variable "index_document" {
+  type        = string
+  default     = "index.html"
+  description = "The name of the index document for the website"
+}
+variable "error_document" {
+  type        = string
+  default     = "error.html"
+  description = "he name of the error document for the website "
+}
+variable "routing_rule" {
+  type        = string
+  default     = "docs/"
+  description = "ist of rules that define when a redirect is applied and the redirect behavior "
+}
+variable "redirect" {
+  type        = string
+  default     = "documents/"
+  description = "The redirect behavior for every request to this bucket's website endpoint "
 }
 
 variable "logging" {
-  type        = map(string)
-  default     = {}
-  description = "Logging Object Configuration details"
+  type        = bool
+  default     = false
+  description = "Logging Object to enable and disable logging"
+}
+
+variable "target_bucket" {
+  type        = string
+  default     = ""
+  description = "The bucket where you want Amazon S3 to store server access logs."
+}
+
+variable "target_prefix" {
+  type        = string
+  default     = ""
+  description = "A prefix for all log object keys."
 }
 
 variable "acceleration_status" {
-  type        = string
-  default     = null
+  type        = bool
+  default     = false
   description = "Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended"
 }
 
 variable "request_payer" {
-  type        = string
-  default     = null
+  type        = bool
+  default     = false
   description = "Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer"
 }
 
+
 variable "object_lock_configuration" {
   type = object({
-    mode  = string
+    mode  = string #Valid values are GOVERNANCE and COMPLIANCE.
     days  = number
     years = number
   })

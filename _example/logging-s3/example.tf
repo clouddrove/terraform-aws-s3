@@ -20,9 +20,11 @@ module "s3_bucket" {
   attributes  = ["public"]
   label_order = ["name", "environment"]
 
-  versioning = true
-  acl        = "private"
-  logging    = { target_bucket : module.logging_bucket.id, target_prefix = "logs" }
+  versioning    = true
+  acl           = "private"
+  logging       = true
+  target_bucket = module.logging_bucket.id
+  target_prefix = "logs"
 
   depends_on = [module.logging_bucket]
 

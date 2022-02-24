@@ -10,12 +10,58 @@ module "s3_bucket" {
   attributes  = ["public"]
   label_order = ["name", "environment"]
 
-  versioning                         = true
-  acl                                = "private"
-  website                            = { index_document : "index.html", error_document : "error.html" }
-  lifecycle_expiration_enabled       = true
-  lifecycle_expiration_object_prefix = "test"
-  lifecycle_days_to_expiration       = 10
+  versioning = true
+  acl        = "private"
+
+  website_config_enable = true
+
+  enable_lifecycle_configuration_rules = true
+  lifecycle_configuration_rules = [
+    {
+      id      = "log"
+      prefix  = null
+      enabled = true
+      tags    = { "temp" : "true" }
+
+      enable_glacier_transition            = false
+      enable_deeparchive_transition        = false
+      enable_standard_ia_transition        = false
+      enable_current_object_expiration     = true
+      enable_noncurrent_version_expiration = true
+
+      abort_incomplete_multipart_upload_days         = null
+      noncurrent_version_glacier_transition_days     = 0
+      noncurrent_version_deeparchive_transition_days = 0
+      noncurrent_version_expiration_days             = 30
+
+      standard_transition_days    = 0
+      glacier_transition_days     = 0
+      deeparchive_transition_days = 0
+      expiration_days             = 365
+    },
+    {
+      id      = "log1"
+      prefix  = null
+      enabled = true
+      tags    = {}
+
+      enable_glacier_transition            = false
+      enable_deeparchive_transition        = false
+      enable_standard_ia_transition        = false
+      enable_current_object_expiration     = true
+      enable_noncurrent_version_expiration = true
+
+      abort_incomplete_multipart_upload_days         = 1
+      noncurrent_version_glacier_transition_days     = 0
+      noncurrent_version_deeparchive_transition_days = 0
+      noncurrent_version_expiration_days             = 30
+
+      standard_transition_days    = 0
+      glacier_transition_days     = 0
+      deeparchive_transition_days = 0
+      expiration_days             = 365
+    }
+  ]
 
   bucket_policy           = true
   aws_iam_policy_document = data.aws_iam_policy_document.default.json
