@@ -31,7 +31,7 @@ jobs:
           - ${{ needs.versionExtract.outputs.minVersion }}
           - ${{ needs.versionExtract.outputs.maxVersion }}
         directory:
-          - _example/complate
+          - _example/complete
           - _example/cors_s3
           - _example/default-s3
           - _example/encryption-s3
