@@ -342,3 +342,33 @@ variable "cors_rule" {
   default     = null
   description = "CORS Configuration specification for this bucket"
 }
+
+variable "block_public_acls" {
+  type        = bool
+  default     = false
+  description = "Set to `false` to disable the blocking of new public access lists on the bucket"
+}
+
+variable "block_public_policy" {
+  type        = bool
+  default     = false
+  description = "Set to `false` to disable the blocking of new public policies on the bucket"
+}
+
+variable "ignore_public_acls" {
+  type        = bool
+  default     = false
+  description = "Set to `false` to disable the ignoring of public access lists on the bucket"
+}
+
+variable "restrict_public_buckets" {
+  type        = bool
+  default     = false
+  description = "Set to `false` to disable the restricting of making the bucket public"
+}
+
+variable "s3_object_ownership" {
+  type        = string
+  default     = "BucketOwnerPreferred"
+  description = "Specifies the S3 object ownership control. Valid values are `ObjectWriter`, `BucketOwnerPreferred`, and 'BucketOwnerEnforced'."
+}
