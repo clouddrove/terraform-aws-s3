@@ -12,5 +12,4 @@ module "s3_bucket" {
 
   versioning = true
   acl        = "private"
-
 }

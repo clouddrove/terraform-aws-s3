@@ -21,6 +21,12 @@ badges:
   - name: "Licence"
     image: "https://img.shields.io/badge/License-APACHE-blue.svg"
     url: "LICENSE.md"
+  - name: "tfsec"
+    image: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml/badge.svg"
+    url: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml"
+  - name: "static-checks"
+    image: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/terraform.yml/badge.svg"
+    url: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/terraform.yml"
 
 #  description of this project
 # yamllint disable rule:line-length
