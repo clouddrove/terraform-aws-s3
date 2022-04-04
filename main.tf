@@ -34,7 +34,6 @@ resource "aws_s3_bucket" "s3_default" {
 
     content {
       object_lock_enabled = "Enabled"
-
     }
   }
 }
