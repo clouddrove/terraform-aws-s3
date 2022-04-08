@@ -25,6 +25,9 @@ module "labels" {
 #tfsec:ignore:aws-s3-enable-bucket-encryption
 #tfsec:ignore:aws-s3-block-public-acls
 #tfsec:ignore:aws-s3-encryption-customer-key
+#tfsec:ignore:aws-s3-block-public-policy
+#tfsec:ignore:aws-s3-ignore-public-acls
+#tfsec:ignore:aws-s3-no-public-buckets
 resource "aws_s3_bucket" "s3_default" {
   count = var.create_bucket == true ? 1 : 0
 
@@ -470,6 +473,7 @@ locals {
 #tfsec:ignore:aws-s3-block-public-acls
 #tfsec:ignore:aws-s3-block-public-policy
 #tfsec:ignore:aws-s3-ignore-public-acls
+#tfsec:ignore:aws-s3-no-public-buckets
 resource "aws_s3_bucket_public_access_block" "this" {
   count = var.create_bucket && var.attach_public_policy ? 1 : 0
 
