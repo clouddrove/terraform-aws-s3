@@ -22,6 +22,7 @@ module "labels" {
 # Module      : S3 BUCKET
 # Description : Terraform module to create S3 bucket with different combination
 #               type specific features.
+#tfsec:ignore:aws-s3-enable-bucket-encryption
 resource "aws_s3_bucket" "s3_default" {
   count = var.create_bucket == true ? 1 : 0
 
@@ -464,6 +465,7 @@ locals {
 
 }
 
+#tfsec:ignore:aws-s3-block-public-acls
 resource "aws_s3_bucket_public_access_block" "this" {
   count = var.create_bucket && var.attach_public_policy ? 1 : 0
 
