@@ -463,6 +463,7 @@ locals {
   attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
 
 }
+
 resource "aws_s3_bucket_public_access_block" "this" {
   count = var.create_bucket && var.attach_public_policy ? 1 : 0
 
