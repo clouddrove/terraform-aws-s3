@@ -60,8 +60,8 @@ jobs:
           cd ${{ matrix.directory }}
           terraform init
           terraform validate
-          terraform plan -input=false -no-color
-
+         
+         
       - name: tflint
         uses: reviewdog/action-tflint@master
         with:
