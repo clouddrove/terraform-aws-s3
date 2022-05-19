@@ -14,10 +14,16 @@
 <p align="center">
 
 <a href="https://www.terraform.io">
-  <img src="https://img.shields.io/badge/Terraform-v0.15-green" alt="Terraform">
+  <img src="https://img.shields.io/badge/Terraform-v1.1.7-green" alt="Terraform">
 </a>
 <a href="LICENSE.md">
-  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="Licence">
+  <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
+</a>
+<a href="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml">
+  <img src="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml/badge.svg" alt="tfsec">
+</a>
+<a href="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/terraform.yml">
+  <img src="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/terraform.yml/badge.svg" alt="static-checks">
 </a>
 
 
@@ -73,7 +79,7 @@ Here are some examples of how you can use this module in your inventory structur
 ```hcl
 module "s3_bucket" {
   source              = "clouddrove/s3/aws"
-  version             = "0.15.0"
+  version             = "1.0.1"
   name                = "clouddrove-secure-bucket"
   environment         = "test"
   label_order         = ["name", "environment"]
@@ -86,7 +92,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                     = "clouddrove/s3/aws"
-  version                    = "0.15.0"
+  version                    = "1.0.1"
   name                       = "clouddrove-encryption-bucket"
   environment                = "test"
   label_order                = ["name", "environment"]
@@ -100,7 +106,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                             = "clouddrove/s3/aws"
-  version                            = "0.15.0"
+  version                            = "1.0.1"
   name                               = "clouddrove-logging-encryption-bucket"
   environment                        = "test"
   label_order                        = ["name", "environment"]
@@ -116,7 +122,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                  = "clouddrove/s3/aws"
-  version                 = "0.15.0"
+  version                 = "1.0.1"
   name                    = "clouddrove-logging-bucket"
   environment             = "test"
   label_order             = ["name", "environment"]
@@ -131,7 +137,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                              = "clouddrove/s3/aws"
-  version                             = "0.15.0"
+  version                             = "1.0.1"
   name                                = "clouddrove-website-bucket"
   environment                         = "test"
   label_order                         = ["name", "environment"]
@@ -195,10 +201,19 @@ data "aws_iam_policy_document" "default" {
 | acceleration\_status | Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended | `bool` | `false` | no |
 | acl | Canned ACL to apply to the S3 bucket. | `string` | `null` | no |
 | acl\_grants | A list of policy grants for the bucket. Conflicts with `acl`. Set `acl` to `null` to use this. | <pre>list(object({<br>    id         = string<br>    type       = string<br>    permission = string<br>    uri        = string<br>  }))</pre> | `null` | no |
+| attach\_deny\_insecure\_transport\_policy | Controls if S3 bucket should have deny non-SSL transport policy attached | `bool` | `false` | no |
+| attach\_elb\_log\_delivery\_policy | Controls if S3 bucket should have ELB log delivery policy attached | `bool` | `false` | no |
+| attach\_lb\_log\_delivery\_policy | Controls if S3 bucket should have ALB/NLB log delivery policy attached | `bool` | `false` | no |
+| attach\_policy | Controls if S3 bucket should have bucket policy attached (set to `true` to use value of `policy` as bucket policy) | `bool` | `false` | no |
+| attach\_public\_policy | Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket) | `bool` | `true` | no |
+| attach\_require\_latest\_tls\_policy | Controls if S3 bucket should require the latest version of TLS | `bool` | `false` | no |
 | attributes | Additional attributes (e.g. `1`). | `list(any)` | `[]` | no |
 | aws\_iam\_policy\_document | Specifies the number of days after object creation when the object expires. | `string` | `""` | no |
+| block\_public\_acls | Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `false` | no |
+| block\_public\_policy | Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `false` | no |
 | bucket\_policy | Conditionally create S3 bucket policy. | `bool` | `false` | no |
 | bucket\_prefix | (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. | `string` | `null` | no |
+| control\_object\_ownership | Whether to manage S3 Bucket Ownership Controls on this bucket. | `bool` | `false` | no |
 | cors\_rule | CORS Configuration specification for this bucket | <pre>list(object({<br>    allowed_headers = list(string)<br>    allowed_methods = list(string)<br>    allowed_origins = list(string)<br>    expose_headers  = list(string)<br>    max_age_seconds = number<br>  }))</pre> | `null` | no |
 | create\_bucket | Conditionally create S3 bucket. | `bool` | `true` | no |
 | delimiter | Delimiter to be used between `organization`, `environment`, `name` and `attributes`. | `string` | `"-"` | no |
@@ -209,6 +224,7 @@ data "aws_iam_policy_document" "default" {
 | error\_document | he name of the error document for the website | `string` | `"error.html"` | no |
 | force\_destroy | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | grants | ACL Policy grant.conflict with acl.set acl null to use this | <pre>list(object({<br>    id          = string<br>    type        = string<br>    permissions = list(string)<br>    uri         = string<br>  }))</pre> | `null` | no |
+| ignore\_public\_acls | Whether Amazon S3 should ignore public ACLs for this bucket. | `bool` | `false` | no |
 | index\_document | The name of the index document for the website | `string` | `"index.html"` | no |
 | kms\_master\_key\_id | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse\_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse\_algorithm is aws:kms. | `string` | `""` | no |
 | label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
@@ -230,10 +246,13 @@ data "aws_iam_policy_document" "default" {
 | mfa\_delete | Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version. | `bool` | `false` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
 | object\_lock\_configuration | With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely. | <pre>object({<br>    mode  = string #Valid values are GOVERNANCE and COMPLIANCE.<br>    days  = number<br>    years = number<br>  })</pre> | `null` | no |
+| object\_ownership | Object ownership. Valid values: BucketOwnerEnforced, BucketOwnerPreferred or ObjectWriter. 'BucketOwnerEnforced': ACLs are disabled, and the bucket owner automatically owns and has full control over every object in the bucket. 'BucketOwnerPreferred': Objects uploaded to the bucket change ownership to the bucket owner if the objects are uploaded with the bucket-owner-full-control canned ACL. 'ObjectWriter': The uploading account will own the object if the object is uploaded with the bucket-owner-full-control canned ACL. | `string` | `"ObjectWriter"` | no |
 | owner\_id | The canonical user ID associated with the AWS account. | `string` | `""` | no |
 | redirect | The redirect behavior for every request to this bucket's website endpoint | `string` | `"documents/"` | no |
+| replication\_configuration | Map containing cross-region replication configuration. | `any` | `{}` | no |
 | repository | Terraform current module repo | `string` | `"https://github.com/clouddrove/terraform-aws-s3"` | no |
 | request\_payer | Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer | `bool` | `false` | no |
+| restrict\_public\_buckets | Whether Amazon S3 should restrict public bucket policies for this bucket. | `bool` | `false` | no |
 | routing\_rule | ist of rules that define when a redirect is applied and the redirect behavior | `string` | `"docs/"` | no |
 | sse\_algorithm | The server-side encryption algorithm to use. Valid values are AES256 and aws:kms. | `string` | `"AES256"` | no |
 | tags | Additional tags (e.g. map(`BusinessUnit`,`XYZ`). | `map(any)` | `{}` | no |
