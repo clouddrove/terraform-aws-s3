@@ -23,7 +23,7 @@ jobs:
 
       - name: 'Terratest for default-s3'
         if: ${{ github.event.label.name == 'terratest' }}
-        uses: 'clouddrove/github-actions@v8.0'
+        uses: 'clouddrove/github-actions@v9.0.2'
         with:
           actions_subcommand: 'terratest'
           tf_actions_working_dir: '_test/default-s3'
@@ -33,7 +33,7 @@ jobs:
 
       - name: 'Terratest for encryption-s3'
         if: ${{ github.event.label.name == 'terratest' }}
-        uses: 'clouddrove/github-actions@v8.0'
+        uses: 'clouddrove/github-actions@v9.0.2'
         with:
           actions_subcommand: 'terratest'
           tf_actions_working_dir: '_test/encryption-s3'
