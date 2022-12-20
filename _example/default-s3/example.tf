@@ -1,12 +1,12 @@
 provider "aws" {
-  region = "eu-west-1"
+  region = "us-east-1"
 }
 
 module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-secure-bucket"
-  environment = "test"
+  environment = "staging"
   attributes  = ["private"]
   label_order = ["name", "environment"]
 
