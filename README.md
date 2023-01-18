@@ -79,7 +79,7 @@ Here are some examples of how you can use this module in your inventory structur
 ```hcl
 module "s3_bucket" {
   source              = "clouddrove/s3/aws"
-  version             = "1.0.1"
+  version             = "1.3.0"
   name                = "clouddrove-secure-bucket"
   environment         = "test"
   label_order         = ["name", "environment"]
@@ -92,7 +92,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                     = "clouddrove/s3/aws"
-  version                    = "1.0.1"
+  version                    = "1.3.0"
   name                       = "clouddrove-encryption-bucket"
   environment                = "test"
   label_order                = ["name", "environment"]
@@ -106,7 +106,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                             = "clouddrove/s3/aws"
-  version                            = "1.0.1"
+  version                            = "1.3.0"
   name                               = "clouddrove-logging-encryption-bucket"
   environment                        = "test"
   label_order                        = ["name", "environment"]
@@ -122,7 +122,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                  = "clouddrove/s3/aws"
-  version                 = "1.0.1"
+  version                 = "1.3.0"
   name                    = "clouddrove-logging-bucket"
   environment             = "test"
   label_order             = ["name", "environment"]
@@ -137,7 +137,7 @@ module "s3_bucket" {
 ```hcl
 module "s3_bucket" {
   source                              = "clouddrove/s3/aws"
-  version                             = "1.0.1"
+  version                             = "1.3.0"
   name                                = "clouddrove-website-bucket"
   environment                         = "test"
   label_order                         = ["name", "environment"]
