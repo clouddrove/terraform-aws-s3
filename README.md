@@ -208,7 +208,7 @@ data "aws_iam_policy_document" "default" {
 | attach\_public\_policy | Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket) | `bool` | `true` | no |
 | attach\_require\_latest\_tls\_policy | Controls if S3 bucket should require the latest version of TLS | `bool` | `false` | no |
 | attributes | Additional attributes (e.g. `1`). | `list(any)` | `[]` | no |
-| aws\_iam\_policy\_document | Specifies the number of days after object creation when the object expires. | `string` | `""` | no |
+| aws\_iam\_policy\_document | The text of the policy. Although this is a bucket policy rather than an IAM policy, the aws\_iam\_policy\_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size. | `string` | `""` | no |
 | block\_public\_acls | Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `false` | no |
 | block\_public\_policy | Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `false` | no |
 | bucket\_policy | Conditionally create S3 bucket policy. | `bool` | `false` | no |
