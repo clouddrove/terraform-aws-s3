@@ -9,35 +9,89 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+# Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/complete" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+       # Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/cors_s3" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+       # Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/default-s3" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+      # Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/encryption-s3" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+      # Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/logging-encryption-s3" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+      # Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/logging-s3" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+      # Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/s3-replication" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+      # Add reviewer
+    reviewers:
+      - "approvers"
   - package-ecosystem: "terraform" # See documentation for possible values
     directory: "_example/website-s3" # Location of package manifests
     schedule:
       interval: "weekly"
+       # Add assignees
+    assignees:
+      - "clouddrove-ci"
+      # Add reviewer
+    reviewers:
+      - "approvers"
