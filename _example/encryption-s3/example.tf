@@ -1,7 +1,13 @@
+####----------------------------------------------------------------------------------
+## Provider block added, Use the Amazon Web Services (AWS) provider to interact with the many resources supported by AWS.
+####----------------------------------------------------------------------------------
 provider "aws" {
   region = "eu-west-1"
 }
 
+##----------------------------------------------------------------------------------
+## Below resources will create KMS-KEY and its components.
+##----------------------------------------------------------------------------------
 module "kms_key" {
   source      = "clouddrove/kms/aws"
   version     = "1.3.0"
@@ -17,6 +23,9 @@ module "kms_key" {
   policy                  = data.aws_iam_policy_document.default.json
 }
 
+##----------------------------------------------------------------------------------
+## Generates an IAM policy document in JSON format for use with resources that expect policy documents such as aws_iam_policy.
+##----------------------------------------------------------------------------------
 data "aws_iam_policy_document" "default" {
   version = "2012-10-17"
   statement {
@@ -31,19 +40,19 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
-
+##----------------------------------------------------------------------------------
+## Provides details about a specific S3 bucket.
+##----------------------------------------------------------------------------------
 module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-encryption-bucket"
   environment = "test"
-  attributes  = ["public"]
   label_order = ["name", "environment"]
 
   versioning                    = true
   acl                           = "private"
   enable_server_side_encryption = true
-
-  enable_kms        = true
-  kms_master_key_id = module.kms_key.key_arn
+  enable_kms                    = true
+  kms_master_key_id             = module.kms_key.key_arn
 }

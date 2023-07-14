@@ -30,12 +30,6 @@ variable "managedby" {
   description = "ManagedBy, eg 'CloudDrove'."
 }
 
-variable "attributes" {
-  type        = list(any)
-  default     = []
-  description = "Additional attributes (e.g. `1`)."
-}
-
 variable "delimiter" {
   type        = string
   default     = "-"

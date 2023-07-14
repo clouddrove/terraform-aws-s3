@@ -15,21 +15,17 @@ github_repo: clouddrove/terraform-aws-s3
 
 # Badges to display
 badges:
-  - name: "Terraform"
-    image: "https://img.shields.io/badge/Terraform-v1.1.7-green"
-    url: "https://www.terraform.io"
-  - name: "Licence"
-    image: "https://img.shields.io/badge/License-APACHE-blue.svg"
-    url: "LICENSE.md"
+  - name: "Latest Release"
+    image: "https://img.shields.io/github/release/clouddrove/terraform-aws-s3.svg"
+    url: "https://github.com/clouddrove/terraform-aws-s3/releases/latest"
   - name: "tfsec"
     image: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml/badge.svg"
     url: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml"
-  - name: "static-checks"
-    image: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/terraform.yml/badge.svg"
-    url: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/terraform.yml"
+  - name: "Licence"
+    image: "https://img.shields.io/badge/License-APACHE-blue.svg"
+    url: "LICENSE.md"
 
 #  description of this project
-# yamllint disable rule:line-length
 description: |-
   Terraform module to create default S3 bucket with logging and encryption type specific features.
 
@@ -38,119 +34,428 @@ include:
   - "terraform.md"
 
 # How to use this project
-# yamllint disable rule:line-length
+# How to use this project
 usage: |-
   Here are some examples of how you can use this module in your inventory structure:
-  ### Default Bucket
+  ### complete Bucket
   ```hcl
   module "s3_bucket" {
     source              = "clouddrove/s3/aws"
     version             = "1.3.0"
-    name                = "clouddrove-secure-bucket"
-    environment         = "test"
-    label_order         = ["name", "environment"]
-    versioning          = true
-    acl                 = "private"
-    bucket_enabled      = true
-  }
+  
+    name        = "bucket-new-version"
+    environment = "test"
+    label_order = ["name", "environment"]
+    
+    versioning = true
+    
+    #acceleration and request payer enable or disable.  
+    acceleration_status = true
+    request_payer       = true
+    
+    # logging of s3 bucket to destination bucket. 
+    logging       = true
+    target_bucket = module.logging_bucket.id
+    target_prefix = "logs"
+    
+    #encrption on s3 with default encryption and kms encryption . 
+    enable_server_side_encryption = true
+    enable_kms                    = true
+    kms_master_key_id             = module.kms_key.key_arn
+    
+    #object locking of s3. 
+    object_lock_configuration = {
+      mode  = "GOVERNANCE"
+      days  = 366
+      years = null
+    }
+    
+    #cross replicaton of s3 
+    cors_rule = [{
+      allowed_headers = ["*"],
+      allowed_methods = ["PUT", "POST"],
+      allowed_origins = ["https://s3-website-test.hashicorp.com"],
+      expose_headers  = ["ETag"],
+      max_age_seconds = 3000
+    }]
+    
+    #acl grant permission 
+    grants = [
+      {
+        id          = null
+        type        = "Group"
+        permissions = ["READ", "WRITE"]
+        uri         = "http://acs.amazonaws.com/groups/s3/LogDelivery"
+      },
+    ]
+    owner_id = data.aws_canonical_user_id.current.id
+    
+    #lifecycle rule for s3 
+    enable_lifecycle_configuration_rules = true
+    lifecycle_configuration_rules = [
+      {
+        id                                             = "log"
+        prefix                                         = null
+        enabled                                        = true
+        tags                                           = { "temp" : "true" }
+        enable_glacier_transition                      = false
+        enable_deeparchive_transition                  = false
+        enable_standard_ia_transition                  = false
+        enable_current_object_expiration               = true
+        enable_noncurrent_version_expiration           = true
+        abort_incomplete_multipart_upload_days         = null
+        noncurrent_version_glacier_transition_days     = 0
+        noncurrent_version_deeparchive_transition_days = 0
+        noncurrent_version_expiration_days             = 30
+        standard_transition_days                       = 0
+        glacier_transition_days                        = 0
+        deeparchive_transition_days                    = 0
+        expiration_days                                = 365
+      },
+      {
+        id                                             = "log1"
+        prefix                                         = null
+        enabled                                        = true
+        tags                                           = {}
+        enable_glacier_transition                      = false
+        enable_deeparchive_transition                  = false
+        enable_standard_ia_transition                  = false
+        enable_current_object_expiration               = true
+        enable_noncurrent_version_expiration           = true
+        abort_incomplete_multipart_upload_days         = 1
+        noncurrent_version_glacier_transition_days     = 0
+        noncurrent_version_deeparchive_transition_days = 0
+        noncurrent_version_expiration_days             = 30
+        standard_transition_days                       = 0
+        glacier_transition_days                        = 0
+        deeparchive_transition_days                    = 0
+        expiration_days                                = 365
+      }
+    ]
+    
+    #static website on s3
+    website_config_enable = true
+    }
+    data "aws_canonical_user_id" "current" {}
   ```
-  ### Encryption Bucket
+  ### cors_s3 Bucket
   ```hcl
   module "s3_bucket" {
     source                     = "clouddrove/s3/aws"
     version                    = "1.3.0"
-    name                       = "clouddrove-encryption-bucket"
-    environment                = "test"
-    label_order                = ["name", "environment"]
-    versioning                 = true
-    acl                        = "private"
-    bucket_encryption_enabled  = true
-    sse_algorithm              = "aws:kms"
-    kms_master_key_id          = module.kms_key.key_arn
+  
+    name        = "clouddrove-secure-bucket"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    versioning = true
+    acl        = "private"
+    cors_rule = [{
+      allowed_headers = ["*"],
+      allowed_methods = ["PUT", "POST"],
+      allowed_origins = ["https://s3-website-test.hashicorp.com"],
+      expose_headers  = ["ETag"],
+      max_age_seconds = 3000
+    }]
   }
-  ### Logging-Encryption Bucket
+  ### default-s3 Bucket
   ```hcl
   module "s3_bucket" {
     source                             = "clouddrove/s3/aws"
     version                            = "1.3.0"
-    name                               = "clouddrove-logging-encryption-bucket"
-    environment                        = "test"
-    label_order                        = ["name", "environment"]
-    versioning                         = true
-    acl                                = "private"
-    bucket_logging_encryption_enabled  = true
-    sse_algorithm                      = "AES256"
-    target_bucket                      = "bucket-logs12"
-    target_prefix                      = "logs"
+  
+    name        = "clouddrove-secure-bucket"
+    environment = "test"
+    label_order = ["name", "environment"]
+    versioning  = true
+    acl         = "private"
   }
   ```
-  ### Logging Bucket
+  ### encryption Bucket
   ```hcl
   module "s3_bucket" {
     source                  = "clouddrove/s3/aws"
     version                 = "1.3.0"
-    name                    = "clouddrove-logging-bucket"
-    environment             = "test"
-    label_order             = ["name", "environment"]
-    versioning              = true
-    acl                     = "private"
-    bucket_logging_enabled  = true
-    target_bucket           = "bucket-logs12"
-    target_prefix           = "logs"
+  
+    name        = "clouddrove-encryption-bucket"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    versioning                    = true
+    acl                           = "private"
+    enable_server_side_encryption = true
+    enable_kms                    = true
+    kms_master_key_id             = module.kms_key.key_arn
   }
   ```
-  ### Website Host Bucket
+  ### logging encryption bucket Bucket
   ```hcl
   module "s3_bucket" {
     source                              = "clouddrove/s3/aws"
     version                             = "1.3.0"
-    name                                = "clouddrove-website-bucket"
-    environment                         = "test"
-    label_order                         = ["name", "environment"]
-    versioning                          = true
-    acl                                 = "private"
-    website_hosting_bucket              = true
-    website_index                       = "index.html"
-    website_error                       = "error.html"
-    bucket_policy                       = true
-    lifecycle_expiration_enabled        = true
-    lifecycle_expiration_object_prefix  = "test"
-    lifecycle_days_to_expiration        = 10
-    aws_iam_policy_document             = data.aws_iam_policy_document.default.json
-  }
-  data "aws_iam_policy_document" "default" {
-    version = "2012-10-17"
-    statement {
-         sid = "Stmt1547315805704"
-         effect = "Allow"
-         principals {
-              type = "AWS"
-              identifiers = ["*"]
-            }
-         actions = ["s3:GetObject"]
-         resources = ["arn:aws:s3:::clouddrove-website-bucket-test/*"]
-     }
+  
+    name        = "clouddrove-logging-encryption-bucket"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    versioning = true
+    acl        = "private"
+    enable_server_side_encryption = true
+    enable_kms                    = true
+    kms_master_key_id             = module.kms_key.key_arn
+    logging       = true
+    target_bucket = module.logging_bucket.id
+    target_prefix = "logs"
+    depends_on = [module.logging_bucket]
   }
   ```
 
-   ### Cors Bucket
+   ### logging Bucket
   ```hcl
     module "s3_bucket" {
-    source = "./../../"
+    source              = "clouddrove/s3/aws"
+    version             = "1.3.0"
 
-    name        = "clouddrove-secure-bucket"
+    name        = "clouddrove-logging-bucket"
     environment = "test"
-    attributes  = ["private"]
     label_order = ["name", "environment"]
-
-    versioning = true
-    acl        = "private"
-    cors_rule = [{
-    "allowed_headers" : ["*"]
-    allowed_methods = ["PUT", "POST"],
-    allowed_origins = ["https://s3-website-test.hashicorp.com"],
-    expose_headers  = ["ETag"],
-    max_age_seconds = 3000 }]
+  
+    versioning    = true
+    acl           = "private"
+    logging       = true
+    target_bucket = module.logging_bucket.id
+    target_prefix = "logs"
+    depends_on    = [module.logging_bucket]
   }
+  ```
+   ### s3 replication Bucket
+  ```hcl
+    module "s3_bucket" {
+    source              = "clouddrove/s3/aws"
+    version             = "1.3.0"
 
+    name        = "clouddrov-s3-replication"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    acl        = "private"
+    versioning = true
+    replication_configuration = {
+      role = aws_iam_role.replication.arn
+      rules = [
+        {
+          id                        = "something-with-kms-and-filter"
+          status                    = true
+          priority                  = 10
+          delete_marker_replication = false
+          source_selection_criteria = {
+            replica_modifications = {
+              status = "Enabled"
+            }
+            sse_kms_encrypted_objects = {
+              enabled = true
+            }
+          }
+          filter = {
+            prefix = "one"
+            tags = {
+              ReplicateMe = "Yes"
+            }
+          }
+          destination = {
+            bucket             = "arn:aws:s3:::${module.replica_bucket.id}"
+            storage_class      = "STANDARD"
+            replica_kms_key_id = aws_kms_key.replica.arn
+            account_id         = data.aws_caller_identity.current.account_id
+            access_control_translation = {
+              owner = "Destination"
+            }
+            replication_time = {
+              status  = "Enabled"
+              minutes = 15
+            }
+            metrics = {
+              status  = "Enabled"
+              minutes = 15
+            }
+          }
+        },
+        {
+          id                        = "something-with-filter"
+          priority                  = 20
+          delete_marker_replication = false
+          filter = {
+            prefix = "two"
+            tags = {
+              ReplicateMe = "Yes"
+            }
+          }
+          destination = {
+            bucket        = "arn:aws:s3:::${module.replica_bucket.id}"
+            storage_class = "STANDARD"
+          }
+        },
+        {
+          id                        = "everything-with-filter"
+          status                    = "Enabled"
+          priority                  = 30
+          delete_marker_replication = true
+          1 = {
+            prefix = ""
+          }
+          destination = {
+            bucket        = "arn:aws:s3:::${module.replica_bucket.id}"
+            storage_class = "STANDARD"
+          }
+        },
+        {
+          id                        = "everything-without-filters"
+          status                    = "Enabled"
+          delete_marker_replication = true
+          destination = {
+            bucket        = "arn:aws:s3:::${module.replica_bucket.id}"
+            storage_class = "STANDARD"
+          }
+        },
+      ]
+    }
+  }
+  
+    resource "aws_iam_role" "replication" {
+    name = "s3-bucket-replication-${module.replica_bucket.id}"
+  
+    assume_role_policy = <<POLICY
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": "sts:AssumeRole",
+          "Principal": {
+            "Service": "s3.amazonaws.com"
+          },
+          "Effect": "Allow",
+          "Sid": ""
+        }
+      ]
+    }
+    POLICY
+  }
+  
+    resource "aws_iam_policy" "replication" {
+    name = "s3-bucket-replication-${module.replica_bucket.id}"
+  
+    policy = <<POLICY
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": [
+            "s3:GetReplicationConfiguration",
+            "s3:ListBucket"
+          ],
+          "Effect": "Allow",
+          "Resource": [
+            "arn:aws:s3:::${module.s3_bucket.id}"
+          ]
+        },
+        {
+          "Action": [
+            "s3:GetObjectVersion",
+            "s3:GetObjectVersionAcl"
+          ],
+          "Effect": "Allow",
+          "Resource": [
+            "arn:aws:s3:::${module.s3_bucket.id}/*"
+          ]
+        },
+        {
+          "Action": [
+            "s3:ReplicateObject",
+            "s3:ReplicateDelete"
+          ],
+          "Effect": "Allow",
+          "Resource": "arn:aws:s3:::${module.replica_bucket.id}/*"
+        }
+      ]
+    }
+    POLICY
+  }
+  
+    resource "aws_iam_policy_attachment" "replication" {
+    name       = "s3-bucket-replication-${module.replica_bucket.id}"
+    roles      = [aws_iam_role.replication.name]
+    policy_arn = aws_iam_policy.replication.arn
+  }
+  ``` 
+  
+   ### s3 website Bucket
+  ```hcl
+    module "s3_bucket" {
+    source              = "clouddrove/s3/aws"
+    version             = "1.3.0"
+
+    name        = "clouddrove-website-bucket"
+    environment = "test"
+    label_order = ["name", "environment"]
+  
+    versioning                           = true
+    acl                                  = "private"
+    website_config_enable                = true
+    enable_lifecycle_configuration_rules = true
+    lifecycle_configuration_rules = [
+      {
+        id                                             = "log"
+        prefix                                         = null
+        enabled                                        = true
+        tags                                           = { "temp" : "true" }
+        enable_glacier_transition                      = false
+        enable_deeparchive_transition                  = false
+        enable_standard_ia_transition                  = false
+        enable_current_object_expiration               = true
+        enable_noncurrent_version_expiration           = true
+        abort_incomplete_multipart_upload_days         = null
+        noncurrent_version_glacier_transition_days     = 0
+        noncurrent_version_deeparchive_transition_days = 0
+        noncurrent_version_expiration_days             = 30
+        standard_transition_days                       = 0
+        glacier_transition_days                        = 0
+        deeparchive_transition_days                    = 0
+        expiration_days                                = 365
+      },
+      {
+        id                                             = "log1"
+        prefix                                         = null
+        enabled                                        = true
+        tags                                           = {}
+        enable_glacier_transition                      = false
+        enable_deeparchive_transition                  = false
+        enable_standard_ia_transition                  = false
+        enable_current_object_expiration               = true
+        enable_noncurrent_version_expiration           = true
+        abort_incomplete_multipart_upload_days         = 1
+        noncurrent_version_glacier_transition_days     = 0
+        noncurrent_version_deeparchive_transition_days = 0
+        noncurrent_version_expiration_days             = 30
+        standard_transition_days                       = 0
+        glacier_transition_days                        = 0
+        deeparchive_transition_days                    = 0
+        expiration_days                                = 365
+      }
+    ]
+    bucket_policy           = true
+    aws_iam_policy_document = data.aws_iam_policy_document.default.json
+  }
+    data "aws_iam_policy_document" "default" {
+    version = "2012-10-17"
+    statement {
+    sid    = "Stmt1447315805704"
+    effect = "Allow"
+    principals {
+    type        = "AWS"
+    identifiers = ["*"]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::clouddrove-website-bucket-test-public/*"]
+    }
+  }
   ```

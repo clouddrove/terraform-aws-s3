@@ -1,17 +1,25 @@
+####----------------------------------------------------------------------------------
+## Provider block added, Use the Amazon Web Services (AWS) provider to interact with the many resources supported by AWS.
+####----------------------------------------------------------------------------------
 provider "aws" {
   region = "eu-west-1"
 }
 
+##----------------------------------------------------------------------------------
+## Provides details about a specific S3 bucket.
+##----------------------------------------------------------------------------------
 module "logging_bucket" {
   source = "./../../"
 
   name        = "logging"
   environment = "test"
-  attributes  = ["public"]
   label_order = ["name", "environment"]
   acl         = "log-delivery-write"
 }
 
+##----------------------------------------------------------------------------------
+## Below resources will create KMS-KEY and its components.
+##----------------------------------------------------------------------------------
 module "kms_key" {
   source      = "clouddrove/kms/aws"
   version     = "1.3.0"
@@ -27,6 +35,9 @@ module "kms_key" {
   policy                  = data.aws_iam_policy_document.default.json
 }
 
+##----------------------------------------------------------------------------------
+## Generates an IAM policy document in JSON format for use with resources that expect policy documents such as aws_iam_policy.
+##----------------------------------------------------------------------------------
 data "aws_iam_policy_document" "default" {
   version = "2012-10-17"
   statement {
@@ -41,16 +52,16 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+##----------------------------------------------------------------------------------
+## Provides details about a specific S3 bucket.
+##----------------------------------------------------------------------------------
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "clouddrove-secure-bucket-new-version"
+  name        = "bucket-new-version"
   environment = "test"
-  attributes  = ["private"]
   label_order = ["name", "environment"]
 
-  acl = ""
-  #enable of disable versioning of s3 
   versioning = true
 
   #acceleration and request payer enable or disable.  
@@ -94,59 +105,50 @@ module "s3_bucket" {
   ]
   owner_id = data.aws_canonical_user_id.current.id
 
-
   #lifecycle rule for s3 
   enable_lifecycle_configuration_rules = true
   lifecycle_configuration_rules = [
     {
-      id      = "log"
-      prefix  = null
-      enabled = true
-      tags    = { "temp" : "true" }
-
-      enable_glacier_transition            = false
-      enable_deeparchive_transition        = false
-      enable_standard_ia_transition        = false
-      enable_current_object_expiration     = true
-      enable_noncurrent_version_expiration = true
-
+      id                                             = "log"
+      prefix                                         = null
+      enabled                                        = true
+      tags                                           = { "temp" : "true" }
+      enable_glacier_transition                      = false
+      enable_deeparchive_transition                  = false
+      enable_standard_ia_transition                  = false
+      enable_current_object_expiration               = true
+      enable_noncurrent_version_expiration           = true
       abort_incomplete_multipart_upload_days         = null
       noncurrent_version_glacier_transition_days     = 0
       noncurrent_version_deeparchive_transition_days = 0
       noncurrent_version_expiration_days             = 30
-
-      standard_transition_days    = 0
-      glacier_transition_days     = 0
-      deeparchive_transition_days = 0
-      expiration_days             = 365
+      standard_transition_days                       = 0
+      glacier_transition_days                        = 0
+      deeparchive_transition_days                    = 0
+      expiration_days                                = 365
     },
     {
-      id      = "log1"
-      prefix  = null
-      enabled = true
-      tags    = {}
-
-      enable_glacier_transition            = false
-      enable_deeparchive_transition        = false
-      enable_standard_ia_transition        = false
-      enable_current_object_expiration     = true
-      enable_noncurrent_version_expiration = true
-
+      id                                             = "log1"
+      prefix                                         = null
+      enabled                                        = true
+      tags                                           = {}
+      enable_glacier_transition                      = false
+      enable_deeparchive_transition                  = false
+      enable_standard_ia_transition                  = false
+      enable_current_object_expiration               = true
+      enable_noncurrent_version_expiration           = true
       abort_incomplete_multipart_upload_days         = 1
       noncurrent_version_glacier_transition_days     = 0
       noncurrent_version_deeparchive_transition_days = 0
       noncurrent_version_expiration_days             = 30
-
-      standard_transition_days    = 0
-      glacier_transition_days     = 0
-      deeparchive_transition_days = 0
-      expiration_days             = 365
+      standard_transition_days                       = 0
+      glacier_transition_days                        = 0
+      deeparchive_transition_days                    = 0
+      expiration_days                                = 365
     }
   ]
 
   #static website on s3
   website_config_enable = true
-
 }
-
 data "aws_canonical_user_id" "current" {}
