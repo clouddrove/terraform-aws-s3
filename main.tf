@@ -1,11 +1,6 @@
-## Managed By : CloudDrove
-# Description : This Script is used to create S3.
-## Copyright @ CloudDrove. All Right Reserved.
-
-#Module      : label
-#Description : This terraform module is designed to generate consistent label names and
-#              tags for resources. You can use terraform-labels to implement a strict
-#              naming convention.
+##----------------------------------------------------------------------------------
+## Labels module callled that will be used for naming and tags.
+##----------------------------------------------------------------------------------
 module "labels" {
   source  = "clouddrove/labels/aws"
   version = "1.3.0"
@@ -15,19 +10,11 @@ module "labels" {
   repository  = var.repository
   environment = var.environment
   managedby   = var.managedby
-  attributes  = var.attributes
   label_order = var.label_order
 }
-
-# Module      : S3 BUCKET
-# Description : Terraform module to create S3 bucket with different combination
-#               type specific features.
-#tfsec:ignore:aws-s3-enable-bucket-encryption
-#tfsec:ignore:aws-s3-block-public-acls
-#tfsec:ignore:aws-s3-encryption-customer-key
-#tfsec:ignore:aws-s3-block-public-policy
-#tfsec:ignore:aws-s3-ignore-public-acls
-#tfsec:ignore:aws-s3-no-public-buckets
+##----------------------------------------------------------------------------------
+## Terraform resource to create S3 bucket with different combination type specific features.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket" "s3_default" {
   count = var.create_bucket == true ? 1 : 0
 
@@ -44,15 +31,18 @@ resource "aws_s3_bucket" "s3_default" {
   }
 }
 
-# Module      : S3 BUCKET POLICY
-# Description : Terraform module which creates policy for S3 bucket on AWS
+##----------------------------------------------------------------------------------
+## Terraform resource which creates policy for S3 bucket on AWS.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_policy" "s3_default" {
-  # count = var.create_bucket && var.bucket_policy && var.bucket_enabled == true ? 1 : 0
   count  = var.bucket_policy == true ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default.*.id)
   policy = var.aws_iam_policy_document
 }
 
+##----------------------------------------------------------------------------------
+## Provides an S3 bucket accelerate configuration resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_accelerate_configuration" "example" {
   count = var.create_bucket && var.acceleration_status == true ? 1 : 0
 
@@ -60,6 +50,9 @@ resource "aws_s3_bucket_accelerate_configuration" "example" {
   status = "Enabled"
 }
 
+##----------------------------------------------------------------------------------
+## Provides an S3 bucket request payment configuration resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_request_payment_configuration" "example" {
   count = var.create_bucket && var.request_payer == true ? 1 : 0
 
@@ -67,6 +60,10 @@ resource "aws_s3_bucket_request_payment_configuration" "example" {
   payer  = "Requester"
 }
 
+##----------------------------------------------------------------------------------
+## Provides a resource for controlling versioning on an S3 bucket.
+## Deleting this resource will either suspend versioning on the associated S3 bucket or simply remove the resource from Terraform state if the associated S3 bucket is unversioned.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_versioning" "example" {
   count = var.create_bucket && var.versioning == true ? 1 : 0
 
@@ -76,6 +73,9 @@ resource "aws_s3_bucket_versioning" "example" {
   }
 }
 
+##----------------------------------------------------------------------------------
+## Provides an S3 bucket (server access) logging resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_logging" "example" {
   count  = var.create_bucket && var.logging == true ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default.*.id)
@@ -84,6 +84,9 @@ resource "aws_s3_bucket_logging" "example" {
   target_prefix = var.target_prefix
 }
 
+##----------------------------------------------------------------------------------
+## Provides a S3 bucket server-side encryption configuration resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
   count  = var.create_bucket && var.enable_server_side_encryption == true ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default.*.id)
@@ -96,6 +99,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
   }
 }
 
+##----------------------------------------------------------------------------------
+## Provides an S3 bucket Object Lock configuration resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_object_lock_configuration" "example" {
   count = var.create_bucket && var.object_lock_configuration != null ? 1 : 0
 
@@ -112,6 +118,9 @@ resource "aws_s3_bucket_object_lock_configuration" "example" {
   }
 }
 
+##----------------------------------------------------------------------------------
+## Provides an S3 bucket CORS configuration resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_cors_configuration" "example" {
   count = var.create_bucket && var.cors_rule != null ? 1 : 0
 
@@ -130,6 +139,9 @@ resource "aws_s3_bucket_cors_configuration" "example" {
   }
 }
 
+##----------------------------------------------------------------------------------
+## Provides an S3 bucket website configuration resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_website_configuration" "example" {
   count = var.create_bucket && var.website_config_enable == true ? 1 : 0
 
@@ -167,7 +179,9 @@ locals {
   ])
 }
 
-
+##----------------------------------------------------------------------------------
+## Provides an S3 bucket ACL resource.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_acl" "default" {
 
   count  = var.create_bucket ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
@@ -200,7 +214,9 @@ resource "aws_s3_bucket_acl" "default" {
   }
 }
 
-
+##----------------------------------------------------------------------------------
+## Provides an independent configuration resource for S3 bucket lifecycle configuration.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
   count  = var.create_bucket && var.enable_lifecycle_configuration_rules == true ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default.*.id)
@@ -299,7 +315,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
   ]
 }
 
-
+##----------------------------------------------------------------------------------
+## Provides an independent configuration resource for S3 bucket replication configuration.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_replication_configuration" "this" {
   count = var.create_bucket && length(keys(var.replication_configuration)) > 0 ? 1 : 0
 
@@ -471,10 +489,9 @@ locals {
 
 }
 
-#tfsec:ignore:aws-s3-block-public-acls
-#tfsec:ignore:aws-s3-block-public-policy
-#tfsec:ignore:aws-s3-ignore-public-acls
-#tfsec:ignore:aws-s3-no-public-buckets
+##----------------------------------------------------------------------------------
+## Manages S3 bucket-level Public Access Block configuration.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_public_access_block" "this" {
   count = var.create_bucket && var.attach_public_policy ? 1 : 0
 
@@ -486,6 +503,9 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = var.restrict_public_buckets
 }
 
+##----------------------------------------------------------------------------------
+## Provides a resource to manage S3 Bucket Ownership Controls.
+##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_ownership_controls" "this" {
   count = var.create_bucket && var.control_object_ownership ? 1 : 0
 

@@ -1,18 +1,25 @@
-
+####----------------------------------------------------------------------------------
+## Provider block added, Use the Amazon Web Services (AWS) provider to interact with the many resources supported by AWS.
+####----------------------------------------------------------------------------------
 provider "aws" {
   region = "eu-west-1"
 }
 
+##----------------------------------------------------------------------------------
+## Provides details about a logging S3 bucket.
+##----------------------------------------------------------------------------------
 module "logging_bucket" {
   source = "./../../"
 
   name        = "logging"
   environment = "test"
-  attributes  = ["public"]
   label_order = ["name", "environment"]
   acl         = "log-delivery-write"
 }
 
+##----------------------------------------------------------------------------------
+## Below resources will create KMS-KEY and its components.
+##----------------------------------------------------------------------------------
 module "kms_key" {
   source      = "clouddrove/kms/aws"
   version     = "1.3.0"
@@ -28,6 +35,9 @@ module "kms_key" {
   policy                  = data.aws_iam_policy_document.default.json
 }
 
+##----------------------------------------------------------------------------------
+## Generates an IAM policy document in JSON format for use with resources that expect policy documents such as aws_iam_policy.
+##----------------------------------------------------------------------------------
 data "aws_iam_policy_document" "default" {
   version = "2012-10-17"
   statement {
@@ -42,24 +52,23 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+##----------------------------------------------------------------------------------
+## Provides details about a specific S3 bucket.
+##----------------------------------------------------------------------------------
 module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-logging-encryption-bucket"
   environment = "test"
-  attributes  = ["public"]
   label_order = ["name", "environment"]
 
-  versioning = true
-  acl        = "private"
-
+  versioning                    = true
+  acl                           = "private"
   enable_server_side_encryption = true
   enable_kms                    = true
   kms_master_key_id             = module.kms_key.key_arn
-
-  logging       = true
-  target_bucket = module.logging_bucket.id
-  target_prefix = "logs"
-
-  depends_on = [module.logging_bucket]
+  logging                       = true
+  target_bucket                 = module.logging_bucket.id
+  target_prefix                 = "logs"
+  depends_on                    = [module.logging_bucket]
 }
