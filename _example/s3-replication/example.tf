@@ -34,7 +34,10 @@ module "replica_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
   acl         = "private"
-  versioning  = true
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }
 }
 
 ##----------------------------------------------------------------------------------
@@ -47,10 +50,13 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  acl        = "private"
-  versioning = true
+  acl = "private"
   replication_configuration = {
     role = aws_iam_role.replication.arn
+    versioning = {
+      status     = "Enabled"
+      mfa_delete = "Disabled"
+    }
     rules = [
       {
         id                        = "something-with-kms-and-filter"

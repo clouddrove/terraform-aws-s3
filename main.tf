@@ -2,16 +2,15 @@
 ## Labels module callled that will be used for naming and tags.
 ##----------------------------------------------------------------------------------
 module "labels" {
-  source  = "clouddrove/labels/aws"
-  version = "1.3.0"
-
-
+  source      = "clouddrove/labels/aws"
+  version     = "1.3.0"
   name        = var.name
   repository  = var.repository
   environment = var.environment
   managedby   = var.managedby
   label_order = var.label_order
 }
+
 ##----------------------------------------------------------------------------------
 ## Terraform resource to create S3 bucket with different combination type specific features.
 ##----------------------------------------------------------------------------------
@@ -19,6 +18,7 @@ resource "aws_s3_bucket" "s3_default" {
   count = var.create_bucket == true ? 1 : 0
 
   bucket        = module.labels.id
+  bucket_prefix = var.bucket_prefix
   force_destroy = var.force_destroy
   tags          = module.labels.tags
 
@@ -26,7 +26,7 @@ resource "aws_s3_bucket" "s3_default" {
     for_each = var.object_lock_configuration != null ? [1] : []
 
     content {
-      object_lock_enabled = "Enabled"
+      object_lock_enabled = var.object_lock_enabled
     }
   }
 }
@@ -44,10 +44,11 @@ resource "aws_s3_bucket_policy" "s3_default" {
 ## Provides an S3 bucket accelerate configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_accelerate_configuration" "example" {
-  count = var.create_bucket && var.acceleration_status == true ? 1 : 0
+  count                 = var.create_bucket && var.acceleration_status == true ? 1 : 0
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
 
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
-  status = "Enabled"
+  status = var.configuration_status
 }
 
 ##----------------------------------------------------------------------------------
@@ -56,8 +57,9 @@ resource "aws_s3_bucket_accelerate_configuration" "example" {
 resource "aws_s3_bucket_request_payment_configuration" "example" {
   count = var.create_bucket && var.request_payer == true ? 1 : 0
 
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
-  payer  = "Requester"
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
+  payer                 = lower(var.request_payer) == "requester" ? "Requester" : "BucketOwner"
 }
 
 ##----------------------------------------------------------------------------------
@@ -67,9 +69,13 @@ resource "aws_s3_bucket_request_payment_configuration" "example" {
 resource "aws_s3_bucket_versioning" "example" {
   count = var.create_bucket && var.versioning == true ? 1 : 0
 
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
+  mfa                   = try(var.versioning["mfa"], null)
   versioning_configuration {
-    status = "Enabled"
+    status     = try(var.versioning["enabled"] ? "Enabled" : "Suspended", tobool(var.versioning["status"]) ? "Enabled" : "Suspended", title(lower(var.versioning["status"])))
+    mfa_delete = try(tobool(var.versioning["mfa_delete"]) ? "Enabled" : "Disabled", title(lower(var.versioning["mfa_delete"])), null)
+
   }
 }
 
@@ -88,8 +94,9 @@ resource "aws_s3_bucket_logging" "example" {
 ## Provides a S3 bucket server-side encryption configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
-  count  = var.create_bucket && var.enable_server_side_encryption == true ? 1 : 0
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  count                 = var.create_bucket && var.enable_server_side_encryption == true ? 1 : 0
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
 
   rule {
     apply_server_side_encryption_by_default {
@@ -105,9 +112,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
 resource "aws_s3_bucket_object_lock_configuration" "example" {
   count = var.create_bucket && var.object_lock_configuration != null ? 1 : 0
 
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
+  token                 = try(var.object_lock_configuration.token, null)
 
-  object_lock_enabled = "Enabled"
+  object_lock_enabled = var.object_lock_enabled
 
   rule {
     default_retention {
@@ -124,7 +133,8 @@ resource "aws_s3_bucket_object_lock_configuration" "example" {
 resource "aws_s3_bucket_cors_configuration" "example" {
   count = var.create_bucket && var.cors_rule != null ? 1 : 0
 
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
 
   dynamic "cors_rule" {
     for_each = var.cors_rule == null ? [] : var.cors_rule
@@ -142,28 +152,116 @@ resource "aws_s3_bucket_cors_configuration" "example" {
 ##----------------------------------------------------------------------------------
 ## Provides an S3 bucket website configuration resource.
 ##----------------------------------------------------------------------------------
-resource "aws_s3_bucket_website_configuration" "example" {
-  count = var.create_bucket && var.website_config_enable == true ? 1 : 0
+resource "aws_s3_bucket_website_configuration" "this" {
+  count = var.create_bucket && length(keys(var.website)) > 0 ? 1 : 0
 
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = aws_s3_bucket.s3_default[0].id
+  expected_bucket_owner = var.expected_bucket_owner
 
-  index_document {
-    suffix = "index.html"
-  }
+  dynamic "index_document" {
+    for_each = try([var.website["index_document"]], [])
 
-  error_document {
-    key = "error.html"
-  }
-
-  routing_rule {
-    condition {
-      key_prefix_equals = "docs/"
+    content {
+      suffix = index_document.value
     }
-    redirect {
-      replace_key_prefix_with = "documents/"
+  }
+
+  dynamic "error_document" {
+    for_each = try([var.website["error_document"]], [])
+
+    content {
+      key = error_document.value
+    }
+  }
+
+  dynamic "redirect_all_requests_to" {
+    for_each = try([var.website["redirect_all_requests_to"]], [])
+
+    content {
+      host_name = redirect_all_requests_to.value.host_name
+      protocol  = try(redirect_all_requests_to.value.protocol, null)
+    }
+  }
+
+  dynamic "routing_rule" {
+    for_each = try(flatten([var.website["routing_rules"]]), [])
+
+    content {
+      dynamic "condition" {
+        for_each = [try([routing_rule.value.condition], [])]
+
+        content {
+          http_error_code_returned_equals = try(routing_rule.value.condition["http_error_code_returned_equals"], null)
+          key_prefix_equals               = try(routing_rule.value.condition["key_prefix_equals"], null)
+        }
+      }
+
+      redirect {
+        host_name               = try(routing_rule.value.redirect["host_name"], null)
+        http_redirect_code      = try(routing_rule.value.redirect["http_redirect_code"], null)
+        protocol                = try(routing_rule.value.redirect["protocol"], null)
+        replace_key_prefix_with = try(routing_rule.value.redirect["replace_key_prefix_with"], null)
+        replace_key_with        = try(routing_rule.value.redirect["replace_key_with"], null)
+      }
     }
   }
 }
+
+
+#resource "aws_s3_bucket_website_configuration" "example" {
+#  count = var.create_bucket && var.website_config_enable == true ? 1 : 0
+#
+#  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+#  expected_bucket_owner = var.expected_bucket_owner
+#
+#  dynamic "index_document" {
+#    for_each = try([var.website["index_document"]], [])
+#
+#    content {
+#      suffix = index_document.value
+#    }
+#  }
+#
+#  dynamic "error_document" {
+#    for_each = try([var.website["error_document"]], [])
+#
+#    content {
+#      key = error_document.value
+#    }
+#  }
+#
+#  dynamic "redirect_all_requests_to" {
+#    for_each = try([var.website["redirect_all_requests_to"]], [])
+#
+#    content {
+#      host_name = redirect_all_requests_to.value.host_name
+#      protocol  = try(redirect_all_requests_to.value.protocol, null)
+#    }
+#  }
+#
+#  dynamic "routing_rule" {
+#    for_each = try(flatten([var.website["routing_rules"]]), [])
+#
+#    content {
+#      dynamic "condition" {
+#        for_each = [try([routing_rule.value.condition], [])]
+#
+#        content {
+#          http_error_code_returned_equals = try(routing_rule.value.condition["http_error_code_returned_equals"], null)
+#          key_prefix_equals               = try(routing_rule.value.condition["key_prefix_equals"], null)
+#        }
+#      }
+#
+#      redirect {
+#        host_name               = try(routing_rule.value.redirect["host_name"], null)
+#        http_redirect_code      = try(routing_rule.value.redirect["http_redirect_code"], null)
+#        protocol                = try(routing_rule.value.redirect["protocol"], null)
+#        replace_key_prefix_with = try(routing_rule.value.redirect["replace_key_prefix_with"], null)
+#        replace_key_with        = try(routing_rule.value.redirect["replace_key_with"], null)
+#      }
+#    }
+#  }
+#}
 
 locals {
   acl_grants = var.grants == null ? var.acl_grants : flatten(
@@ -183,10 +281,9 @@ locals {
 ## Provides an S3 bucket ACL resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_acl" "default" {
-
-  count  = var.create_bucket ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
-
+  count                 = var.create_bucket ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
 
   acl = try(length(local.acl_grants), 0) == 0 ? var.acl : null
 
@@ -208,7 +305,9 @@ resource "aws_s3_bucket_acl" "default" {
       }
 
       owner {
-        id = var.owner_id
+        id           = var.owner_id
+        display_name = try(var.owner["display_name"], null)
+
       }
     }
   }
@@ -218,8 +317,9 @@ resource "aws_s3_bucket_acl" "default" {
 ## Provides an independent configuration resource for S3 bucket lifecycle configuration.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
-  count  = var.create_bucket && var.enable_lifecycle_configuration_rules == true ? 1 : 0
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  count                 = var.create_bucket && var.enable_lifecycle_configuration_rules == true ? 1 : 0
+  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  expected_bucket_owner = var.expected_bucket_owner
 
   dynamic "rule" {
     for_each = var.lifecycle_configuration_rules
@@ -250,7 +350,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_noncurrent_version_expiration ? [1] : []
 
         content {
-          noncurrent_days = rule.value.noncurrent_version_expiration_days
+          newer_noncurrent_versions = rule.value.noncurrent_version_expiration_days
+          noncurrent_days           = rule.value.noncurrent_version_expiration_days
         }
       }
 
@@ -258,8 +359,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_glacier_transition ? [1] : []
 
         content {
-          noncurrent_days = rule.value.noncurrent_version_glacier_transition_days
-          storage_class   = "GLACIER"
+          newer_noncurrent_versions = rule.value.noncurrent_version_glacier_transition_newer
+          noncurrent_days           = rule.value.noncurrent_version_glacier_transition_days
+          storage_class             = rule.value.storage_class
         }
       }
 
@@ -267,8 +369,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_deeparchive_transition ? [1] : []
 
         content {
-          noncurrent_days = rule.value.noncurrent_version_deeparchive_transition_days
-          storage_class   = "DEEP_ARCHIVE"
+          newer_noncurrent_versions = rule.value.noncurrent_version_glacier_transition_newer
+          noncurrent_days           = rule.value.noncurrent_version_deeparchive_transition_days
+          storage_class             = rule.value.storage_class
         }
       }
 
@@ -276,8 +379,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_glacier_transition ? [1] : []
 
         content {
+          date          = rule.value.glacier_transition_date
           days          = rule.value.glacier_transition_days
-          storage_class = "GLACIER"
+          storage_class = rule.value.storage_class
         }
       }
 
@@ -285,8 +389,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_deeparchive_transition ? [1] : []
 
         content {
+          date          = rule.value.glacier_transition_date
           days          = rule.value.deeparchive_transition_days
-          storage_class = "DEEP_ARCHIVE"
+          storage_class = rule.value.storage_class
         }
       }
 
@@ -294,8 +399,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_standard_ia_transition ? [1] : []
 
         content {
+          date          = rule.value.glacier_transition_date
           days          = rule.value.standard_transition_days
-          storage_class = "STANDARD_IA"
+          storage_class = rule.value.storage_class
         }
       }
 
@@ -337,7 +443,6 @@ resource "aws_s3_bucket_replication_configuration" "this" {
         for_each = flatten(try([rule.value.delete_marker_replication_status], [rule.value.delete_marker_replication], []))
 
         content {
-          # Valid values: "Enabled" or "Disabled"
           status = try(tobool(delete_marker_replication.value) ? "Enabled" : "Disabled", title(lower(delete_marker_replication.value)))
         }
       }
@@ -350,7 +455,6 @@ resource "aws_s3_bucket_replication_configuration" "this" {
         for_each = flatten(try([rule.value.existing_object_replication_status], [rule.value.existing_object_replication], []))
 
         content {
-          # Valid values: "Enabled" or "Disabled"
           status = try(tobool(existing_object_replication.value) ? "Enabled" : "Disabled", title(lower(existing_object_replication.value)))
         }
       }
@@ -522,3 +626,41 @@ resource "aws_s3_bucket_ownership_controls" "this" {
     aws_s3_bucket.s3_default
   ]
 }
+
+resource "aws_s3_bucket_analytics_configuration" "default" {
+  for_each = { for k, v in var.analytics_configuration : k => v if var.create_bucket }
+
+  bucket = aws_s3_bucket.s3_default[0].id
+  name   = each.key
+
+  dynamic "filter" {
+    for_each = length(try(flatten([each.value.filter]), [])) == 0 ? [] : [true]
+
+    content {
+      prefix = try(each.value.filter.prefix, null)
+      tags   = try(each.value.filter.tags, null)
+    }
+  }
+
+  dynamic "storage_class_analysis" {
+    for_each = length(try(flatten([each.value.storage_class_analysis]), [])) == 0 ? [] : [true]
+
+    content {
+
+      data_export {
+        output_schema_version = try(each.value.storage_class_analysis.output_schema_version, null)
+
+        destination {
+
+          s3_bucket_destination {
+            bucket_arn        = try(each.value.storage_class_analysis.destination_bucket_arn, aws_s3_bucket.s3_default[0].arn)
+            bucket_account_id = try(each.value.storage_class_analysis.destination_account_id, var.aws_iam_policy_document)
+            format            = try(each.value.storage_class_analysis.export_format, "CSV")
+            prefix            = try(each.value.storage_class_analysis.export_prefix, null)
+          }
+        }
+      }
+    }
+  }
+}
+

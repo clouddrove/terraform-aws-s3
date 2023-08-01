@@ -12,7 +12,7 @@ module "logging_bucket" {
   source = "./../../"
 
   name        = "logging"
-  environment = "test"
+  environment = "tested"
   label_order = ["name", "environment"]
   acl         = "log-delivery-write"
 }
@@ -59,15 +59,13 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "bucket-new-version"
-  environment = "test"
+  environment = "tested"
   label_order = ["name", "environment"]
-
-  versioning = true
 
   #acceleration and request payer enable or disable.  
   acceleration_status = true
-  request_payer       = true
-
+  request_payer       = "BucketOwner"
+  object_lock_enabled = "Enabled"
   # logging of s3 bucket to destination bucket. 
   logging       = true
   target_bucket = module.logging_bucket.id
@@ -83,6 +81,11 @@ module "s3_bucket" {
     mode  = "GOVERNANCE"
     days  = 366
     years = null
+  }
+
+  versioning = {
+    status     = true
+    mfa_delete = false
   }
 
   #cross replicaton of s3 
@@ -125,6 +128,7 @@ module "s3_bucket" {
       standard_transition_days                       = 0
       glacier_transition_days                        = 0
       deeparchive_transition_days                    = 0
+      storage_class                                  = "GLACIER"
       expiration_days                                = 365
     },
     {
@@ -140,6 +144,7 @@ module "s3_bucket" {
       abort_incomplete_multipart_upload_days         = 1
       noncurrent_version_glacier_transition_days     = 0
       noncurrent_version_deeparchive_transition_days = 0
+      storage_class                                  = "DEEP_ARCHIVE"
       noncurrent_version_expiration_days             = 30
       standard_transition_days                       = 0
       glacier_transition_days                        = 0
@@ -150,5 +155,32 @@ module "s3_bucket" {
 
   #static website on s3
   website_config_enable = true
+
+  website = {
+    index_document = "index.html"
+    error_document = "error.html"
+    routing_rules = [{
+      condition = {
+        key_prefix_equals = "docs/"
+      },
+      redirect = {
+        replace_key_prefix_with = "documents/"
+      }
+      }, {
+      condition = {
+        http_error_code_returned_equals = 404
+        key_prefix_equals               = "archive/"
+      },
+      redirect = {
+        host_name          = "archive.myhost.com"
+        http_redirect_code = 301
+        protocol           = "https"
+        replace_key_with   = "not_found.html"
+      }
+    }]
+  }
+
+
+
 }
 data "aws_canonical_user_id" "current" {}

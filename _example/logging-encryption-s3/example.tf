@@ -12,7 +12,7 @@ module "logging_bucket" {
   source = "./../../"
 
   name        = "logging"
-  environment = "test"
+  environment = "tested"
   label_order = ["name", "environment"]
   acl         = "log-delivery-write"
 }
@@ -62,7 +62,11 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  versioning                    = true
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }
+
   acl                           = "private"
   enable_server_side_encryption = true
   enable_kms                    = true

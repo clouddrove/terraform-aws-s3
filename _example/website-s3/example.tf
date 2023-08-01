@@ -15,7 +15,40 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  versioning                           = true
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }
+
+  website = {
+    # conflicts with "error_document"
+    #        redirect_all_requests_to = {
+    #          host_name = "https://modules.tf"
+    #        }
+
+    index_document = "index.html"
+    error_document = "error.html"
+    routing_rules = [{
+      condition = {
+        key_prefix_equals = "docs/"
+      },
+      redirect = {
+        replace_key_prefix_with = "documents/"
+      }
+      }, {
+      condition = {
+        http_error_code_returned_equals = 404
+        key_prefix_equals               = "archive/"
+      },
+      redirect = {
+        host_name          = "archive.myhost.com"
+        http_redirect_code = 301
+        protocol           = "https"
+        replace_key_with   = "not_found.html"
+      }
+    }]
+  }
+
   acl                                  = "private"
   website_config_enable                = true
   enable_lifecycle_configuration_rules = true
@@ -60,14 +93,27 @@ module "s3_bucket" {
     }
   ]
   bucket_policy           = true
-  aws_iam_policy_document = data.aws_iam_policy_document.default.json
+  aws_iam_policy_document = data.aws_iam_policy_document.bucket_policy.json
 }
 
 ##----------------------------------------------------------------------------------
 ## Generates an IAM policy document in JSON format for use with resources that expect policy documents such as aws_iam_policy.
 ##----------------------------------------------------------------------------------
-data "aws_iam_policy_document" "default" {
-  version = "2012-10-17"
+#data "aws_iam_policy_document" "default" {
+#  version = "2012-10-17"
+#  statement {
+#    sid    = "Stmt1447315805704"
+#    effect = "Allow"
+#    principals {
+#      type        = "AWS"
+#      identifiers = ["*"]
+#    }
+#    actions   = ["s3:GetObject"]
+#    resources = ["arn:aws:s3:::clouddrove-website-bucket-test-public/*"]
+#  }
+#}
+
+data "aws_iam_policy_document" "bucket_policy" {
   statement {
     sid    = "Stmt1447315805704"
     effect = "Allow"
@@ -75,7 +121,13 @@ data "aws_iam_policy_document" "default" {
       type        = "AWS"
       identifiers = ["*"]
     }
-    actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::clouddrove-website-bucket-test-public/*"]
+
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${module.s3_bucket.id}",
+    ]
   }
 }

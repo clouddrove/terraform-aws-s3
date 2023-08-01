@@ -15,8 +15,12 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  versioning = true
-  acl        = "private"
+  versioning = {
+    status     = true
+    mfa_delete = false
+  }
+
+  acl = "private"
   cors_rule = [{
     allowed_headers = ["*"],
     allowed_methods = ["PUT", "POST"],
