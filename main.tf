@@ -36,7 +36,7 @@ resource "aws_s3_bucket" "s3_default" {
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_policy" "s3_default" {
   count  = var.bucket_policy == true ? 1 : 0
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  bucket = join("", aws_s3_bucket.s3_default[*].id)
   policy = var.aws_iam_policy_document
 }
 
@@ -45,7 +45,7 @@ resource "aws_s3_bucket_policy" "s3_default" {
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_accelerate_configuration" "example" {
   count                 = var.create_bucket && var.acceleration_status == true ? 1 : 0
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
   status = var.configuration_status
@@ -57,7 +57,7 @@ resource "aws_s3_bucket_accelerate_configuration" "example" {
 resource "aws_s3_bucket_request_payment_configuration" "example" {
   count = var.create_bucket && var.request_payer == true ? 1 : 0
 
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
   payer                 = lower(var.request_payer) == "requester" ? "Requester" : "BucketOwner"
 }
@@ -206,62 +206,6 @@ resource "aws_s3_bucket_website_configuration" "this" {
     }
   }
 }
-
-
-#resource "aws_s3_bucket_website_configuration" "example" {
-#  count = var.create_bucket && var.website_config_enable == true ? 1 : 0
-#
-#  bucket                = join("", aws_s3_bucket.s3_default.*.id)
-#  expected_bucket_owner = var.expected_bucket_owner
-#
-#  dynamic "index_document" {
-#    for_each = try([var.website["index_document"]], [])
-#
-#    content {
-#      suffix = index_document.value
-#    }
-#  }
-#
-#  dynamic "error_document" {
-#    for_each = try([var.website["error_document"]], [])
-#
-#    content {
-#      key = error_document.value
-#    }
-#  }
-#
-#  dynamic "redirect_all_requests_to" {
-#    for_each = try([var.website["redirect_all_requests_to"]], [])
-#
-#    content {
-#      host_name = redirect_all_requests_to.value.host_name
-#      protocol  = try(redirect_all_requests_to.value.protocol, null)
-#    }
-#  }
-#
-#  dynamic "routing_rule" {
-#    for_each = try(flatten([var.website["routing_rules"]]), [])
-#
-#    content {
-#      dynamic "condition" {
-#        for_each = [try([routing_rule.value.condition], [])]
-#
-#        content {
-#          http_error_code_returned_equals = try(routing_rule.value.condition["http_error_code_returned_equals"], null)
-#          key_prefix_equals               = try(routing_rule.value.condition["key_prefix_equals"], null)
-#        }
-#      }
-#
-#      redirect {
-#        host_name               = try(routing_rule.value.redirect["host_name"], null)
-#        http_redirect_code      = try(routing_rule.value.redirect["http_redirect_code"], null)
-#        protocol                = try(routing_rule.value.redirect["protocol"], null)
-#        replace_key_prefix_with = try(routing_rule.value.redirect["replace_key_prefix_with"], null)
-#        replace_key_with        = try(routing_rule.value.redirect["replace_key_with"], null)
-#      }
-#    }
-#  }
-#}
 
 locals {
   acl_grants = var.grants == null ? var.acl_grants : flatten(
@@ -664,3 +608,20 @@ resource "aws_s3_bucket_analytics_configuration" "default" {
   }
 }
 
+resource "aws_vpc_endpoint" "endpoint" {
+  count               = var.enabled == true && var.enable_vpc_endpoint == true ? 1 : 0
+  vpc_id              = var.vpc_id
+  service_name        = var.service_name
+  private_dns_enabled = var.private_dns_enabled
+  security_group_ids  = var.security_group_ids
+  route_table_ids     = var.route_table_ids
+  auto_accept         = var.auto_accept
+  vpc_endpoint_type   = var.vpc_endpoint_type
+  tags                = module.labels.tags
+}
+
+resource "aws_vpc_endpoint_subnet_association" "subnet_association" {
+  count           = var.enabled == true && var.enable_vpc_endpoint == true ? 1 : 0
+  vpc_endpoint_id = join("", aws_vpc_endpoint.endpoint.*.id)
+  subnet_id       = var.subnet_id
+}

@@ -454,3 +454,63 @@ variable "analytics_configuration" {
   default     = {}
   description = "Map containing bucket analytics configuration."
 }
+
+variable "enabled" {
+  type        = bool
+  default     = true
+  description = "Flag to control the vpc creation."
+}
+
+variable "enable_vpc_endpoint" {
+  type        = bool
+  default     = false
+  description = "enable vpc endpoint"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID."
+  sensitive   = true
+}
+
+variable "service_name" {
+  type        = string
+  default     = ""
+  description = "service name of vpc endpoint"
+}
+
+variable "subnet_id" {
+  type        = string
+  default     = ""
+  description = "Subnet Id."
+}
+
+variable "private_dns_enabled" {
+  type        = bool
+  default     = false
+  description = "AWS services and AWS Marketplace partner services only) Whether or not to associate a private hosted zone with the specified VPC."
+}
+
+variable "vpc_endpoint_type" {
+  type        = string
+  default     = "Interface"
+  description = "The VPC endpoint type, Gateway, GatewayLoadBalancer, or Interface. Defaults to Gateway."
+}
+
+variable "security_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "The ID of one or more security groups to associate with the network interface. Applicable for endpoints of type Interface. If no security groups are specified, the VPC's default security group is associated with the endpoint."
+}
+
+variable "route_table_ids" {
+  type        = list(string)
+  default     = []
+  description = "One or more route table IDs. Applicable for endpoints of type Gateway."
+}
+
+variable "auto_accept" {
+  type        = bool
+  default     = false
+  description = "Accept the VPC endpoint (the VPC endpoint and service need to be in the same AWS account)."
+}
