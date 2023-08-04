@@ -12,7 +12,7 @@ module "logging_bucket" {
   source = "./../../"
 
   name        = "logging"
-  environment = "tested"
+  environment = "test"
   label_order = ["name", "environment"]
   acl         = "log-delivery-write"
 }
@@ -59,7 +59,7 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "bucket-new-version"
-  environment = "tested"
+  environment = "test"
   label_order = ["name", "environment"]
 
   #acceleration and request payer enable or disable.  
@@ -83,10 +83,7 @@ module "s3_bucket" {
     years = null
   }
 
-  versioning = {
-    status     = true
-    mfa_delete = false
-  }
+  versioning = true
 
   #cross replicaton of s3 
   cors_rule = [{
@@ -154,8 +151,6 @@ module "s3_bucket" {
   ]
 
   #static website on s3
-  website_config_enable = true
-
   website = {
     index_document = "index.html"
     error_document = "error.html"
@@ -179,8 +174,6 @@ module "s3_bucket" {
       }
     }]
   }
-
-
 
 }
 data "aws_canonical_user_id" "current" {}

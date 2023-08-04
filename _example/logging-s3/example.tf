@@ -26,10 +26,7 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  versioning = {
-    status     = true
-    mfa_delete = false
-  }
+  versioning    = true
   acl           = "private"
   logging       = true
   target_bucket = module.logging_bucket.id

@@ -15,17 +15,7 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
 
-  versioning = {
-    status     = true
-    mfa_delete = false
-  }
-
   website = {
-    # conflicts with "error_document"
-    #        redirect_all_requests_to = {
-    #          host_name = "https://modules.tf"
-    #        }
-
     index_document = "index.html"
     error_document = "error.html"
     routing_rules = [{
@@ -49,8 +39,8 @@ module "s3_bucket" {
     }]
   }
 
+  versioning                           = true
   acl                                  = "private"
-  website_config_enable                = true
   enable_lifecycle_configuration_rules = true
   lifecycle_configuration_rules = [
     {
@@ -92,28 +82,17 @@ module "s3_bucket" {
       expiration_days                                = 365
     }
   ]
-  bucket_policy           = true
-  aws_iam_policy_document = data.aws_iam_policy_document.bucket_policy.json
+
+  attach_public_policy    = true
+  bucket_policy           = true ##first time apply it while be false.
+  aws_iam_policy_document = data.aws_iam_policy_document.default.json
 }
 
 ##----------------------------------------------------------------------------------
 ## Generates an IAM policy document in JSON format for use with resources that expect policy documents such as aws_iam_policy.
 ##----------------------------------------------------------------------------------
-#data "aws_iam_policy_document" "default" {
-#  version = "2012-10-17"
-#  statement {
-#    sid    = "Stmt1447315805704"
-#    effect = "Allow"
-#    principals {
-#      type        = "AWS"
-#      identifiers = ["*"]
-#    }
-#    actions   = ["s3:GetObject"]
-#    resources = ["arn:aws:s3:::clouddrove-website-bucket-test-public/*"]
-#  }
-#}
-
-data "aws_iam_policy_document" "bucket_policy" {
+data "aws_iam_policy_document" "default" {
+  version = "2012-10-17"
   statement {
     sid    = "Stmt1447315805704"
     effect = "Allow"
@@ -121,13 +100,8 @@ data "aws_iam_policy_document" "bucket_policy" {
       type        = "AWS"
       identifiers = ["*"]
     }
-
-    actions = [
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${module.s3_bucket.id}",
-    ]
+    actions   = ["s3:GetObject"]
+    resources = ["${module.s3_bucket.arn}/*"]
   }
+
 }

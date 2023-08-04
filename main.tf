@@ -38,7 +38,13 @@ resource "aws_s3_bucket_policy" "s3_default" {
   count  = var.bucket_policy == true ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default[*].id)
   policy = var.aws_iam_policy_document
+
+  depends_on = [
+    aws_s3_bucket.s3_default
+  ]
 }
+
+
 
 ##----------------------------------------------------------------------------------
 ## Provides an S3 bucket accelerate configuration resource.
@@ -69,12 +75,10 @@ resource "aws_s3_bucket_request_payment_configuration" "example" {
 resource "aws_s3_bucket_versioning" "example" {
   count = var.create_bucket && var.versioning == true ? 1 : 0
 
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
-  mfa                   = try(var.versioning["mfa"], null)
   versioning_configuration {
-    status     = try(var.versioning["enabled"] ? "Enabled" : "Suspended", tobool(var.versioning["status"]) ? "Enabled" : "Suspended", title(lower(var.versioning["status"])))
-    mfa_delete = try(tobool(var.versioning["mfa_delete"]) ? "Enabled" : "Disabled", title(lower(var.versioning["mfa_delete"])), null)
+    status = var.versioning_status
 
   }
 }
@@ -84,7 +88,7 @@ resource "aws_s3_bucket_versioning" "example" {
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_logging" "example" {
   count  = var.create_bucket && var.logging == true ? 1 : 0
-  bucket = join("", aws_s3_bucket.s3_default.*.id)
+  bucket = join("", aws_s3_bucket.s3_default[*].id)
 
   target_bucket = var.target_bucket
   target_prefix = var.target_prefix
@@ -95,7 +99,7 @@ resource "aws_s3_bucket_logging" "example" {
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
   count                 = var.create_bucket && var.enable_server_side_encryption == true ? 1 : 0
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
   rule {
@@ -112,7 +116,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
 resource "aws_s3_bucket_object_lock_configuration" "example" {
   count = var.create_bucket && var.object_lock_configuration != null ? 1 : 0
 
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
   token                 = try(var.object_lock_configuration.token, null)
 
@@ -133,7 +137,7 @@ resource "aws_s3_bucket_object_lock_configuration" "example" {
 resource "aws_s3_bucket_cors_configuration" "example" {
   count = var.create_bucket && var.cors_rule != null ? 1 : 0
 
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
   dynamic "cors_rule" {
@@ -226,7 +230,7 @@ locals {
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_acl" "default" {
   count                 = var.create_bucket ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
   acl = try(length(local.acl_grants), 0) == 0 ? var.acl : null
@@ -262,7 +266,7 @@ resource "aws_s3_bucket_acl" "default" {
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
   count                 = var.create_bucket && var.enable_lifecycle_configuration_rules == true ? 1 : 0
-  bucket                = join("", aws_s3_bucket.s3_default.*.id)
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
   dynamic "rule" {
@@ -566,7 +570,6 @@ resource "aws_s3_bucket_ownership_controls" "this" {
   # This `depends_on` is to prevent "A conflicting conditional operation is currently in progress against this resource."
   depends_on = [
     aws_s3_bucket_policy.s3_default,
-    aws_s3_bucket_public_access_block.this,
     aws_s3_bucket.s3_default
   ]
 }
@@ -606,22 +609,4 @@ resource "aws_s3_bucket_analytics_configuration" "default" {
       }
     }
   }
-}
-
-resource "aws_vpc_endpoint" "endpoint" {
-  count               = var.enabled == true && var.enable_vpc_endpoint == true ? 1 : 0
-  vpc_id              = var.vpc_id
-  service_name        = var.service_name
-  private_dns_enabled = var.private_dns_enabled
-  security_group_ids  = var.security_group_ids
-  route_table_ids     = var.route_table_ids
-  auto_accept         = var.auto_accept
-  vpc_endpoint_type   = var.vpc_endpoint_type
-  tags                = module.labels.tags
-}
-
-resource "aws_vpc_endpoint_subnet_association" "subnet_association" {
-  count           = var.enabled == true && var.enable_vpc_endpoint == true ? 1 : 0
-  vpc_endpoint_id = join("", aws_vpc_endpoint.endpoint.*.id)
-  subnet_id       = var.subnet_id
 }

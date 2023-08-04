@@ -30,18 +30,6 @@ variable "managedby" {
   description = "ManagedBy, eg 'CloudDrove'."
 }
 
-variable "delimiter" {
-  type        = string
-  default     = "-"
-  description = "Delimiter to be used between `organization`, `environment`, `name` and `attributes`."
-}
-
-variable "tags" {
-  type        = map(any)
-  default     = {}
-  description = "Additional tags (e.g. map(`BusinessUnit`,`XYZ`)."
-}
-
 # Module      : S3 BUCKET
 # Description : Terraform S3 Bucket module variables.
 variable "create_bucket" {
@@ -51,21 +39,15 @@ variable "create_bucket" {
 }
 
 variable "versioning" {
-  type        = map(string)
-  default     = {}
-  description = "Map containing versioning configuration."
+  type        = bool
+  default     = true
+  description = "Enable Versioning of S3."
 }
 
 variable "acl" {
   type        = string
   default     = null
   description = "Canned ACL to apply to the S3 bucket."
-}
-
-variable "mfa_delete" {
-  type        = string
-  default     = "Enabled"
-  description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
 }
 
 variable "enable_server_side_encryption" {
@@ -123,81 +105,6 @@ variable "lifecycle_configuration_rules" {
   }))
   default     = null
   description = "A list of lifecycle rules"
-}
-
-variable "lifecycle_infrequent_storage_transition_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies infrequent storage transition lifecycle rule status."
-}
-
-variable "lifecycle_infrequent_storage_object_prefix" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_infrequent_storage_transition" {
-  type        = number
-  default     = 60
-  description = "Specifies the number of days after object creation when it will be moved to standard infrequent access storage."
-}
-
-variable "lifecycle_glacier_transition_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies Glacier transition lifecycle rule status."
-}
-
-variable "lifecycle_glacier_object_prefix" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_deep_archive_transition" {
-  type        = number
-  default     = 180
-  description = "Specifies the number of days after object creation when it will be moved to DEEP ARCHIVE ."
-}
-
-variable "lifecycle_deep_archive_transition_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies DEEP ARCHIVE transition lifecycle rule status."
-}
-
-variable "lifecycle_deep_archive_object_prefix" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_glacier_transition" {
-  type        = number
-  default     = 180
-  description = "Specifies the number of days after object creation when it will be moved to Glacier storage."
-}
-
-variable "lifecycle_expiration_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies expiration lifecycle rule status."
-}
-
-variable "lifecycle_expiration_object_prefix" {
-  type        = string
-  default     = ""
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_expiration" {
-  type        = number
-  default     = 365
-  description = "Specifies the number of days after object creation when the object expires."
 }
 
 # Module      : S3 BUCKET POLICY
@@ -268,33 +175,6 @@ variable "owner_id" {
   description = "The canonical user ID associated with the AWS account."
 }
 
-variable "website_config_enable" {
-  type        = bool
-  default     = false
-  description = "enable or disable aws_s3_bucket_website_configuration"
-}
-
-variable "index_document" {
-  type        = string
-  default     = "index.html"
-  description = "The name of the index document for the website"
-}
-variable "error_document" {
-  type        = string
-  default     = "error.html"
-  description = "he name of the error document for the website "
-}
-variable "routing_rule" {
-  type        = string
-  default     = "docs/"
-  description = "ist of rules that define when a redirect is applied and the redirect behavior "
-}
-variable "redirect" {
-  type        = string
-  default     = "documents/"
-  description = "The redirect behavior for every request to this bucket's website endpoint "
-}
-
 variable "logging" {
   type        = bool
   default     = false
@@ -361,14 +241,15 @@ variable "replication_configuration" {
 }
 
 variable "attach_public_policy" {
-  description = "Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket)"
   type        = bool
   default     = true
+  description = "Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket)"
 }
+
 variable "attach_elb_log_delivery_policy" {
-  description = "Controls if S3 bucket should have ELB log delivery policy attached"
   type        = bool
   default     = false
+  description = "Controls if S3 bucket should have ELB log delivery policy attached"
 }
 
 variable "attach_lb_log_delivery_policy" {
@@ -392,25 +273,25 @@ variable "attach_require_latest_tls_policy" {
 variable "block_public_acls" {
   description = "Whether Amazon S3 should block public ACLs for this bucket."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "block_public_policy" {
   type        = bool
-  default     = true
+  default     = false
   description = "Whether Amazon S3 should block public bucket policies for this bucket."
 }
 
 variable "ignore_public_acls" {
   description = "Whether Amazon S3 should ignore public ACLs for this bucket."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "restrict_public_buckets" {
   description = "Whether Amazon S3 should restrict public bucket policies for this bucket."
   type        = bool
-  default     = true
+  default     = false
 
 }
 
@@ -453,64 +334,4 @@ variable "analytics_configuration" {
   type        = any
   default     = {}
   description = "Map containing bucket analytics configuration."
-}
-
-variable "enabled" {
-  type        = bool
-  default     = true
-  description = "Flag to control the vpc creation."
-}
-
-variable "enable_vpc_endpoint" {
-  type        = bool
-  default     = false
-  description = "enable vpc endpoint"
-}
-
-variable "vpc_id" {
-  type        = string
-  description = "VPC ID."
-  sensitive   = true
-}
-
-variable "service_name" {
-  type        = string
-  default     = ""
-  description = "service name of vpc endpoint"
-}
-
-variable "subnet_id" {
-  type        = string
-  default     = ""
-  description = "Subnet Id."
-}
-
-variable "private_dns_enabled" {
-  type        = bool
-  default     = false
-  description = "AWS services and AWS Marketplace partner services only) Whether or not to associate a private hosted zone with the specified VPC."
-}
-
-variable "vpc_endpoint_type" {
-  type        = string
-  default     = "Interface"
-  description = "The VPC endpoint type, Gateway, GatewayLoadBalancer, or Interface. Defaults to Gateway."
-}
-
-variable "security_group_ids" {
-  type        = list(string)
-  default     = []
-  description = "The ID of one or more security groups to associate with the network interface. Applicable for endpoints of type Interface. If no security groups are specified, the VPC's default security group is associated with the endpoint."
-}
-
-variable "route_table_ids" {
-  type        = list(string)
-  default     = []
-  description = "One or more route table IDs. Applicable for endpoints of type Gateway."
-}
-
-variable "auto_accept" {
-  type        = bool
-  default     = false
-  description = "Accept the VPC endpoint (the VPC endpoint and service need to be in the same AWS account)."
 }

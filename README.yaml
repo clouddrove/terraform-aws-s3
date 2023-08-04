@@ -25,6 +25,9 @@ badges:
     image: "https://img.shields.io/badge/License-APACHE-blue.svg"
     url: "LICENSE.md"
 
+prerequesties:
+  - name: Terraform 1.5.3
+    url: https://learn.hashicorp.com/terraform/getting-started/install.html
 #  description of this project
 description: |-
   Terraform module to create default S3 bucket with logging and encryption type specific features.
@@ -41,35 +44,35 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source              = "clouddrove/s3/aws"
-    version             = "1.3.0"
+    version             = "2.0.0"
   
     name        = "bucket-new-version"
     environment = "test"
     label_order = ["name", "environment"]
-    
-    versioning = true
-    
+  
     #acceleration and request payer enable or disable.  
     acceleration_status = true
-    request_payer       = true
-    
+    request_payer       = "BucketOwner"
+    object_lock_enabled = "Enabled"
     # logging of s3 bucket to destination bucket. 
     logging       = true
     target_bucket = module.logging_bucket.id
     target_prefix = "logs"
-    
+  
     #encrption on s3 with default encryption and kms encryption . 
     enable_server_side_encryption = true
     enable_kms                    = true
     kms_master_key_id             = module.kms_key.key_arn
-    
+  
     #object locking of s3. 
     object_lock_configuration = {
       mode  = "GOVERNANCE"
       days  = 366
       years = null
     }
-    
+  
+    versioning = true
+  
     #cross replicaton of s3 
     cors_rule = [{
       allowed_headers = ["*"],
@@ -78,7 +81,7 @@ usage: |-
       expose_headers  = ["ETag"],
       max_age_seconds = 3000
     }]
-    
+  
     #acl grant permission 
     grants = [
       {
@@ -89,7 +92,7 @@ usage: |-
       },
     ]
     owner_id = data.aws_canonical_user_id.current.id
-    
+  
     #lifecycle rule for s3 
     enable_lifecycle_configuration_rules = true
     lifecycle_configuration_rules = [
@@ -110,6 +113,7 @@ usage: |-
         standard_transition_days                       = 0
         glacier_transition_days                        = 0
         deeparchive_transition_days                    = 0
+        storage_class                                  = "GLACIER"
         expiration_days                                = 365
       },
       {
@@ -125,6 +129,7 @@ usage: |-
         abort_incomplete_multipart_upload_days         = 1
         noncurrent_version_glacier_transition_days     = 0
         noncurrent_version_deeparchive_transition_days = 0
+        storage_class                                  = "DEEP_ARCHIVE"
         noncurrent_version_expiration_days             = 30
         standard_transition_days                       = 0
         glacier_transition_days                        = 0
@@ -132,17 +137,41 @@ usage: |-
         expiration_days                                = 365
       }
     ]
-    
+  
     #static website on s3
-    website_config_enable = true
-    }
-    data "aws_canonical_user_id" "current" {}
+    website = {
+      index_document = "index.html"
+      error_document = "error.html"
+      routing_rules = [{
+        condition = {
+          key_prefix_equals = "docs/"
+        },
+        redirect = {
+          replace_key_prefix_with = "documents/"
+        }
+        }, {
+        condition = {
+          http_error_code_returned_equals = 404
+          key_prefix_equals               = "archive/"
+        },
+        redirect = {
+          host_name          = "archive.myhost.com"
+          http_redirect_code = 301
+          protocol           = "https"
+          replace_key_with   = "not_found.html"
+        }
+      }]
+     }
+  
+  }
+     data "aws_canonical_user_id" "current" {}
   ```
+  
   ### cors_s3 Bucket
   ```hcl
   module "s3_bucket" {
     source                     = "clouddrove/s3/aws"
-    version                    = "1.3.0"
+    version                    = "2.0.0"
   
     name        = "clouddrove-secure-bucket"
     environment = "test"
@@ -150,6 +179,7 @@ usage: |-
   
     versioning = true
     acl        = "private"
+  
     cors_rule = [{
       allowed_headers = ["*"],
       allowed_methods = ["PUT", "POST"],
@@ -158,11 +188,13 @@ usage: |-
       max_age_seconds = 3000
     }]
   }
+  ```
+  
   ### default-s3 Bucket
   ```hcl
   module "s3_bucket" {
     source                             = "clouddrove/s3/aws"
-    version                            = "1.3.0"
+    version                            = "2.0.0"
   
     name        = "clouddrove-secure-bucket"
     environment = "test"
@@ -171,11 +203,12 @@ usage: |-
     acl         = "private"
   }
   ```
+  
   ### encryption Bucket
   ```hcl
   module "s3_bucket" {
     source                  = "clouddrove/s3/aws"
-    version                 = "1.3.0"
+    version                 = "2.0.0"
   
     name        = "clouddrove-encryption-bucket"
     environment = "test"
@@ -192,7 +225,7 @@ usage: |-
   ```hcl
   module "s3_bucket" {
     source                              = "clouddrove/s3/aws"
-    version                             = "1.3.0"
+    version                             = "2.0.0"
   
     name        = "clouddrove-logging-encryption-bucket"
     environment = "test"
@@ -209,12 +242,12 @@ usage: |-
     depends_on = [module.logging_bucket]
   }
   ```
-
+  
    ### logging Bucket
   ```hcl
     module "s3_bucket" {
     source              = "clouddrove/s3/aws"
-    version             = "1.3.0"
+    version             = "2.0.0"
 
     name        = "clouddrove-logging-bucket"
     environment = "test"
@@ -228,21 +261,22 @@ usage: |-
     depends_on    = [module.logging_bucket]
   }
   ```
-   ### s3 replication Bucket
+  
+  ### s3 replication Bucket
   ```hcl
-    module "s3_bucket" {
+  module "s3_bucket" {
     source              = "clouddrove/s3/aws"
-    version             = "1.3.0"
+    version             = "2.0.0"
 
     name        = "clouddrov-s3-replication"
     environment = "test"
     label_order = ["name", "environment"]
   
-    acl        = "private"
-    versioning = true
+    acl                       = "private"
     replication_configuration = {
-      role = aws_iam_role.replication.arn
-      rules = [
+      role       = aws_iam_role.replication.arn
+      versioning = true
+      rules      = [
         {
           id                        = "something-with-kms-and-filter"
           status                    = true
@@ -390,61 +424,88 @@ usage: |-
   
    ### s3 website Bucket
   ```hcl
-    module "s3_bucket" {
+  module "s3_bucket" {
     source              = "clouddrove/s3/aws"
-    version             = "1.3.0"
+    version             = "2.0.0"
 
     name        = "clouddrove-website-bucket"
     environment = "test"
     label_order = ["name", "environment"]
-  
-    versioning                           = true
-    acl                                  = "private"
-    website_config_enable                = true
-    enable_lifecycle_configuration_rules = true
-    lifecycle_configuration_rules = [
-      {
-        id                                             = "log"
-        prefix                                         = null
-        enabled                                        = true
-        tags                                           = { "temp" : "true" }
-        enable_glacier_transition                      = false
-        enable_deeparchive_transition                  = false
-        enable_standard_ia_transition                  = false
-        enable_current_object_expiration               = true
-        enable_noncurrent_version_expiration           = true
-        abort_incomplete_multipart_upload_days         = null
-        noncurrent_version_glacier_transition_days     = 0
-        noncurrent_version_deeparchive_transition_days = 0
-        noncurrent_version_expiration_days             = 30
-        standard_transition_days                       = 0
-        glacier_transition_days                        = 0
-        deeparchive_transition_days                    = 0
-        expiration_days                                = 365
-      },
-      {
-        id                                             = "log1"
-        prefix                                         = null
-        enabled                                        = true
-        tags                                           = {}
-        enable_glacier_transition                      = false
-        enable_deeparchive_transition                  = false
-        enable_standard_ia_transition                  = false
-        enable_current_object_expiration               = true
-        enable_noncurrent_version_expiration           = true
-        abort_incomplete_multipart_upload_days         = 1
-        noncurrent_version_glacier_transition_days     = 0
-        noncurrent_version_deeparchive_transition_days = 0
-        noncurrent_version_expiration_days             = 30
-        standard_transition_days                       = 0
-        glacier_transition_days                        = 0
-        deeparchive_transition_days                    = 0
-        expiration_days                                = 365
-      }
+         
+   website       = { 
+         
+   index_document = "index.html"
+   error_document = "error.html"
+   routing_rules = [{
+   condition = {
+    key_prefix_equals = "docs/"
+   },
+   redirect = {
+    replace_key_prefix_with = "documents/"
+   }
+   }, {
+   condition = {
+    http_error_code_returned_equals = 404
+    key_prefix_equals               = "archive/"
+   },
+   redirect = {
+    host_name          = "archive.myhost.com"
+    http_redirect_code = 301
+    protocol           = "https"
+    replace_key_with   = "not_found.html"
+   }
+   }]
+   }
+   
+   versioning = true
+   acl                                  = "private"
+   enable_lifecycle_configuration_rules = true
+   lifecycle_configuration_rules = [
+   {
+   id                                             = "log"
+   prefix                                         = null
+   enabled                                        = true
+   tags                                           = { "temp" : "true" }
+   enable_glacier_transition                      = false
+   enable_deeparchive_transition                  = false
+   enable_standard_ia_transition                  = false
+   enable_current_object_expiration               = true
+   enable_noncurrent_version_expiration           = true
+   abort_incomplete_multipart_upload_days         = null
+   noncurrent_version_glacier_transition_days     = 0
+   noncurrent_version_deeparchive_transition_days = 0
+   noncurrent_version_expiration_days             = 30
+   standard_transition_days                       = 0
+   glacier_transition_days                        = 0
+   deeparchive_transition_days                    = 0
+   expiration_days                                = 365
+    },
+    {
+    id                                             = "log1"
+    prefix                                         = null
+    enabled                                        = true
+    tags                                           = {}
+    enable_glacier_transition                      = false
+    enable_deeparchive_transition                  = false
+    enable_standard_ia_transition                  = false
+    enable_current_object_expiration               = true
+    enable_noncurrent_version_expiration           = true
+    abort_incomplete_multipart_upload_days         = 1
+    noncurrent_version_glacier_transition_days     = 0
+    noncurrent_version_deeparchive_transition_days = 0
+    noncurrent_version_expiration_days             = 30
+    standard_transition_days                       = 0
+    glacier_transition_days                        = 0
+    deeparchive_transition_days                    = 0
+    expiration_days                                = 365
+    }
     ]
-    bucket_policy           = true
-    aws_iam_policy_document = data.aws_iam_policy_document.default.json
-  }
+     
+     attach_public_policy    = true
+     bucket_policy           = true ##first time apply it while be false.
+     aws_iam_policy_document = data.aws_iam_policy_document.default.json
+    }
+    
     data "aws_iam_policy_document" "default" {
     version = "2012-10-17"
     statement {
@@ -455,7 +516,8 @@ usage: |-
     identifiers = ["*"]
     }
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::clouddrove-website-bucket-test-public/*"]
+    resources = ["${module.s3_bucket.arn}/*"]
     }
+    
   }
   ```

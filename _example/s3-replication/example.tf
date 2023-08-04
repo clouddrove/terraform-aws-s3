@@ -34,12 +34,8 @@ module "replica_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
   acl         = "private"
-  versioning = {
-    status     = true
-    mfa_delete = false
-  }
+  versioning  = true
 }
-
 ##----------------------------------------------------------------------------------
 ## Provides details about a specific S3 bucket.
 ##----------------------------------------------------------------------------------
@@ -52,11 +48,9 @@ module "s3_bucket" {
 
   acl = "private"
   replication_configuration = {
-    role = aws_iam_role.replication.arn
-    versioning = {
-      status     = "Enabled"
-      mfa_delete = "Disabled"
-    }
+    role       = aws_iam_role.replication.arn
+    versioning = true
+
     rules = [
       {
         id                        = "something-with-kms-and-filter"

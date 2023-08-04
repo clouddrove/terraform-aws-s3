@@ -15,8 +15,5 @@ module "s3_bucket" {
   environment = "test"
   label_order = ["name", "environment"]
   acl         = "private"
-  versioning = {
-    status     = true
-    mfa_delete = false
-  }
+  versioning  = true
 }
