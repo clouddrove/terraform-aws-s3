@@ -1,5 +1,5 @@
 output "id" {
-  value       =  module.s3_bucket[*].id
+  value       = module.s3_bucket[*].id
   description = "The ID of the s3 bucket."
 }
 
