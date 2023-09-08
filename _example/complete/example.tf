@@ -4,17 +4,45 @@
 provider "aws" {
   region = "eu-west-1"
 }
-
+data "aws_canonical_user_id" "current" {}
 ##----------------------------------------------------------------------------------
 ## Provides details about a specific S3 bucket.
 ##----------------------------------------------------------------------------------
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "logging"
+  name        = "logging-x13"
   environment = "test"
   label_order = ["name", "environment"]
   acl         = "log-delivery-write"
+}
+
+locals {
+  environment        = "test"
+  label_order        = ["name", "environment"]
+  availability_zones = ["eu-west-1a", "eu-west-1b"]
+}
+
+module "vpc" {
+  source  = "clouddrove/vpc/aws"
+  version = "2.0.0"
+
+  name        = "app"
+  environment = "test"
+  cidr_block  = "172.16.0.0/16"
+}
+
+module "subnets" {
+  source             = "clouddrove/subnet/aws"
+  version            = "2.0.0"
+  name               = "subnet"
+  environment        = "test"
+  availability_zones = local.availability_zones
+  vpc_id             = module.vpc.vpc_id
+  cidr_block         = module.vpc.vpc_cidr_block
+  type               = "private"
+  igw_id             = module.vpc.igw_id
+  ipv6_cidr_block    = module.vpc.ipv6_cidr_block
 }
 
 ##----------------------------------------------------------------------------------
@@ -58,7 +86,7 @@ data "aws_iam_policy_document" "default" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "bucket-new-version"
+  name        = "arcx-13"
   environment = "test"
   label_order = ["name", "environment"]
 
@@ -84,6 +112,13 @@ module "s3_bucket" {
   }
 
   versioning = true
+  vpc_id = module.vpc.vpc_id
+  vpc_endpoints = [
+    {
+      service_type = "Interface"
+      subnet_ids = module.subnets.private_subnet_id
+    }
+  ]
 
   #cross replicaton of s3 
   cors_rule = [{
@@ -176,4 +211,3 @@ module "s3_bucket" {
   }
 
 }
-data "aws_canonical_user_id" "current" {}
