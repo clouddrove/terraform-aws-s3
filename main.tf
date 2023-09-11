@@ -615,26 +615,30 @@ resource "aws_s3_bucket_analytics_configuration" "default" {
 ## VPC Endpoint resource for S3.
 ##----------------------------------------------------------------------------------
 data "aws_vpc_endpoint_service" "s3" {
-  for_each = var.vpc_endpoint
+  for_each     = { for ep in var.vpc_endpoints : ep.endpoint_count => ep }
   service      = "s3"
-  service_type = "Gateway"
+  service_type = each.value.service_type
 }
 
-resource "aws_vpc_endpoint" "this" {
-  for_each = var.endpoints
+resource "aws_vpc_endpoint" "endpoints" {
+  for_each = { for ep in var.vpc_endpoints : ep.endpoint_count => ep }
 
-  vpc_id            = var.vpc_id
-  service_name      = data.aws_vpc_endpoint_service.this[each.key].service_name
-  vpc_endpoint_type = try(each.value.service_type, "Interface")
-  auto_accept       = try(each.value.auto_accept, null)
+  vpc_id            = each.value.vpc_id
+  service_name      = data.aws_vpc_endpoint_service.s3[each.key].service_name
+  vpc_endpoint_type = each.value.service_type
+  auto_accept       = lookup(each.value, "auto_accept", null)
 
-  security_group_ids  = try(each.value.service_type, "Interface") == "Interface" ? length(distinct(concat(local.security_group_ids, lookup(each.value, "security_group_ids", [])))) > 0 ? distinct(concat(local.security_group_ids, lookup(each.value, "security_group_ids", []))) : null : null
-  subnet_ids          = try(each.value.service_type, "Interface") == "Interface" ? distinct(concat(var.subnet_ids, lookup(each.value, "subnet_ids", []))) : null
-  route_table_ids     = try(each.value.service_type, "Interface") == "Gateway" ? lookup(each.value, "route_table_ids", null) : null
-  policy              = try(each.value.policy, null)
-  private_dns_enabled = try(each.value.service_type, "Interface") == "Interface" ? try(each.value.private_dns_enabled, null) : null
+  security_group_ids  = lookup(each.value, "service_type", "Interface") == "Interface" ? length(distinct(lookup(each.value, "security_group_ids", []))) > 0 ? lookup(each.value, "security_group_ids", []) : null : null
+  subnet_ids          = lookup(each.value, "service_type", "Interface") == "Interface" ? distinct(concat(lookup(each.value, "subnet_ids", []))) : null
+  route_table_ids     = lookup(each.value, "service_type", "Interface") == "Gateway" ? lookup(each.value, "route_table_ids", null) : null
+  policy              = lookup(each.value, "policy", null)
+  private_dns_enabled = lookup(each.value, "service_type", "Interface") == "Interface" ? try(each.value.private_dns_enabled, null) : null
 
-  tags = merge(var.tags, try(each.value.tags, {}))
+  tags = merge(module.labels.tags,
+    {
+      "Name" = format("%s-%s-%s", module.labels.id, "ep", each.value.endpoint_count)
+    }
+  )
 
   timeouts {
     create = try(var.timeouts.create, "10m")

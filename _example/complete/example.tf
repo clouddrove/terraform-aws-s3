@@ -112,11 +112,17 @@ module "s3_bucket" {
   }
 
   versioning = true
-  vpc_id = module.vpc.vpc_id
   vpc_endpoints = [
     {
-      service_type = "Interface"
-      subnet_ids = module.subnets.private_subnet_id
+      endpoint_count = 1
+      vpc_id         = module.vpc.vpc_id
+      service_type   = "Interface"
+      subnet_ids     = module.subnets.private_subnet_id
+    },
+    {
+      endpoint_count = 2
+      vpc_id         = module.vpc.vpc_id
+      service_type   = "Gateway"
     }
   ]
 

@@ -335,3 +335,14 @@ variable "analytics_configuration" {
   default     = {}
   description = "Map containing bucket analytics configuration."
 }
+
+variable "vpc_endpoints" {
+  type    = any
+  default = []
+}
+
+variable "timeouts" {
+  description = "Define maximum timeout for creating, updating, and deleting VPC endpoint resources"
+  type        = map(string)
+  default     = {}
+}
