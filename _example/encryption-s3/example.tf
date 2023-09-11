@@ -5,6 +5,11 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+locals {
+  environment = "test"
+  label_order = ["name", "environment"]
+}
+
 ##----------------------------------------------------------------------------------
 ## Below resources will create KMS-KEY and its components.
 ##----------------------------------------------------------------------------------
@@ -12,8 +17,8 @@ module "kms_key" {
   source      = "clouddrove/kms/aws"
   version     = "1.3.1"
   name        = "kms"
-  environment = "test"
-  label_order = ["name", "environment"]
+  environment = local.environment
+  label_order = local.label_order
 
   enabled                 = true
   description             = "KMS key for s3"
@@ -47,12 +52,13 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-encryption-bucket"
-  environment = "test"
-  label_order = ["name", "environment"]
+  s3_name     = ""
+  environment = local.environment
+  label_order = local.label_order
 
-  versioning                    = true
   acl                           = "private"
   enable_server_side_encryption = true
+  versioning                    = true
   enable_kms                    = true
   kms_master_key_id             = module.kms_key.key_arn
 }

@@ -30,21 +30,9 @@ variable "managedby" {
   description = "ManagedBy, eg 'CloudDrove'."
 }
 
-variable "delimiter" {
-  type        = string
-  default     = "-"
-  description = "Delimiter to be used between `organization`, `environment`, `name` and `attributes`."
-}
-
-variable "tags" {
-  type        = map(any)
-  default     = {}
-  description = "Additional tags (e.g. map(`BusinessUnit`,`XYZ`)."
-}
-
 # Module      : S3 BUCKET
 # Description : Terraform S3 Bucket module variables.
-variable "create_bucket" {
+variable "enabled" {
   type        = bool
   default     = true
   description = "Conditionally create S3 bucket."
@@ -60,12 +48,6 @@ variable "acl" {
   type        = string
   default     = null
   description = "Canned ACL to apply to the S3 bucket."
-}
-
-variable "mfa_delete" {
-  type        = bool
-  default     = false
-  description = "Enable MFA delete for either Change the versioning state of your bucket or Permanently delete an object version."
 }
 
 variable "enable_server_side_encryption" {
@@ -125,81 +107,6 @@ variable "lifecycle_configuration_rules" {
   description = "A list of lifecycle rules"
 }
 
-variable "lifecycle_infrequent_storage_transition_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies infrequent storage transition lifecycle rule status."
-}
-
-variable "lifecycle_infrequent_storage_object_prefix" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_infrequent_storage_transition" {
-  type        = number
-  default     = 60
-  description = "Specifies the number of days after object creation when it will be moved to standard infrequent access storage."
-}
-
-variable "lifecycle_glacier_transition_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies Glacier transition lifecycle rule status."
-}
-
-variable "lifecycle_glacier_object_prefix" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_deep_archive_transition" {
-  type        = number
-  default     = 180
-  description = "Specifies the number of days after object creation when it will be moved to DEEP ARCHIVE ."
-}
-
-variable "lifecycle_deep_archive_transition_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies DEEP ARCHIVE transition lifecycle rule status."
-}
-
-variable "lifecycle_deep_archive_object_prefix" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_glacier_transition" {
-  type        = number
-  default     = 180
-  description = "Specifies the number of days after object creation when it will be moved to Glacier storage."
-}
-
-variable "lifecycle_expiration_enabled" {
-  type        = bool
-  default     = false
-  description = "Specifies expiration lifecycle rule status."
-}
-
-variable "lifecycle_expiration_object_prefix" {
-  type        = string
-  default     = ""
-  description = "Object key prefix identifying one or more objects to which the lifecycle rule applies."
-}
-
-variable "lifecycle_days_to_expiration" {
-  type        = number
-  default     = 365
-  description = "Specifies the number of days after object creation when the object expires."
-}
-
 # Module      : S3 BUCKET POLICY
 # Description : Terraform S3 Bucket Policy module variables.
 variable "aws_iam_policy_document" {
@@ -225,6 +132,18 @@ variable "bucket_prefix" {
   type        = string
   default     = null
   description = " (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix."
+}
+
+variable "expected_bucket_owner" {
+  type        = string
+  default     = null
+  description = "The account ID of the expected bucket owner"
+}
+
+variable "owner" {
+  type        = map(string)
+  default     = {}
+  description = "Bucket owner's display name and ID. Conflicts with `acl`"
 }
 
 variable "grants" {
@@ -256,33 +175,6 @@ variable "owner_id" {
   description = "The canonical user ID associated with the AWS account."
 }
 
-variable "website_config_enable" {
-  type        = bool
-  default     = false
-  description = "enable or disable aws_s3_bucket_website_configuration"
-}
-
-variable "index_document" {
-  type        = string
-  default     = "index.html"
-  description = "The name of the index document for the website"
-}
-variable "error_document" {
-  type        = string
-  default     = "error.html"
-  description = "he name of the error document for the website "
-}
-variable "routing_rule" {
-  type        = string
-  default     = "docs/"
-  description = "ist of rules that define when a redirect is applied and the redirect behavior "
-}
-variable "redirect" {
-  type        = string
-  default     = "documents/"
-  description = "The redirect behavior for every request to this bucket's website endpoint "
-}
-
 variable "logging" {
   type        = bool
   default     = false
@@ -308,11 +200,16 @@ variable "acceleration_status" {
 }
 
 variable "request_payer" {
-  type        = bool
-  default     = false
-  description = "Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer"
+  type        = string
+  default     = null
+  description = "(Optional) Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer. See Requester Pays Buckets developer guide for more information."
 }
 
+variable "website" {
+  type        = any # map(string)
+  default     = {}
+  description = "Map containing static web-site hosting or redirect configuration."
+}
 
 variable "object_lock_configuration" {
   type = object({
@@ -338,20 +235,21 @@ variable "cors_rule" {
 }
 
 variable "replication_configuration" {
-  description = "Map containing cross-region replication configuration."
   type        = any
   default     = {}
+  description = "Map containing cross-region replication configuration."
 }
 
 variable "attach_public_policy" {
-  description = "Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket)"
   type        = bool
   default     = true
+  description = "Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket)"
 }
+
 variable "attach_elb_log_delivery_policy" {
-  description = "Controls if S3 bucket should have ELB log delivery policy attached"
   type        = bool
   default     = false
+  description = "Controls if S3 bucket should have ELB log delivery policy attached"
 }
 
 variable "attach_lb_log_delivery_policy" {
@@ -379,9 +277,9 @@ variable "block_public_acls" {
 }
 
 variable "block_public_policy" {
-  description = "Whether Amazon S3 should block public bucket policies for this bucket."
   type        = bool
   default     = false
+  description = "Whether Amazon S3 should block public bucket policies for this bucket."
 }
 
 variable "ignore_public_acls" {
@@ -394,6 +292,7 @@ variable "restrict_public_buckets" {
   description = "Whether Amazon S3 should restrict public bucket policies for this bucket."
   type        = bool
   default     = false
+
 }
 
 variable "control_object_ownership" {
@@ -411,4 +310,45 @@ variable "attach_policy" {
   description = "Controls if S3 bucket should have bucket policy attached (set to `true` to use value of `policy` as bucket policy)"
   type        = bool
   default     = false
+}
+
+variable "configuration_status" {
+  type        = string
+  default     = "Enabled"
+  description = "Versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets."
+}
+
+variable "versioning_status" {
+  type        = string
+  default     = "Enabled"
+  description = "Required if versioning_configuration mfa_delete is enabled) Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device."
+}
+
+variable "object_lock_enabled" {
+  type        = bool
+  default     = false
+  description = "Whether S3 bucket should have an Object Lock configuration enabled."
+}
+
+variable "analytics_configuration" {
+  type        = any
+  default     = {}
+  description = "Map containing bucket analytics configuration."
+}
+
+variable "vpc_endpoints" {
+  type    = any
+  default = []
+}
+
+variable "timeouts" {
+  description = "Define maximum timeout for creating, updating, and deleting VPC endpoint resources"
+  type        = map(string)
+  default     = {}
+}
+
+variable "s3_name" {
+  type        = string
+  default     = null
+  description = "name of s3 bucket"
 }

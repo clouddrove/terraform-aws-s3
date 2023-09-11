@@ -5,16 +5,48 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+locals {
+  environment        = "test"
+  label_order        = ["name", "environment"]
+  availability_zones = ["eu-west-1a", "eu-west-1b"]
+}
+
+data "aws_canonical_user_id" "current" {}
 ##----------------------------------------------------------------------------------
 ## Provides details about a specific S3 bucket.
 ##----------------------------------------------------------------------------------
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "logging"
-  environment = "test"
-  label_order = ["name", "environment"]
+  name        = "logging-x13"
+  environment = local.environment
+  label_order = local.label_order
+  s3_name     = ""
   acl         = "log-delivery-write"
+}
+
+module "vpc" {
+  source  = "clouddrove/vpc/aws"
+  version = "2.0.0"
+
+  name        = "app"
+  environment = local.environment
+  cidr_block  = "172.16.0.0/16"
+}
+
+#tfsec:ignore:aws-ec2-no-excessive-port-access
+#tfsec:ignore:aws-ec2-no-public-ingress-acl
+module "subnets" {
+  source             = "clouddrove/subnet/aws"
+  version            = "2.0.0"
+  name               = "subnet"
+  environment        = local.environment
+  availability_zones = local.availability_zones
+  vpc_id             = module.vpc.vpc_id
+  cidr_block         = module.vpc.vpc_cidr_block
+  type               = "private"
+  igw_id             = module.vpc.igw_id
+  ipv6_cidr_block    = module.vpc.ipv6_cidr_block
 }
 
 ##----------------------------------------------------------------------------------
@@ -24,8 +56,8 @@ module "kms_key" {
   source      = "clouddrove/kms/aws"
   version     = "1.3.1"
   name        = "kms"
-  environment = "test"
-  label_order = ["name", "environment"]
+  environment = local.environment
+  label_order = local.label_order
 
   enabled                 = true
   description             = "KMS key for s3"
@@ -58,17 +90,17 @@ data "aws_iam_policy_document" "default" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "bucket-new-version"
-  environment = "test"
-  label_order = ["name", "environment"]
-
-  versioning = true
+  name        = "arcx-13"
+  environment = local.environment
+  label_order = local.label_order
+  s3_name     = ""
 
   #acceleration and request payer enable or disable.  
   acceleration_status = true
-  request_payer       = true
 
-  # logging of s3 bucket to destination bucket. 
+  request_payer       = "BucketOwner"
+  object_lock_enabled = true
+  # logging of s3 bucket to destination bucket.
   logging       = true
   target_bucket = module.logging_bucket.id
   target_prefix = "logs"
@@ -84,6 +116,21 @@ module "s3_bucket" {
     days  = 366
     years = null
   }
+
+  versioning = true
+  vpc_endpoints = [
+    {
+      endpoint_count = 1
+      vpc_id         = module.vpc.vpc_id
+      service_type   = "Interface"
+      subnet_ids     = module.subnets.private_subnet_id
+    },
+    {
+      endpoint_count = 2
+      vpc_id         = module.vpc.vpc_id
+      service_type   = "Gateway"
+    }
+  ]
 
   #cross replicaton of s3 
   cors_rule = [{
@@ -125,6 +172,7 @@ module "s3_bucket" {
       standard_transition_days                       = 0
       glacier_transition_days                        = 0
       deeparchive_transition_days                    = 0
+      storage_class                                  = "GLACIER"
       expiration_days                                = 365
     },
     {
@@ -140,6 +188,7 @@ module "s3_bucket" {
       abort_incomplete_multipart_upload_days         = 1
       noncurrent_version_glacier_transition_days     = 0
       noncurrent_version_deeparchive_transition_days = 0
+      storage_class                                  = "DEEP_ARCHIVE"
       noncurrent_version_expiration_days             = 30
       standard_transition_days                       = 0
       glacier_transition_days                        = 0
@@ -149,6 +198,28 @@ module "s3_bucket" {
   ]
 
   #static website on s3
-  website_config_enable = true
+  website = {
+    index_document = "index.html"
+    error_document = "error.html"
+    routing_rules = [{
+      condition = {
+        key_prefix_equals = "docs/"
+      },
+      redirect = {
+        replace_key_prefix_with = "documents/"
+      }
+      }, {
+      condition = {
+        http_error_code_returned_equals = 404
+        key_prefix_equals               = "archive/"
+      },
+      redirect = {
+        host_name          = "archive.myhost.com"
+        http_redirect_code = 301
+        protocol           = "https"
+        replace_key_with   = "not_found.html"
+      }
+    }]
+  }
+
 }
-data "aws_canonical_user_id" "current" {}

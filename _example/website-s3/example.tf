@@ -5,6 +5,11 @@ provider "aws" {
   region = "eu-west-1"
 }
 
+locals {
+  environment = "test"
+  label_order = ["name", "environment"]
+}
+
 ##----------------------------------------------------------------------------------
 ## Provides details about a specific S3 bucket.
 ##----------------------------------------------------------------------------------
@@ -12,12 +17,36 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-website-bucket"
-  environment = "test"
-  label_order = ["name", "environment"]
+  s3_name     = ""
+  environment = local.environment
+  label_order = local.label_order
+
+  website = {
+    index_document = "index.html"
+    error_document = "error.html"
+    routing_rules = [{
+      condition = {
+        key_prefix_equals = "docs/"
+      },
+      redirect = {
+        replace_key_prefix_with = "documents/"
+      }
+      }, {
+      condition = {
+        http_error_code_returned_equals = 404
+        key_prefix_equals               = "archive/"
+      },
+      redirect = {
+        host_name          = "archive.myhost.com"
+        http_redirect_code = 301
+        protocol           = "https"
+        replace_key_with   = "not_found.html"
+      }
+    }]
+  }
 
   versioning                           = true
   acl                                  = "private"
-  website_config_enable                = true
   enable_lifecycle_configuration_rules = true
   lifecycle_configuration_rules = [
     {
@@ -59,7 +88,9 @@ module "s3_bucket" {
       expiration_days                                = 365
     }
   ]
-  bucket_policy           = true
+
+  attach_public_policy    = true
+  bucket_policy           = true ##first time apply it while be false.
   aws_iam_policy_document = data.aws_iam_policy_document.default.json
 }
 
@@ -76,6 +107,7 @@ data "aws_iam_policy_document" "default" {
       identifiers = ["*"]
     }
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::clouddrove-website-bucket-test-public/*"]
+    resources = ["${module.s3_bucket.arn}/*"]
   }
+
 }
