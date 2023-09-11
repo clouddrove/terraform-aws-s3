@@ -15,20 +15,14 @@ module "labels" {
 ## Terraform resource to create S3 bucket with different combination type specific features.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket" "s3_default" {
-  count = var.create_bucket == true ? 1 : 0
+  count = var.enabled == true ? 1 : 0
 
-  bucket        = module.labels.id
-  bucket_prefix = var.bucket_prefix
-  force_destroy = var.force_destroy
-  tags          = module.labels.tags
+  bucket              = var.s3_name != null ? var.s3_name : module.labels.id
+  bucket_prefix       = var.bucket_prefix
+  force_destroy       = var.force_destroy
+  object_lock_enabled = var.object_lock_enabled
+  tags                = module.labels.tags
 
-  dynamic "object_lock_configuration" {
-    for_each = var.object_lock_configuration != null ? [1] : []
-
-    content {
-      object_lock_enabled = var.object_lock_enabled
-    }
-  }
 }
 
 ##----------------------------------------------------------------------------------
@@ -44,13 +38,11 @@ resource "aws_s3_bucket_policy" "s3_default" {
   ]
 }
 
-
-
 ##----------------------------------------------------------------------------------
 ## Provides an S3 bucket accelerate configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_accelerate_configuration" "example" {
-  count                 = var.create_bucket && var.acceleration_status == true ? 1 : 0
+  count                 = var.enabled && var.acceleration_status == true ? 1 : 0
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
@@ -61,7 +53,7 @@ resource "aws_s3_bucket_accelerate_configuration" "example" {
 ## Provides an S3 bucket request payment configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_request_payment_configuration" "example" {
-  count = var.create_bucket && var.request_payer == true ? 1 : 0
+  count = var.enabled && var.request_payer == true ? 1 : 0
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
@@ -73,7 +65,7 @@ resource "aws_s3_bucket_request_payment_configuration" "example" {
 ## Deleting this resource will either suspend versioning on the associated S3 bucket or simply remove the resource from Terraform state if the associated S3 bucket is unversioned.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_versioning" "example" {
-  count = var.create_bucket && var.versioning == true ? 1 : 0
+  count = var.enabled && var.versioning == true ? 1 : 0
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
@@ -87,7 +79,7 @@ resource "aws_s3_bucket_versioning" "example" {
 ## Provides an S3 bucket (server access) logging resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_logging" "example" {
-  count  = var.create_bucket && var.logging == true ? 1 : 0
+  count  = var.enabled && var.logging == true ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default[*].id)
 
   target_bucket = var.target_bucket
@@ -98,7 +90,7 @@ resource "aws_s3_bucket_logging" "example" {
 ## Provides a S3 bucket server-side encryption configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
-  count                 = var.create_bucket && var.enable_server_side_encryption == true ? 1 : 0
+  count                 = var.enabled && var.enable_server_side_encryption == true ? 1 : 0
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
@@ -114,13 +106,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
 ## Provides an S3 bucket Object Lock configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_object_lock_configuration" "example" {
-  count = var.create_bucket && var.object_lock_configuration != null ? 1 : 0
+  count = var.enabled && var.object_lock_enabled && var.object_lock_configuration != null ? 1 : 0
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
   token                 = try(var.object_lock_configuration.token, null)
-
-  object_lock_enabled = var.object_lock_enabled
 
   rule {
     default_retention {
@@ -135,7 +125,7 @@ resource "aws_s3_bucket_object_lock_configuration" "example" {
 ## Provides an S3 bucket CORS configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_cors_configuration" "example" {
-  count = var.create_bucket && var.cors_rule != null ? 1 : 0
+  count = var.enabled && var.cors_rule != null ? 1 : 0
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
@@ -157,7 +147,7 @@ resource "aws_s3_bucket_cors_configuration" "example" {
 ## Provides an S3 bucket website configuration resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_website_configuration" "this" {
-  count = var.create_bucket && length(keys(var.website)) > 0 ? 1 : 0
+  count = var.enabled && length(keys(var.website)) > 0 ? 1 : 0
 
   bucket                = aws_s3_bucket.s3_default[0].id
   expected_bucket_owner = var.expected_bucket_owner
@@ -229,7 +219,7 @@ locals {
 ## Provides an S3 bucket ACL resource.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_acl" "default" {
-  count                 = var.create_bucket ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
+  count                 = var.enabled ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
@@ -265,7 +255,7 @@ resource "aws_s3_bucket_acl" "default" {
 ## Provides an independent configuration resource for S3 bucket lifecycle configuration.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
-  count                 = var.create_bucket && var.enable_lifecycle_configuration_rules == true ? 1 : 0
+  count                 = var.enabled && var.enable_lifecycle_configuration_rules == true ? 1 : 0
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
@@ -373,7 +363,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 ## Provides an independent configuration resource for S3 bucket replication configuration.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_replication_configuration" "this" {
-  count = var.create_bucket && length(keys(var.replication_configuration)) > 0 ? 1 : 0
+  count = var.enabled && length(keys(var.replication_configuration)) > 0 ? 1 : 0
 
   bucket = aws_s3_bucket.s3_default[0].id
   role   = var.replication_configuration["role"]
@@ -545,7 +535,7 @@ locals {
 ## Manages S3 bucket-level Public Access Block configuration.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_public_access_block" "this" {
-  count = var.create_bucket && var.attach_public_policy ? 1 : 0
+  count = var.enabled && var.attach_public_policy ? 1 : 0
 
   bucket = local.attach_policy ? aws_s3_bucket_policy.s3_default[0].id : aws_s3_bucket.s3_default[0].id
 
@@ -559,7 +549,7 @@ resource "aws_s3_bucket_public_access_block" "this" {
 ## Provides a resource to manage S3 Bucket Ownership Controls.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_ownership_controls" "this" {
-  count = var.create_bucket && var.control_object_ownership ? 1 : 0
+  count = var.enabled && var.control_object_ownership ? 1 : 0
 
   bucket = local.attach_policy ? aws_s3_bucket_policy.s3_default[0].id : aws_s3_bucket.s3_default[0].id
 
@@ -575,7 +565,7 @@ resource "aws_s3_bucket_ownership_controls" "this" {
 }
 
 resource "aws_s3_bucket_analytics_configuration" "default" {
-  for_each = { for k, v in var.analytics_configuration : k => v if var.create_bucket }
+  for_each = { for k, v in var.analytics_configuration : k => v if var.enabled }
 
   bucket = aws_s3_bucket.s3_default[0].id
   name   = each.key

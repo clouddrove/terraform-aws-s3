@@ -4,6 +4,12 @@
 provider "aws" {
   region = "eu-west-1"
 }
+
+locals {
+  environment = "test"
+  label_order = ["name", "environment"]
+}
+
 ##----------------------------------------------------------------------------------
 ## Provides details about a logging S3 bucket.
 ##----------------------------------------------------------------------------------
@@ -11,8 +17,9 @@ module "logging_bucket" {
   source = "./../../"
 
   name        = "logging-s3-test"
-  environment = "test"
-  label_order = ["name", "environment"]
+  s3_name     = ""
+  environment = local.environment
+  label_order = local.label_order
   acl         = "log-delivery-write"
 }
 
@@ -23,8 +30,9 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-logging-bucket"
-  environment = "test"
-  label_order = ["name", "environment"]
+  s3_name     = ""
+  environment = local.environment
+  label_order = local.label_order
 
   versioning    = true
   acl           = "private"

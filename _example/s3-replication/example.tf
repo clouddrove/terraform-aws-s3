@@ -12,6 +12,11 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
+locals {
+  environment = "test"
+  label_order = ["name", "environment"]
+}
+
 ##----------------------------------------------------------------------------------
 ## Below resources will create KMS-KEY and its components.
 ##----------------------------------------------------------------------------------
@@ -31,8 +36,9 @@ module "replica_bucket" {
     aws = aws.replica
   }
   name        = "clouddrov-s3-replica"
-  environment = "test"
-  label_order = ["name", "environment"]
+  s3_name     = ""
+  environment = local.environment
+  label_order = local.label_order
   acl         = "private"
   versioning  = true
 }
@@ -43,8 +49,9 @@ module "s3_bucket" {
   source = "../../"
 
   name        = "clouddrov-s3"
-  environment = "test"
-  label_order = ["name", "environment"]
+  s3_name     = ""
+  environment = local.environment
+  label_order = local.label_order
 
   acl = "private"
   replication_configuration = {

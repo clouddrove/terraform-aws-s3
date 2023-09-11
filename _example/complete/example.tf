@@ -4,6 +4,13 @@
 provider "aws" {
   region = "eu-west-1"
 }
+
+locals {
+  environment        = "test"
+  label_order        = ["name", "environment"]
+  availability_zones = ["eu-west-1a", "eu-west-1b"]
+}
+
 data "aws_canonical_user_id" "current" {}
 ##----------------------------------------------------------------------------------
 ## Provides details about a specific S3 bucket.
@@ -12,15 +19,10 @@ module "logging_bucket" {
   source = "./../../"
 
   name        = "logging-x13"
-  environment = "test"
-  label_order = ["name", "environment"]
+  environment = local.environment
+  label_order = local.label_order
+  s3_name     = ""
   acl         = "log-delivery-write"
-}
-
-locals {
-  environment        = "test"
-  label_order        = ["name", "environment"]
-  availability_zones = ["eu-west-1a", "eu-west-1b"]
 }
 
 module "vpc" {
@@ -28,7 +30,7 @@ module "vpc" {
   version = "2.0.0"
 
   name        = "app"
-  environment = "test"
+  environment = local.environment
   cidr_block  = "172.16.0.0/16"
 }
 
@@ -36,7 +38,7 @@ module "subnets" {
   source             = "clouddrove/subnet/aws"
   version            = "2.0.0"
   name               = "subnet"
-  environment        = "test"
+  environment        = local.environment
   availability_zones = local.availability_zones
   vpc_id             = module.vpc.vpc_id
   cidr_block         = module.vpc.vpc_cidr_block
@@ -52,8 +54,8 @@ module "kms_key" {
   source      = "clouddrove/kms/aws"
   version     = "1.3.0"
   name        = "kms"
-  environment = "test"
-  label_order = ["name", "environment"]
+  environment = local.environment
+  label_order = local.label_order
 
   enabled                 = true
   description             = "KMS key for s3"
@@ -87,14 +89,16 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "arcx-13"
-  environment = "test"
-  label_order = ["name", "environment"]
+  environment = local.environment
+  label_order = local.label_order
+  s3_name     = ""
 
   #acceleration and request payer enable or disable.  
   acceleration_status = true
+
   request_payer       = "BucketOwner"
-  object_lock_enabled = "Enabled"
-  # logging of s3 bucket to destination bucket. 
+  object_lock_enabled = true
+  # logging of s3 bucket to destination bucket.
   logging       = true
   target_bucket = module.logging_bucket.id
   target_prefix = "logs"

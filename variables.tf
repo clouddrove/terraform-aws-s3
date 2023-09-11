@@ -32,7 +32,7 @@ variable "managedby" {
 
 # Module      : S3 BUCKET
 # Description : Terraform S3 Bucket module variables.
-variable "create_bucket" {
+variable "enabled" {
   type        = bool
   default     = true
   description = "Conditionally create S3 bucket."
@@ -325,8 +325,8 @@ variable "versioning_status" {
 }
 
 variable "object_lock_enabled" {
-  type        = string
-  default     = ""
+  type        = bool
+  default     = false
   description = "Whether S3 bucket should have an Object Lock configuration enabled."
 }
 
@@ -345,4 +345,10 @@ variable "timeouts" {
   description = "Define maximum timeout for creating, updating, and deleting VPC endpoint resources"
   type        = map(string)
   default     = {}
+}
+
+variable "s3_name" {
+  type        = string
+  default     = null
+  description = "name of s3 bucket"
 }
