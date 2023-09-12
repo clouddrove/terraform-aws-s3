@@ -352,3 +352,15 @@ variable "s3_name" {
   default     = null
   description = "name of s3 bucket"
 }
+
+variable "only_https_traffic" {
+  type        = bool
+  default     = true
+  description = "This veriables use for only https traffic."
+}
+
+variable "mfa_delete" {
+  type        = string
+  default     = "Disabled"
+  description = "Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
+}

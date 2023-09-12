@@ -21,7 +21,7 @@ module "logging_bucket" {
   name        = "logging-x13"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = ""
+  s3_name     = "logging"
   acl         = "log-delivery-write"
 }
 
@@ -93,7 +93,7 @@ module "s3_bucket" {
   name        = "arcx-13"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = ""
+  s3_name     = "bucket"
 
   #acceleration and request payer enable or disable.  
   acceleration_status = true
