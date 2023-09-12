@@ -43,8 +43,8 @@ resource "aws_s3_bucket_policy" "block-http" {
   bucket = aws_s3_bucket.s3_default[0].id
 
   policy = jsonencode({
-    Version   = "2012-10-17"
-    Id        = "Blockhttp"
+    Version = "2012-10-17"
+    Id      = "Blockhttp"
     Statement = [
       {
         "Sid" : "AllowSSLRequestsOnly",
@@ -96,7 +96,7 @@ resource "aws_s3_bucket_versioning" "example" {
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
   versioning_configuration {
-    status = var.versioning_status
+    status     = var.versioning_status
     mfa_delete = var.mfa_delete
 
   }

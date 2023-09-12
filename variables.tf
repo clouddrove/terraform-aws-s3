@@ -363,3 +363,4 @@ variable "mfa_delete" {
   type        = string
   default     = "Disabled"
   description = "Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
+}
