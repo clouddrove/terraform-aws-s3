@@ -65,7 +65,7 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-logging-encryption-bucket"
-  s3_name     = ""
+  s3_name     = "bucket"
   environment = local.environment
   label_order = local.label_order
 

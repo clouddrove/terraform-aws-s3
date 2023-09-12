@@ -38,6 +38,32 @@ resource "aws_s3_bucket_policy" "s3_default" {
   ]
 }
 
+resource "aws_s3_bucket_policy" "block-http" {
+  count  = var.only_https_traffic ? 1 : 0
+  bucket = aws_s3_bucket.s3_default[0].id
+
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Id        = "Blockhttp"
+    Statement = [
+      {
+        "Sid" : "AllowSSLRequestsOnly",
+        "Effect" : "Deny",
+        "Principal" : "*",
+        "Action" : "s3:*",
+        "Resource" : [
+          "${aws_s3_bucket.s3_default[0].arn}",
+          "${aws_s3_bucket.s3_default[0].arn}/*",
+        ],
+        "Condition" : {
+          "Bool" : {
+            "aws:SecureTransport" : "false"
+          }
+        }
+      },
+    ]
+  })
+}
 ##----------------------------------------------------------------------------------
 ## Provides an S3 bucket accelerate configuration resource.
 ##----------------------------------------------------------------------------------
@@ -71,6 +97,7 @@ resource "aws_s3_bucket_versioning" "example" {
   expected_bucket_owner = var.expected_bucket_owner
   versioning_configuration {
     status = var.versioning_status
+    mfa_delete = var.mfa_delete
 
   }
 }
