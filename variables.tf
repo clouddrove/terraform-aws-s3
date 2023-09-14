@@ -353,8 +353,8 @@ variable "inventory_configuration" {
   description = "Map containing S3 inventory configuration."
 }
 
-variable "versioning_mfa" {
+variable "mfa" {
   type        = string
   default     = null
-  description = "Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device.."
+  description = "Optional, Required if versioning_configuration mfa_delete is enabled) Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device."
 }

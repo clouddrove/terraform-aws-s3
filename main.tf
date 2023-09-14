@@ -97,7 +97,7 @@ resource "aws_s3_bucket_versioning" "example" {
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
-  mfa                   = var.versioning_mfa
+  mfa                   = var.mfa
   versioning_configuration {
     status     = var.versioning_status
     mfa_delete = var.mfa_delete
