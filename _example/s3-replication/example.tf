@@ -36,7 +36,7 @@ module "replica_bucket" {
     aws = aws.replica
   }
   name        = "clouddrov-s3-replica"
-  s3_name     = ""
+  s3_name     = "antil"
   environment = local.environment
   label_order = local.label_order
   acl         = "private"
@@ -49,7 +49,7 @@ module "s3_bucket" {
   source = "../../"
 
   name        = "clouddrov-s3"
-  s3_name     = ""
+  s3_name     = "poxord"
   environment = local.environment
   label_order = local.label_order
 

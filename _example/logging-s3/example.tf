@@ -17,7 +17,7 @@ module "logging_bucket" {
   source = "./../../"
 
   name        = "logging-s3-test"
-  s3_name     = ""
+  s3_name     = "zanq"
   environment = local.environment
   label_order = local.label_order
   acl         = "log-delivery-write"
@@ -30,7 +30,7 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-logging-bucket"
-  s3_name     = ""
+  s3_name     = "wewrrt"
   environment = local.environment
   label_order = local.label_order
 

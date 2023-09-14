@@ -14,6 +14,10 @@ module "labels" {
 ##----------------------------------------------------------------------------------
 ## Terraform resource to create S3 bucket with different combination type specific features.
 ##----------------------------------------------------------------------------------
+#tfsec:ignore:aws-s3-enable-bucket-encryption
+#tfsec:ignore:aws-s3-encryption-customer-key
+#tfsec:ignore:aws-s3-enable-bucket-logging
+#tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "s3_default" {
   count = var.enabled == true ? 1 : 0
 
@@ -22,7 +26,6 @@ resource "aws_s3_bucket" "s3_default" {
   force_destroy       = var.force_destroy
   object_lock_enabled = var.object_lock_enabled
   tags                = module.labels.tags
-
 }
 
 ##----------------------------------------------------------------------------------
@@ -38,6 +41,32 @@ resource "aws_s3_bucket_policy" "s3_default" {
   ]
 }
 
+resource "aws_s3_bucket_policy" "block-http" {
+  count  = var.enabled && var.only_https_traffic ? 1 : 0
+  bucket = aws_s3_bucket.s3_default[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "Blockhttp"
+    Statement = [
+      {
+        "Sid" : "AllowSSLRequestsOnly",
+        "Effect" : "Deny",
+        "Principal" : "*",
+        "Action" : "s3:*",
+        "Resource" : [
+          aws_s3_bucket.s3_default[0].arn,
+          "${aws_s3_bucket.s3_default[0].arn}/*",
+        ],
+        "Condition" : {
+          "Bool" : {
+            "aws:SecureTransport" : "false"
+          }
+        }
+      },
+    ]
+  })
+}
 ##----------------------------------------------------------------------------------
 ## Provides an S3 bucket accelerate configuration resource.
 ##----------------------------------------------------------------------------------
@@ -45,8 +74,7 @@ resource "aws_s3_bucket_accelerate_configuration" "example" {
   count                 = var.enabled && var.acceleration_status == true ? 1 : 0
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
-
-  status = var.configuration_status
+  status                = var.configuration_status
 }
 
 ##----------------------------------------------------------------------------------
@@ -69,9 +97,10 @@ resource "aws_s3_bucket_versioning" "example" {
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
+  mfa                   = var.mfa
   versioning_configuration {
-    status = var.versioning_status
-
+    status     = var.versioning_status
+    mfa_delete = var.mfa_delete
   }
 }
 
@@ -134,6 +163,7 @@ resource "aws_s3_bucket_cors_configuration" "example" {
     for_each = var.cors_rule == null ? [] : var.cors_rule
 
     content {
+      id              = try(cors_rule.value.id, null)
       allowed_headers = cors_rule.value.allowed_headers
       allowed_methods = cors_rule.value.allowed_methods
       allowed_origins = cors_rule.value.allowed_origins
@@ -347,7 +377,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_current_object_expiration ? [1] : []
 
         content {
-          days = rule.value.expiration_days
+          days                         = rule.value.expiration_days
+          date                         = try(expiration.value.date, null)
+          expired_object_delete_marker = try(expiration.value.expired_object_delete_marker, null)
         }
       }
     }
@@ -526,19 +558,12 @@ resource "aws_s3_bucket_replication_configuration" "this" {
   depends_on = [aws_s3_bucket_versioning.example]
 }
 
-locals {
-  attach_policy = var.attach_require_latest_tls_policy || var.attach_elb_log_delivery_policy || var.attach_lb_log_delivery_policy || var.attach_deny_insecure_transport_policy || var.attach_policy
-
-}
-
 ##----------------------------------------------------------------------------------
 ## Manages S3 bucket-level Public Access Block configuration.
 ##----------------------------------------------------------------------------------
 resource "aws_s3_bucket_public_access_block" "this" {
-  count = var.enabled && var.attach_public_policy ? 1 : 0
-
-  bucket = local.attach_policy ? aws_s3_bucket_policy.s3_default[0].id : aws_s3_bucket.s3_default[0].id
-
+  count                   = var.enabled && var.attach_public_policy ? 1 : 0
+  bucket                  = aws_s3_bucket.s3_default[0].id
   block_public_acls       = var.block_public_acls
   block_public_policy     = var.block_public_policy
   ignore_public_acls      = var.ignore_public_acls
@@ -551,7 +576,7 @@ resource "aws_s3_bucket_public_access_block" "this" {
 resource "aws_s3_bucket_ownership_controls" "this" {
   count = var.enabled && var.control_object_ownership ? 1 : 0
 
-  bucket = local.attach_policy ? aws_s3_bucket_policy.s3_default[0].id : aws_s3_bucket.s3_default[0].id
+  bucket = aws_s3_bucket.s3_default[0].id
 
   rule {
     object_ownership = var.object_ownership
@@ -562,6 +587,104 @@ resource "aws_s3_bucket_ownership_controls" "this" {
     aws_s3_bucket_policy.s3_default,
     aws_s3_bucket.s3_default
   ]
+}
+
+##----------------------------------------------------------------------------------
+## Tiering automatically stores objects in three access tiers: one tier optimized for frequent access, a lower-cost tier optimized for infrequent access, and a very-low-cost tier optimized for rarely accessed data.
+##----------------------------------------------------------------------------------
+resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
+  for_each = { for k, v in var.intelligent_tiering : k => v if var.enabled }
+
+  name   = module.labels.id
+  bucket = aws_s3_bucket.s3_default[0].id
+  status = try(tobool(each.value.status) ? "Enabled" : "Disabled", title(lower(each.value.status)), null)
+
+  # Max 1 block - filter
+  dynamic "filter" {
+    for_each = length(try(flatten([each.value.filter]), [])) == 0 ? [] : [true]
+
+    content {
+      prefix = try(each.value.filter.prefix, null)
+      tags   = try(each.value.filter.tags, null)
+    }
+  }
+
+  dynamic "tiering" {
+    for_each = each.value.tiering
+
+    content {
+      access_tier = tiering.key
+      days        = tiering.value.days
+    }
+  }
+}
+
+resource "aws_s3_bucket_metric" "this" {
+  for_each = { for k, v in var.metric_configuration : k => v if var.enabled }
+
+  name   = module.labels.id
+  bucket = aws_s3_bucket.s3_default[0].id
+
+  dynamic "filter" {
+    for_each = length(try(flatten([each.value.filter]), [])) == 0 ? [] : [true]
+    content {
+      prefix = try(each.value.filter.prefix, null)
+      tags   = try(each.value.filter.tags, null)
+    }
+  }
+}
+
+resource "aws_s3_bucket_inventory" "this" {
+  for_each = { for k, v in var.inventory_configuration : k => v if var.enabled }
+
+  name                     = module.labels.id
+  bucket                   = aws_s3_bucket.s3_default[0].id
+  included_object_versions = each.value.included_object_versions
+  enabled                  = try(each.value.enabled, true)
+  optional_fields          = try(each.value.optional_fields, null)
+
+  destination {
+    bucket {
+      bucket_arn = try(each.value.destination.bucket_arn, aws_s3_bucket.s3_default[0].arn)
+      format     = try(each.value.destination.format, null)
+      account_id = try(each.value.destination.account_id, null)
+      prefix     = try(each.value.destination.prefix, null)
+
+      dynamic "encryption" {
+        for_each = length(try(flatten([each.value.destination.encryption]), [])) == 0 ? [] : [true]
+
+        content {
+
+          dynamic "sse_kms" {
+            for_each = each.value.destination.encryption.encryption_type == "sse_kms" ? [true] : []
+
+            content {
+              key_id = try(each.value.destination.encryption.kms_key_id, null)
+            }
+          }
+
+          dynamic "sse_s3" {
+            for_each = each.value.destination.encryption.encryption_type == "sse_s3" ? [true] : []
+
+            content {
+            }
+          }
+        }
+      }
+    }
+  }
+
+  schedule {
+    frequency = each.value.frequency
+  }
+
+  dynamic "filter" {
+    for_each = length(try(flatten([each.value.filter]), [])) == 0 ? [] : [true]
+
+    content {
+      prefix = try(each.value.filter.prefix, null)
+    }
+  }
 }
 
 resource "aws_s3_bucket_analytics_configuration" "default" {

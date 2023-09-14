@@ -93,7 +93,7 @@ module "s3_bucket" {
   name        = "arcx-13"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = ""
+  s3_name     = "sedfdrg"
 
   #acceleration and request payer enable or disable.  
   acceleration_status = true
@@ -129,6 +129,60 @@ module "s3_bucket" {
       endpoint_count = 2
       vpc_id         = module.vpc.vpc_id
       service_type   = "Gateway"
+    }
+  ]
+
+  intelligent_tiering = {
+    general = {
+      status = "Enabled"
+      filter = {
+        prefix = "/"
+        tags = {
+          Environment = "dev"
+        }
+      }
+      tiering = {
+        ARCHIVE_ACCESS = {
+          days = 180
+        }
+      }
+    },
+    documents = {
+      status = false
+      filter = {
+        prefix = "documents/"
+      }
+      tiering = {
+        ARCHIVE_ACCESS = {
+          days = 125
+        }
+        DEEP_ARCHIVE_ACCESS = {
+          days = 200
+        }
+      }
+    }
+  }
+
+  metric_configuration = [
+    {
+      name = "documents"
+      filter = {
+        prefix = "documents/"
+        tags = {
+          priority = "high"
+        }
+      }
+    },
+    {
+      name = "other"
+      filter = {
+        tags = {
+          production = "true"
+        }
+      }
+    },
+    {
+      name = "all"
     }
   ]
 
@@ -221,5 +275,4 @@ module "s3_bucket" {
       }
     }]
   }
-
 }

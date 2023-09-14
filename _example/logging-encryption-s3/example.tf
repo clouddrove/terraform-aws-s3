@@ -17,7 +17,7 @@ module "logging_bucket" {
   source = "./../../"
 
   name        = "logging"
-  s3_name     = ""
+  s3_name     = "quya"
   environment = local.environment
   label_order = local.label_order
   acl         = "log-delivery-write"
@@ -65,7 +65,7 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-logging-encryption-bucket"
-  s3_name     = ""
+  s3_name     = "aqua"
   environment = local.environment
   label_order = local.label_order
 

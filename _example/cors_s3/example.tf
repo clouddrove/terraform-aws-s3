@@ -19,7 +19,7 @@ module "s3_bucket" {
   name        = "clouddrove-secure-bucket"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = "ghehgfrehfg"
+  s3_name     = "sdfdfg"
 
   versioning = true
 

@@ -246,53 +246,28 @@ variable "attach_public_policy" {
   description = "Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket)"
 }
 
-variable "attach_elb_log_delivery_policy" {
-  type        = bool
-  default     = false
-  description = "Controls if S3 bucket should have ELB log delivery policy attached"
-}
-
-variable "attach_lb_log_delivery_policy" {
-  description = "Controls if S3 bucket should have ALB/NLB log delivery policy attached"
-  type        = bool
-  default     = false
-}
-
-variable "attach_deny_insecure_transport_policy" {
-  description = "Controls if S3 bucket should have deny non-SSL transport policy attached"
-  type        = bool
-  default     = false
-}
-
-variable "attach_require_latest_tls_policy" {
-  description = "Controls if S3 bucket should require the latest version of TLS"
-  type        = bool
-  default     = false
-}
-
 variable "block_public_acls" {
-  description = "Whether Amazon S3 should block public ACLs for this bucket."
   type        = bool
-  default     = false
+  default     = true
+  description = "Whether Amazon S3 should block public ACLs for this bucket."
 }
 
 variable "block_public_policy" {
   type        = bool
-  default     = false
+  default     = true
   description = "Whether Amazon S3 should block public bucket policies for this bucket."
 }
 
 variable "ignore_public_acls" {
   description = "Whether Amazon S3 should ignore public ACLs for this bucket."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "restrict_public_buckets" {
   description = "Whether Amazon S3 should restrict public bucket policies for this bucket."
   type        = bool
-  default     = false
-
+  default     = true
 }
 
 variable "control_object_ownership" {
@@ -305,11 +280,6 @@ variable "object_ownership" {
   description = "Object ownership. Valid values: BucketOwnerEnforced, BucketOwnerPreferred or ObjectWriter. 'BucketOwnerEnforced': ACLs are disabled, and the bucket owner automatically owns and has full control over every object in the bucket. 'BucketOwnerPreferred': Objects uploaded to the bucket change ownership to the bucket owner if the objects are uploaded with the bucket-owner-full-control canned ACL. 'ObjectWriter': The uploading account will own the object if the object is uploaded with the bucket-owner-full-control canned ACL."
   type        = string
   default     = "ObjectWriter"
-}
-variable "attach_policy" {
-  description = "Controls if S3 bucket should have bucket policy attached (set to `true` to use value of `policy` as bucket policy)"
-  type        = bool
-  default     = false
 }
 
 variable "configuration_status" {
@@ -351,4 +321,40 @@ variable "s3_name" {
   type        = string
   default     = null
   description = "name of s3 bucket"
+}
+
+variable "only_https_traffic" {
+  type        = bool
+  default     = true
+  description = "This veriables use for only https traffic."
+}
+
+variable "mfa_delete" {
+  type        = string
+  default     = "Disabled"
+  description = "Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled."
+}
+
+variable "intelligent_tiering" {
+  type        = any
+  default     = {}
+  description = "Map containing intelligent tiering configuration."
+}
+
+variable "metric_configuration" {
+  type        = any
+  default     = []
+  description = "Map containing bucket metric configuration."
+}
+
+variable "inventory_configuration" {
+  type        = any
+  default     = {}
+  description = "Map containing S3 inventory configuration."
+}
+
+variable "mfa" {
+  type        = string
+  default     = null
+  description = "Optional, Required if versioning_configuration mfa_delete is enabled) Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device."
 }

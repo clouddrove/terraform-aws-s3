@@ -17,7 +17,7 @@ module "s3_bucket" {
   source = "./../../"
 
   name        = "clouddrove-website-bucket"
-  s3_name     = ""
+  s3_name     = "doxrd"
   environment = local.environment
   label_order = local.label_order
 
