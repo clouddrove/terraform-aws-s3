@@ -26,7 +26,6 @@ resource "aws_s3_bucket" "s3_default" {
   force_destroy       = var.force_destroy
   object_lock_enabled = var.object_lock_enabled
   tags                = module.labels.tags
-
 }
 
 ##----------------------------------------------------------------------------------
@@ -43,7 +42,7 @@ resource "aws_s3_bucket_policy" "s3_default" {
 }
 
 resource "aws_s3_bucket_policy" "block-http" {
-  count  = var.only_https_traffic ? 1 : 0
+  count  = var.enabled && var.only_https_traffic ? 1 : 0
   bucket = aws_s3_bucket.s3_default[0].id
 
   policy = jsonencode({
@@ -98,11 +97,10 @@ resource "aws_s3_bucket_versioning" "example" {
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
-  mfa                   = try(var.versioning["mfa"], null)
+  mfa                   = var.versioning_mfa
   versioning_configuration {
     status     = var.versioning_status
     mfa_delete = var.mfa_delete
-
   }
 }
 
