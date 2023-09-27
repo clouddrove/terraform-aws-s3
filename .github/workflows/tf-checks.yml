@@ -6,15 +6,15 @@ on:
   workflow_dispatch:
 jobs:
   tf-checks-complete-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.5
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/complete/'
   tf-checks-cors_s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.5
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/cors_s3/'
   tf-checks-default-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.5
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/default-s3/'
   tf-checks-encryption-s3-example:
@@ -22,18 +22,18 @@ jobs:
     with:
       working_directory: './_example/encryption-s3/'
   tf-checks-logging-encryption-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.5
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/logging-encryption-s3/'
   tf-checks-logging-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.5
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/logging-s3/'
   tf-checks-s3-replication-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.5
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/s3-replication/'
   tf-checks-website-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.5
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@1.0.6
     with:
       working_directory: './_example/website-s3/'
