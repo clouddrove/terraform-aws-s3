@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-10-03
+### :sparkles: New Features
+- [`069e255`](https://github.com/clouddrove/terraform-aws-s3/commit/069e255397266deb3499d077cb54260a798082d1) - updated tfsec.yml file and bug:updated changelog.yml name *(PR [#37](https://github.com/clouddrove/terraform-aws-s3/pull/37) by [@vibhutigoyal](https://github.com/vibhutigoyal))*
+- [`6f4b7eb`](https://github.com/clouddrove/terraform-aws-s3/commit/6f4b7ebd5f287190149c7f47ec6e7564e6ca6c41) - add deepsource & added assignees,reviewer in dependabot *(commit by [@Tanveer143s](https://github.com/Tanveer143s))*
+- [`b142890`](https://github.com/clouddrove/terraform-aws-s3/commit/b1428908739c50cc223371740318356688e49a1f) - update workflows and readme.yaml and readme.yaml *(commit by [@theprashantyadav](https://github.com/theprashantyadav))*
+- [`d6406d7`](https://github.com/clouddrove/terraform-aws-s3/commit/d6406d7a66f4fa7a85d06f111134bfe1a7492458) - add bucket_policy resource and mfa_delete Argument *(PR [#46](https://github.com/clouddrove/terraform-aws-s3/pull/46) by [@mamrajyadav](https://github.com/mamrajyadav))*
+
+### :bug: Bug Fixes
+- [`5f3016f`](https://github.com/clouddrove/terraform-aws-s3/commit/5f3016fdb46f6709a768f4e0d9eae37d00ca8644) - Standardize Comments *(commit by [@13archit](https://github.com/13archit))*
+- [`7fd25eb`](https://github.com/clouddrove/terraform-aws-s3/commit/7fd25eb0c6f7b24a7cd76721828b37f02152a322) - Update Workflow tags *(commit by [@13archit](https://github.com/13archit))*
+
+
 ## [1.3.0] - 2023-01-18
 ### :bug: Bug Fixes
 - [`a1241a5`](https://github.com/clouddrove/terraform-aws-s3/commit/a1241a5d29b9e4fb3cb5376547055630bf233da9) - change policy description
@@ -124,3 +136,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.15.1]: https://github.com/clouddrove/terraform-aws-s3/compare/0.15.1...master
 [0.15.2]: https://github.com/clouddrove/terraform-aws-s3/compare/0.15.2...master
 [1.3.0]: https://github.com/clouddrove/terraform-aws-s3/compare/1.3.0...master
+[2.0.0]: https://github.com/clouddrove/terraform-aws-s3/compare/1.3.0...2.0.0
