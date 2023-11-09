@@ -329,6 +329,12 @@ variable "only_https_traffic" {
   description = "This veriables use for only https traffic."
 }
 
+variable "block_http_bucket_policy" {
+  type        = any
+  default     = null
+  description = "Custome bucket policy to block https traffic"
+}
+
 variable "mfa_delete" {
   type        = string
   default     = "Disabled"
