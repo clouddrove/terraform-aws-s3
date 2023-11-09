@@ -45,7 +45,7 @@ resource "aws_s3_bucket_policy" "block-http" {
   count  = var.enabled && var.only_https_traffic ? 1 : 0
   bucket = aws_s3_bucket.s3_default[0].id
 
-  policy = jsonencode({
+  policy = var.block_http_bucket_policy != null ? var.block_http_bucket_policy : jsonencode({
     Version = "2012-10-17"
     Id      = "Blockhttp"
     Statement = [
