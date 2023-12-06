@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     # if: github.actor == 'dependabot[bot]'   
     steps:
-      - name: Wait for "tflint" to succeed
+      - name: Wait for "tfcheck" to succeed
         uses: lewagon/wait-on-check-action@v1.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'tf-lint / tflint'
+          check-name: 'tf-checks-website-s3-example / Check code format'
           repo-token: ${{ secrets.GITHUB }}
           wait-interval: 30
 
