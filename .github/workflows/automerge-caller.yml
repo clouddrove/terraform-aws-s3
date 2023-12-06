@@ -2,7 +2,7 @@ name: Auto merge
 on:
   pull_request:
 jobs:
-  assignee:
+  auto-merge:
     uses: clouddrove/github-shared-workflows/.github/workflows/automerge.yml@feature/autoMergeTest
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
