@@ -10,24 +10,13 @@ jobs:
   static-checks:
     name: Check the status of static checks 
     runs-on: ubuntu-latest
-    # if: github.actor == 'dependabot[bot]'
-    strategy:
-      matrix:
-        tf-checks: ["tflint-check / tflint"]      
+    # if: github.actor == 'dependabot[bot]'   
     steps:
-      # - name: Wait for "tfcheck" to succeed
-      #   uses: lewagon/wait-on-check-action@v1.0.0
-      #   with:
-      #     ref: ${{ github.event.pull_request.head.sha }}
-      #     check-name: 'tf-checks-website-s3-example / Check code format'
-      #     repo-token: ${{ secrets.GITHUB }}
-      #     wait-interval: 30
-
-      - name: Wait for "${{ matrix.tf-checks }}" to succeed
+      - name: Wait for "tflint" to succeed
         uses: lewagon/wait-on-check-action@v1.0.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: ${{ matrix.tf-checks }}
+          check-name: 'tflint-check / tflint'
           repo-token: ${{ secrets.GITHUB }}
           wait-interval: 30
 
