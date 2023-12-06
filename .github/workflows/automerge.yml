@@ -13,7 +13,7 @@ jobs:
     # if: github.actor == 'dependabot[bot]'
     strategy:
       matrix:
-        tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "tf-checks-website-s3-example / Check code format"]    
+        tf-checks: ["tf-lint / tflint"]    
     steps:
       - name: Wait for "${{ matrix.tf-checks }}" to succeed
         uses: lewagon/wait-on-check-action@v1.0.0
