@@ -12,17 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tf-checks: ["tflint-check / tflint", "tfsec / tfsec sarif report"]    
-    # if: github.actor == 'dependabot[bot]'   
+        tf-checks: ["tf-checks-website-s3-example / Check code format"]    
+    if: github.actor == 'dependabot[bot]'
     steps:
-      # - name: Wait for "tfsec" to succeed
-      #   uses: lewagon/wait-on-check-action@v1.3.1
-      #   with:
-      #     ref: ${{ github.event.pull_request.head.sha }}
-      #     check-name: 'tflint-check / tflint'
-      #     repo-token: ${{ secrets.GITHUB }}
-      #     wait-interval: 30
-
       - name: Wait for "${{ matrix.tf-checks }}" to succeed
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
