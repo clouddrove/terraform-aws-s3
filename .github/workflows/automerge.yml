@@ -29,7 +29,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: ${{ matrix.tf-checks }}
           repo-token: ${{ secrets.GITHUB }}
-          wait-interval: 10
+          wait-interval: 30
 
   # autoapprove:
   #   name: Auto Approve a PR by dependabot
