@@ -16,7 +16,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'tfsec / tfsec sarif report'
+          check-name: 'tflint-check / tflint'
           repo-token: ${{ secrets.GITHUB }}
           wait-interval: 30
 
