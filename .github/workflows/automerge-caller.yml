@@ -1,0 +1,10 @@
+name: Auto merge
+on:
+  pull_request:
+jobs:
+  assignee:
+    uses: clouddrove/github-shared-workflows/.github/workflows/automerge.yml@feature/autoMergeTest
+    secrets:
+      GITHUB: ${{ secrets.GITHUB }}
+    with:
+      tfcheck: 'tf-checks-website-s3-example / Get min/max versions'
