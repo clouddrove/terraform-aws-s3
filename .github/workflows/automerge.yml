@@ -23,36 +23,36 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
 
-  autoapprove:
-    name: Auto Approve a PR by dependabot
-    needs: static-checks
-    runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
-    steps:
-      - name: Approve a PR for Github Bot
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  # autoapprove:
+  #   name: Auto Approve a PR by dependabot
+  #   needs: static-checks
+  #   runs-on: ubuntu-latest
+  #   if: github.actor == 'dependabot[bot]'
+  #   steps:
+  #     - name: Approve a PR for Github Bot
+  #       run: gh pr review --approve "$PR_URL"
+  #       env:
+  #         PR_URL: ${{github.event.pull_request.html_url}}
+  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Approve a PR for Anmol nagpal
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB}}
+  #     - name: Approve a PR for Anmol nagpal
+  #       run: gh pr review --approve "$PR_URL"
+  #       env:
+  #         PR_URL: ${{github.event.pull_request.html_url}}
+  #         GITHUB_TOKEN: ${{secrets.GITHUB}}
 
-  automerge:
-    runs-on: ubuntu-latest
-    needs: autoapprove
-    steps:
-      - id: automerge
-        name: automerge
-        uses: pascalgn/automerge-action@v0.15.6
-        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB }}
-          MERGE_FILTER_AUTHOR: 'dependabot[bot]'
-          MERGE_METHOD: "merge"
-          MERGE_DELETE_BRANCH: "true"
-          MERGE_LABELS: "dependencies"
-          MERGE_REQUIRED_APPROVALS: ""
+  # automerge:
+  #   runs-on: ubuntu-latest
+  #   needs: autoapprove
+  #   steps:
+  #     - id: automerge
+  #       name: automerge
+  #       uses: pascalgn/automerge-action@v0.15.6
+  #       if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB }}
+  #         MERGE_FILTER_AUTHOR: 'dependabot[bot]'
+  #         MERGE_METHOD: "merge"
+  #         MERGE_DELETE_BRANCH: "true"
+  #         MERGE_LABELS: "dependencies"
+  #         MERGE_REQUIRED_APPROVALS: ""
