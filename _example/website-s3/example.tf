@@ -51,9 +51,7 @@ module "s3_bucket" {
   lifecycle_configuration_rules = [
     {
       id                                             = "log"
-      prefix                                         = null
       enabled                                        = true
-      tags                                           = { "temp" : "true" }
       enable_glacier_transition                      = false
       enable_deeparchive_transition                  = false
       enable_standard_ia_transition                  = false
@@ -67,12 +65,14 @@ module "s3_bucket" {
       glacier_transition_days                        = 0
       deeparchive_transition_days                    = 0
       expiration_days                                = 365
+      filter = {
+        prefix = null
+        tags   = { "temp" : "true" }
+      }
     },
     {
       id                                             = "log1"
-      prefix                                         = null
       enabled                                        = true
-      tags                                           = {}
       enable_glacier_transition                      = false
       enable_deeparchive_transition                  = false
       enable_standard_ia_transition                  = false
@@ -86,6 +86,10 @@ module "s3_bucket" {
       glacier_transition_days                        = 0
       deeparchive_transition_days                    = 0
       expiration_days                                = 365
+      filter = {
+        prefix = null
+        tags   = {}
+      }
     }
   ]
 
