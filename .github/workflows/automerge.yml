@@ -4,9 +4,9 @@ on:
   pull_request:
 jobs:
   auto-merge:
-    uses: clouddrove/github-shared-workflows/.github/workflows/auto_merge.yml@1.0.9
+    uses: clouddrove/github-shared-workflows/.github/workflows/auto_merge.yml@1.0.10
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
     with:
-      tfcheck: 'tf-checks-website-s3-example / Evaluate Terraform versions (1.5.5, ./_example/website-s3/)'
+      tfcheck: 'basic-function-example / Check code format'
 ...
