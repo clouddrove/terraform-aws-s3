@@ -83,9 +83,8 @@ variable "enable_lifecycle_configuration_rules" {
 variable "lifecycle_configuration_rules" {
   type = list(object({
     id      = string
-    prefix  = string
     enabled = bool
-    tags    = map(string)
+    filter  = any
 
     enable_glacier_transition            = bool
     enable_deeparchive_transition        = bool

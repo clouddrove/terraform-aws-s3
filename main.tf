@@ -297,12 +297,51 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
       status = rule.value.enabled == true ? "Enabled" : "Disabled"
 
       # Filter is always required due to https://github.com/hashicorp/terraform-provider-aws/issues/23299
-      filter {
-        dynamic "and" {
-          for_each = (try(length(rule.value.prefix), 0) + try(length(rule.value.tags), 0)) > 0 ? [1] : []
-          content {
-            prefix = rule.value.prefix == null ? "" : rule.value.prefix
-            tags   = try(length(rule.value.tags), 0) > 0 ? rule.value.tags : {}
+
+      # -- The `filter` block supports two types of syntaxes, with `and {}` & without `and`
+      # -- With `and {}` is used when user passes more than 1 attribute inside `filter` block OR if `tags` attribute is being used.
+      # -- Creating 3 dynamic block for `filter` to satisfy all 3 conditions - 
+      #
+      # 1: required `filter` block for `aws_s3_bucket_lifecycle_configuration` resource
+      # 2: with `and`
+      # 3: without `and` + `tags` attribute
+
+      # -- `filter` block is required for `aws_s3_bucket_lifecycle_configuration` resource
+      dynamic "filter" {
+        for_each = length(try(flatten([rule.value.filter]), [])) == 0 ? [true] : []
+        content {}
+      }
+
+      # -- block without `and` 
+      dynamic "filter" {
+        for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) == 1]
+
+        content {
+          object_size_greater_than = try(filter.value.object_size_greater_than, null)
+          object_size_less_than    = try(filter.value.object_size_less_than, null)
+          prefix                   = try(filter.value.prefix, null)
+
+          dynamic "tag" {
+            for_each = try(filter.value.tags, filter.value.tag, [])
+
+            content {
+              key   = tag.key
+              value = tag.value
+            }
+          }
+        }
+      }
+
+      # -- block with `and`
+      dynamic "filter" {
+        for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) > 1]
+
+        content {
+          and {
+            object_size_greater_than = try(filter.value.object_size_greater_than, null)
+            object_size_less_than    = try(filter.value.object_size_less_than, null)
+            prefix                   = try(filter.value.prefix, null)
+            tags                     = try(filter.value.tags, filter.value.tag, null)
           }
         }
       }
