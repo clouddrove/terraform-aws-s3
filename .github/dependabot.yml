@@ -28,7 +28,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/complete" # Location of package manifests
+    directory: "/examples/complete" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -41,7 +41,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/cors_s3" # Location of package manifests
+    directory: "/examples/cors_s3" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -54,7 +54,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/default-s3" # Location of package manifests
+    directory: "/examples/default-s3" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -67,7 +67,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/encryption-s3" # Location of package manifests
+    directory: "/examples/encryption-s3" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -80,7 +80,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/logging-encryption-s3" # Location of package manifests
+    directory: "/examples/logging-encryption-s3" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -93,7 +93,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/logging-s3" # Location of package manifests
+    directory: "/examples/logging-s3" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -106,7 +106,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/s3-replication" # Location of package manifests
+    directory: "/examples/s3-replication" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
@@ -119,7 +119,7 @@ updates:
     open-pull-requests-limit: 3
 
   - package-ecosystem: "terraform" # See documentation for possible values
-    directory: "/_example/website-s3" # Location of package manifests
+    directory: "/examples/website-s3" # Location of package manifests
     schedule:
       interval: "weekly"
     # Add assignees
