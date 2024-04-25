@@ -1,13 +1,14 @@
-name: readme workflow
+name: Readme Workflow
 on:
   push:
     branches:
       - master
     paths-ignore:
       - 'README.md'
+      - 'docs/**'
   workflow_dispatch:
 jobs:
-  assignee:
+  README:
     uses: clouddrove/github-shared-workflows/.github/workflows/readme.yml@1.2.4
     secrets:
       TOKEN : ${{ secrets.GITHUB }}
