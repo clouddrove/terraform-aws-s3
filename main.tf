@@ -300,7 +300,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
       # -- The `filter` block supports two types of syntaxes, with `and {}` & without `and`
       # -- With `and {}` is used when user passes more than 1 attribute inside `filter` block OR if `tags` attribute is being used.
-      # -- Creating 3 dynamic block for `filter` to satisfy all 3 conditions - 
+      # -- Creating 3 dynamic block for `filter` to satisfy all 3 conditions -
       #
       # 1: required `filter` block for `aws_s3_bucket_lifecycle_configuration` resource
       # 2: with `and`
@@ -312,7 +312,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         content {}
       }
 
-      # -- block without `and` 
+      # -- block without `and`
       dynamic "filter" {
         for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) == 1]
 

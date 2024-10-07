@@ -54,35 +54,35 @@ usage: |-
   module "s3_bucket" {
     source              = "clouddrove/s3/aws"
     version             = "2.0.0"
-  
+
     name        = "bucket-new-version"
     environment = "test"
     label_order = ["name", "environment"]
-  
-    #acceleration and request payer enable or disable.  
+
+    #acceleration and request payer enable or disable.
     acceleration_status = true
     request_payer       = "BucketOwner"
     object_lock_enabled = "Enabled"
-    # logging of s3 bucket to destination bucket. 
+    # logging of s3 bucket to destination bucket.
     logging       = true
     target_bucket = module.logging_bucket.id
     target_prefix = "logs"
-  
-    #encrption on s3 with default encryption and kms encryption . 
+
+    #encrption on s3 with default encryption and kms encryption .
     enable_server_side_encryption = true
     enable_kms                    = true
     kms_master_key_id             = module.kms_key.key_arn
-  
-    #object locking of s3. 
+
+    #object locking of s3.
     object_lock_configuration = {
       mode  = "GOVERNANCE"
       days  = 366
       years = null
     }
-  
+
     versioning = true
-  
-    #cross replicaton of s3 
+
+    #cross replicaton of s3
     cors_rule = [{
       allowed_headers = ["*"],
       allowed_methods = ["PUT", "POST"],
@@ -90,8 +90,8 @@ usage: |-
       expose_headers  = ["ETag"],
       max_age_seconds = 3000
     }]
-  
-    #acl grant permission 
+
+    #acl grant permission
     grants = [
       {
         id          = null
@@ -101,8 +101,8 @@ usage: |-
       },
     ]
     owner_id = data.aws_canonical_user_id.current.id
-  
-    #lifecycle rule for s3 
+
+    #lifecycle rule for s3
     enable_lifecycle_configuration_rules = true
     lifecycle_configuration_rules = [
       {
@@ -146,7 +146,7 @@ usage: |-
         expiration_days                                = 365
       }
     ]
-  
+
     #static website on s3
     website = {
       index_document = "index.html"
@@ -171,24 +171,24 @@ usage: |-
         }
       }]
      }
-  
+
   }
      data "aws_canonical_user_id" "current" {}
   ```
-  
+
   ### cors_s3 Bucket
   ```hcl
   module "s3_bucket" {
     source                     = "clouddrove/s3/aws"
     version                    = "2.0.0"
-  
+
     name        = "clouddrove-secure-bucket"
     environment = "test"
     label_order = ["name", "environment"]
-  
+
     versioning = true
     acl        = "private"
-  
+
     cors_rule = [{
       allowed_headers = ["*"],
       allowed_methods = ["PUT", "POST"],
@@ -198,13 +198,13 @@ usage: |-
     }]
   }
   ```
-  
+
   ### default-s3 Bucket
   ```hcl
   module "s3_bucket" {
     source                             = "clouddrove/s3/aws"
     version                            = "2.0.0"
-  
+
     name        = "clouddrove-secure-bucket"
     environment = "test"
     label_order = ["name", "environment"]
@@ -212,17 +212,17 @@ usage: |-
     acl         = "private"
   }
   ```
-  
+
   ### encryption Bucket
   ```hcl
   module "s3_bucket" {
     source                  = "clouddrove/s3/aws"
     version                 = "2.0.0"
-  
+
     name        = "clouddrove-encryption-bucket"
     environment = "test"
     label_order = ["name", "environment"]
-  
+
     versioning                    = true
     acl                           = "private"
     enable_server_side_encryption = true
@@ -235,11 +235,11 @@ usage: |-
   module "s3_bucket" {
     source                              = "clouddrove/s3/aws"
     version                             = "2.0.0"
-  
+
     name        = "clouddrove-logging-encryption-bucket"
     environment = "test"
     label_order = ["name", "environment"]
-  
+
     versioning = true
     acl        = "private"
     enable_server_side_encryption = true
@@ -251,7 +251,7 @@ usage: |-
     depends_on = [module.logging_bucket]
   }
   ```
-  
+
    ### logging Bucket
   ```hcl
     module "s3_bucket" {
@@ -261,7 +261,7 @@ usage: |-
     name        = "clouddrove-logging-bucket"
     environment = "test"
     label_order = ["name", "environment"]
-  
+
     versioning    = true
     acl           = "private"
     logging       = true
@@ -270,7 +270,7 @@ usage: |-
     depends_on    = [module.logging_bucket]
   }
   ```
-  
+
   ### s3 replication Bucket
   ```hcl
   module "s3_bucket" {
@@ -280,7 +280,7 @@ usage: |-
     name        = "clouddrov-s3-replication"
     environment = "test"
     label_order = ["name", "environment"]
-  
+
     acl                       = "private"
     replication_configuration = {
       role       = aws_iam_role.replication.arn
@@ -363,10 +363,10 @@ usage: |-
       ]
     }
   }
-  
+
     resource "aws_iam_role" "replication" {
     name = "s3-bucket-replication-${module.replica_bucket.id}"
-  
+
     assume_role_policy = <<POLICY
     {
       "Version": "2012-10-17",
@@ -383,10 +383,10 @@ usage: |-
     }
     POLICY
   }
-  
+
     resource "aws_iam_policy" "replication" {
     name = "s3-bucket-replication-${module.replica_bucket.id}"
-  
+
     policy = <<POLICY
     {
       "Version": "2012-10-17",
@@ -423,14 +423,14 @@ usage: |-
     }
     POLICY
   }
-  
+
     resource "aws_iam_policy_attachment" "replication" {
     name       = "s3-bucket-replication-${module.replica_bucket.id}"
     roles      = [aws_iam_role.replication.name]
     policy_arn = aws_iam_policy.replication.arn
   }
-  ``` 
-  
+  ```
+
    ### s3 website Bucket
   ```hcl
   module "s3_bucket" {
@@ -440,9 +440,9 @@ usage: |-
     name        = "clouddrove-website-bucket"
     environment = "test"
     label_order = ["name", "environment"]
-         
-   website       = { 
-         
+
+   website       = {
+
    index_document = "index.html"
    error_document = "error.html"
    routing_rules = [{
@@ -465,7 +465,7 @@ usage: |-
    }
    }]
    }
-   
+
    versioning = true
    acl                                  = "private"
    enable_lifecycle_configuration_rules = true
@@ -509,12 +509,12 @@ usage: |-
     expiration_days                                = 365
     }
     ]
-     
+
      attach_public_policy    = true
      bucket_policy           = true ##first time apply it while be false.
      aws_iam_policy_document = data.aws_iam_policy_document.default.json
     }
-    
+
     data "aws_iam_policy_document" "default" {
     version = "2012-10-17"
     statement {
@@ -527,6 +527,6 @@ usage: |-
     actions   = ["s3:GetObject"]
     resources = ["${module.s3_bucket.arn}/*"]
     }
-    
+
   }
   ```
