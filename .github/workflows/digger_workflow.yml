@@ -17,16 +17,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: ${{ fromJSON(github.event.inputs.spec).job_id }}
+        run: echo "job id ${{ fromJSON(github.event.inputs.spec).job_id }}"
       - uses: diggerhq/digger@vLatest
         with:
           aws-role-to-assume: arn:aws:iam::924144197303:role/arziandiggercicd
           aws-region: us-east-1
           setup-terraform: true
           terraform-version: 1.6.6
+          setup-checkov: true
           configure-checkout: true
           disable-locking: true
-          # no-backend: true
-          cache-dependencies: true
+          no-backend: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
