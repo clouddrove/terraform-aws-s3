@@ -1,9 +1,19 @@
 name: Digger Plan
 
-on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+# on:
+#   pull_request:
+#     types: [opened, reopened, synchronize]
 
+
+on:
+  workflow_dispatch:
+    inputs:
+      spec:
+        required: true
+      run_name:
+        required: false
+
+run-name: '${{inputs.run_name}}'
 permissions:
   contents: write
   actions: write
@@ -21,14 +31,15 @@ jobs:
         run: echo "job id ${{ fromJSON(github.event.inputs.spec).job_id }}"
       - uses: diggerhq/digger@vLatest
         with:
+          digger-spec: ${{ inputs.spec }}
           aws-role-to-assume: arn:aws:iam::924144197303:role/arziandiggercicd
           aws-region: us-east-1
           setup-terraform: true
           terraform-version: 1.6.6
-          setup-checkov: true
-          configure-checkout: true
-          disable-locking: true
-          no-backend: true
+          # setup-checkov: true
+          # configure-checkout: true
+          # disable-locking: true
+          # no-backend: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
