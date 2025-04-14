@@ -39,7 +39,7 @@ jobs:
           # setup-checkov: true
           # configure-checkout: true
           # disable-locking: true
-          # no-backend: true
+          no-backend: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
