@@ -1,11 +1,8 @@
-name: Digger Manual Plan
+name: Digger Plan
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'Pull Request number to run plan for'
-        required: true
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: write
@@ -19,7 +16,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Run Digger Plan
-        uses: diggerhq/digger@vLatest
-
+      - uses: diggerhq/digger@vLatest
