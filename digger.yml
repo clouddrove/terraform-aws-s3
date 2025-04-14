@@ -1,6 +1,7 @@
 projects:
   - name: s3-example-complete
-    dir: .
+    dir: examples/complete/example.tf
+  - name : 
     disable-cloud-policy-check: true
 auto_merge: false
 telemetry: false
