@@ -1,12 +1,3 @@
-workflows:
-  terraform:
-    plan:
-      steps:
-        - run: terraform init
-        - run: terraform plan
-
 projects:
   - name: s3-example-complete
     dir: .
-    workflow: terraform
-    disable-cloud-policy-check: true
