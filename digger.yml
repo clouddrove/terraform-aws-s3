@@ -2,3 +2,13 @@ projects:
   - name: s3-example-complete
     dir: .
     disable-cloud-policy-check: true
+auto_merge: false
+telemetry: false
+workflows:
+  production_checkov:
+    plan:
+      steps:
+        - init
+        - plan
+    workflow_configuration:
+      on_pull_request_pushed: [digger plan]
