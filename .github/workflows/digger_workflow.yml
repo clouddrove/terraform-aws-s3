@@ -1,28 +1,25 @@
-name: Digger Workflow
+name: Digger Manual Plan
+
 on:
   workflow_dispatch:
     inputs:
-      spec:
+      pr_number:
+        description: 'Pull Request number to run plan for'
         required: true
-      run_name:
-        required: false
 
-run-name: '${{inputs.run_name}}'
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+  issues: read
+  statuses: write
 
 jobs:
-  digger-job:
+  digger:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write      # required to merge PRs
-      actions: write       # required for plan persistence
-      pull-requests: write # required to post PR comments
-      issues: read         # required to check if PR number is an issue or not
-      statuses: write      # required to validate combined PR status
-
     steps:
       - uses: actions/checkout@v4
-      - name: ${{ fromJSON(github.event.inputs.spec).job_id }}
-        run: echo "job id ${{ fromJSON(github.event.inputs.spec).job_id }}"
-      - uses: diggerhq/digger@vLatest
-        with:
-          digger-spec: ${{ inputs.spec }}
+
+      - name: Run Digger Plan
+        uses: diggerhq/digger@vLatest
+
