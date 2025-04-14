@@ -1,3 +1,4 @@
 projects:
   - name: s3-example-complete
     dir: .
+    disable-cloud-policy-check: true
