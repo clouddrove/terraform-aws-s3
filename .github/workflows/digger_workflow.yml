@@ -25,7 +25,8 @@ jobs:
           terraform-version: 1.6.6
           configure-checkout: true
           disable-locking: true
-          no-backend: true
+          # no-backend: true
+          cache-dependencies: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
