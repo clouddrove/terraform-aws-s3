@@ -1,3 +1,3 @@
 projects:
   - name: s3-example-complete
-    dir: examples/complete/example.tf
+    dir: .
