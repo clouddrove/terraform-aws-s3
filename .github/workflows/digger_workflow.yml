@@ -19,12 +19,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: diggerhq/digger@vLatest
         with:
-          # Setup terraform
-          aws-access-key-id: # optional
-          # AWS secret access key
-          aws-secret-access-key: # optional
-          # ARN of AWS IAM role to assume using OIDC
-          # AWS region
           aws-role-to-assume: arn:aws:iam::924144197303:oidc-provider/token.actions.githubusercontent.com
           aws-region: us-east-1
           setup-terraform: true
