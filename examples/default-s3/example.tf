@@ -21,5 +21,5 @@ module "s3_bucket" {
   label_order = local.label_order
   s3_name     = "cdkc"
   acl         = "private"
-  versioning  = true
+  versioning  = false
 }
