@@ -1,14 +1,14 @@
+locals {
+  environment        = "test"
+  label_order        = ["name", "environment"]
+  region             = "us-east-1"
+}
+
 ##-----------------------------------------------------------------------------
 ## Provider block added, Use the Amazon Web Services (AWS) provider to interact with the many resources supported by AWS.
 ##-----------------------------------------------------------------------------
 provider "aws" {
-  region = "eu-west-1"
-}
-
-locals {
-  environment        = "test"
-  label_order        = ["name", "environment"]
-  availability_zones = ["eu-west-1a", "eu-west-1b"]
+  region = local.region
 }
 
 data "aws_canonical_user_id" "current" {}
@@ -26,10 +26,10 @@ module "logging_bucket" {
 }
 
 module "vpc" {
-  source  = "clouddrove/vpc/aws"
-  version = "2.0.0"
+  source  = "git::https://github.com/clouddrove/terraform-aws-vpc.git?ref=master"
+  # version = "2.0.0"
 
-  name        = "app"
+  name        = "s3-vpc"
   environment = local.environment
   cidr_block  = "172.16.0.0/16"
 }
@@ -37,11 +37,11 @@ module "vpc" {
 #tfsec:ignore:aws-ec2-no-excessive-port-access
 #tfsec:ignore:aws-ec2-no-public-ingress-acl
 module "subnets" {
-  source             = "clouddrove/subnet/aws"
-  version            = "2.0.1"
+  source             = "git::https://github.com/clouddrove/terraform-aws-subnet.git?ref=master"
+  # version            = "2.0.1"
   name               = "subnet"
   environment        = local.environment
-  availability_zones = local.availability_zones
+  availability_zones = ["${local.region}a", "${local.region}b"]
   vpc_id             = module.vpc.vpc_id
   cidr_block         = module.vpc.vpc_cidr_block
   type               = "private"
@@ -53,8 +53,8 @@ module "subnets" {
 ## Below resources will create KMS-KEY and its components.
 ##-----------------------------------------------------------------------------
 module "kms_key" {
-  source      = "clouddrove/kms/aws"
-  version     = "1.3.1"
+  source      = "git::https://github.com/clouddrove/terraform-aws-kms.git?ref=fix/deprecated-arguments"
+  # version     = "1.3.1"
   name        = "kms"
   environment = local.environment
   label_order = local.label_order
@@ -93,7 +93,7 @@ module "s3_bucket" {
   name        = "arcx-13"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = "sedfdrg"
+  s3_name     = "fsdgereewf"
 
   #acceleration and request payer enable or disable.  
   acceleration_status = true
@@ -229,7 +229,7 @@ module "s3_bucket" {
       expiration_days                                = 365
       filter = {
         prefix = "myfolder1/myfolder2/"
-        tags   = { "temp" : "true" }
+        tags = { "temp" : "true" }
       }
     },
     {
@@ -240,7 +240,7 @@ module "s3_bucket" {
       enable_standard_ia_transition                  = false
       enable_current_object_expiration               = true
       enable_noncurrent_version_expiration           = true
-      abort_incomplete_multipart_upload_days         = 1
+      abort_incomplete_multipart_upload_days         = null
       noncurrent_version_glacier_transition_days     = 0
       noncurrent_version_deeparchive_transition_days = 0
       storage_class                                  = "DEEP_ARCHIVE"
@@ -251,7 +251,7 @@ module "s3_bucket" {
       expiration_days                                = 365
       filter = {
         prefix = null
-        tags   = {}
+        tags   = { "temp" : "true" }
       }
     }
   ]
