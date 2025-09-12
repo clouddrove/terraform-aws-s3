@@ -19,7 +19,7 @@ module "s3_bucket" {
   name        = "clouddrove-secure-bucket"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = "cdkc"
+  s3_name     = "cdbkkc"
   acl         = "private"
   versioning  = true
 }
