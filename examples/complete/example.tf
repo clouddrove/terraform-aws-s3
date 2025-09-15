@@ -218,7 +218,7 @@ module "s3_bucket" {
       enable_standard_ia_transition                  = false
       enable_current_object_expiration               = true
       enable_noncurrent_version_expiration           = true
-      abort_incomplete_multipart_upload_days         = null
+      abort_incomplete_multipart_upload_days         = null     # Cannot use abort_incomplete_multipart_upload with tags; only one is allowed at a time
       noncurrent_version_glacier_transition_days     = 0
       noncurrent_version_deeparchive_transition_days = 0
       noncurrent_version_expiration_days             = 30
@@ -240,7 +240,7 @@ module "s3_bucket" {
       enable_standard_ia_transition                  = false
       enable_current_object_expiration               = true
       enable_noncurrent_version_expiration           = true
-      abort_incomplete_multipart_upload_days         = null
+      abort_incomplete_multipart_upload_days         = null     # Cannot use abort_incomplete_multipart_upload with tags; only one is allowed at a time
       noncurrent_version_glacier_transition_days     = 0
       noncurrent_version_deeparchive_transition_days = 0
       storage_class                                  = "DEEP_ARCHIVE"
