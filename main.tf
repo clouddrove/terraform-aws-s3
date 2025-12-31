@@ -334,14 +334,25 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
       # -- block with `and`
       dynamic "filter" {
-        for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) > 1]
+        for_each = [
+          for v in try(flatten([rule.value.filter]), []) :
+          v
+          if (
+            max(
+              length(keys(v)),
+              length(try(v.tags, v.tag, {}))
+            ) > 1
+            &&
+            length(try(v.tags, v.tag, {})) > 0
+          )
+        ]
 
         content {
           and {
             object_size_greater_than = try(filter.value.object_size_greater_than, null)
             object_size_less_than    = try(filter.value.object_size_less_than, null)
             prefix                   = try(filter.value.prefix, null)
-            tags                     = try(filter.value.tags, filter.value.tag, null)
+            tags                     = try(filter.value.tags, filter.value.tag)
           }
         }
       }
@@ -445,7 +456,9 @@ resource "aws_s3_bucket_replication_configuration" "this" {
     content {
       id       = try(rule.value.id, null)
       priority = try(rule.value.priority, null)
-      prefix   = try(rule.value.prefix, null)
+      filter {
+        prefix = try(rule.value.prefix, null)
+      }
       status   = try(tobool(rule.value.status) ? "Enabled" : "Disabled", title(lower(rule.value.status)), "Enabled")
 
       dynamic "delete_marker_replication" {
