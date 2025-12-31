@@ -337,7 +337,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = [
           for v in try(flatten([rule.value.filter]), []) :
           v
-          if (
+          if(
             max(
               length(keys(v)),
               length(try(v.tags, v.tag, {}))
@@ -459,7 +459,7 @@ resource "aws_s3_bucket_replication_configuration" "this" {
       filter {
         prefix = try(rule.value.prefix, null)
       }
-      status   = try(tobool(rule.value.status) ? "Enabled" : "Disabled", title(lower(rule.value.status)), "Enabled")
+      status = try(tobool(rule.value.status) ? "Enabled" : "Disabled", title(lower(rule.value.status)), "Enabled")
 
       dynamic "delete_marker_replication" {
         for_each = flatten(try([rule.value.delete_marker_replication_status], [rule.value.delete_marker_replication], []))
