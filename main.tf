@@ -387,8 +387,18 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_deeparchive_transition ? [1] : []
 
         content {
-          newer_noncurrent_versions = rule.value.noncurrent_version_glacier_transition_newer
+          newer_noncurrent_versions = rule.value.noncurrent_version_deeparchive_transition_newer
           noncurrent_days           = rule.value.noncurrent_version_deeparchive_transition_days
+          storage_class             = rule.value.storage_class
+        }
+      }
+
+      dynamic "noncurrent_version_transition" {
+        for_each = rule.value.enable_standard_ia_transition ? [1] : []
+
+        content {
+          newer_noncurrent_versions = rule.value.noncurrent_version_standard_ia_transition_newer
+          noncurrent_days           = rule.value.noncurrent_version_glacier_transition_days
           storage_class             = rule.value.storage_class
         }
       }
@@ -407,7 +417,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_deeparchive_transition ? [1] : []
 
         content {
-          date          = rule.value.glacier_transition_date
+          date          = rule.value.deeparchive_transition_date
           days          = rule.value.deeparchive_transition_days
           storage_class = rule.value.storage_class
         }
@@ -417,7 +427,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_standard_ia_transition ? [1] : []
 
         content {
-          date          = rule.value.glacier_transition_date
+          date          = rule.value.standard_ia_transition_date
           days          = rule.value.standard_transition_days
           storage_class = rule.value.storage_class
         }

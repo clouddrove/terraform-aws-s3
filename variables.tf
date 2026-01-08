@@ -93,14 +93,24 @@ variable "lifecycle_configuration_rules" {
     enable_noncurrent_version_expiration = bool
 
     abort_incomplete_multipart_upload_days         = number
-    noncurrent_version_glacier_transition_days     = number
-    noncurrent_version_deeparchive_transition_days = number
-    noncurrent_version_expiration_days             = number
+    noncurrent_version_glacier_transition_days     = optional(number)
+    noncurrent_version_deeparchive_transition_days = optional(number)
+    noncurrent_version_expiration_days             = optional(number)
 
-    standard_transition_days    = number
-    glacier_transition_days     = number
-    deeparchive_transition_days = number
-    expiration_days             = number
+    noncurrent_version_glacier_transition_newer     = optional(number)
+    noncurrent_version_deeparchive_transition_newer = optional(number)
+    noncurrent_version_standard_ia_transition_newer = optional(number)
+
+    storage_class = optional(string)
+
+    glacier_transition_date     = optional(number)
+    standard_ia_transition_date = optional(number)
+    deeparchive_transition_date = optional(number)
+
+    standard_transition_days    = optional(number)
+    glacier_transition_days     = optional(number)
+    deeparchive_transition_days = optional(number)
+    expiration_days             = optional(number)
   }))
   default     = null
   description = "A list of lifecycle rules"
