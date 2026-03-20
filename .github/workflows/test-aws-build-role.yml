@@ -27,7 +27,7 @@ jobs:
 
         - name: Test terraform
           working-directory: examples/complete
-          run:
+          run: |
             terraform init
             terraform plan -detailed-exitcode -no-color -out=tfplan > plan.txt 2>&1 || exitcode=$?
             grep -E '^Plan:|^No changes' plan.txt || echo "No changes."
