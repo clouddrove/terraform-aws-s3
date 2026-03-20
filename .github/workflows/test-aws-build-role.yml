@@ -1,4 +1,6 @@
 name: Test BUILD_ROLE
+permissions:
+  id-token: write
 on:
   push:
     branches:
@@ -16,6 +18,7 @@ jobs:
             role-to-assume: ${{ secrets.BUILD_ROLE }}
             role-duration-seconds: 900
             role-skip-session-tagging: true
+            aws-region: "us-east-1"
 
         - name: 🛠️ Set up Terraform
           uses: hashicorp/setup-terraform@v3
