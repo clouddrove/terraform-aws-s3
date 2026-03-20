@@ -11,5 +11,8 @@ jobs:
     with:
       working_directory: './examples/complete/'
       provider: aws
+      enable_plan: true
+      show_plan: false
+      terraform_version: '1.13.0'
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
