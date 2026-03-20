@@ -5,56 +5,56 @@ on:
   pull_request:
 jobs:
   tf-checks-complete-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: aws
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-cors_s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/cors_s3/'
       provider: aws
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-default-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/default-s3/'
       provider: aws
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-encryption-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/encryption-s3/'
       provider: aws
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-logging-encryption-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/logging-encryption-s3/'
       provider: aws
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-logging-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/logging-s3/'
       provider: aws
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-s3-replication-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/s3-replication/'
       provider: aws
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-website-s3-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/website-s3/'
       provider: aws
