@@ -9,31 +9,39 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/complete/'
+      provider: none
   tf-checks-cors_s3-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/cors_s3/'
+      provider: none
   tf-checks-default-s3-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/default-s3/'
+      provider: none
   tf-checks-encryption-s3-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/encryption-s3/'
+      provider: none
   tf-checks-logging-encryption-s3-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/logging-encryption-s3/'
+      provider: none
   tf-checks-logging-s3-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/logging-s3/'
+      provider: none
   tf-checks-s3-replication-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/s3-replication/'
+      provider: none
   tf-checks-website-s3-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:
       working_directory: './examples/website-s3/'
+      provider: none
