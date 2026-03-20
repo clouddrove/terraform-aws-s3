@@ -267,6 +267,7 @@ jobs:
 
       - name: 🏗️ Terraform Init
         id: init
+        working-directory: ${{ inputs.working_directory }}
         run: terraform init -input=false
 
       - name: 🔎 Terraform validate
