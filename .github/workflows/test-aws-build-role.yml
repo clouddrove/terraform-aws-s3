@@ -13,6 +13,6 @@ jobs:
       provider: aws
       enable_plan: true
       show_plan: false
-      terraform_version: '1.13.0'
+      terraform_version: '1.10.0'
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
