@@ -1,4 +1,4 @@
-name: Test BUILD_ROLE
+name: Test BUILD_ROLE with tf-checks
 permissions:
   id-token: write
 on:
@@ -6,29 +6,10 @@ on:
     branches:
       - 'test/build_role'
 jobs:
-  build_role:
-    runs-on: ubuntu-latest
-    steps:
-        - name: 📦 Checkout Repository
-          uses: actions/checkout@v6
-        
-        - name: 🟦 Install AWS CLI
-          uses: aws-actions/configure-aws-credentials@v6
-          with:
-            role-to-assume: ${{ secrets.BUILD_ROLE }}
-            role-duration-seconds: 900
-            role-skip-session-tagging: true
-            aws-region: "us-east-1"
-
-        - name: 🛠️ Set up Terraform
-          uses: hashicorp/setup-terraform@v3
-          with:
-            terraform_version: '1.13.0'
-
-        - name: Test terraform
-          working-directory: examples/complete
-          run: |
-            terraform init
-            terraform plan -detailed-exitcode -no-color -out=tfplan > plan.txt 2>&1 || exitcode=$?
-            grep -E '^Plan:|^No changes' plan.txt || echo "No changes."
-          
+  tf-checks-build-role:
+    uses: ./.github/workflows/tf-checks.yml
+    with:
+      working_directory: './examples/complete/'
+      provider: aws
+    secrets:
+      BUILD_ROLE: ${{ secrets.BUILD_ROLE }}

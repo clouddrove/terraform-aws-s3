@@ -1,0 +1,304 @@
+---
+name: 🌎 Terraform Checks
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: false
+        type: string
+        default: './examples/complete/'
+        description: 'Directory where terraform code exists. Default: ./examples/complete/'
+      provider:
+        required: false
+        type: string
+        default: azurerm
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp, or digitalocean'
+      aws_region:
+        required: false
+        type: string
+        default: us-east-1
+        description: 'AWS region of terraform deployment.'
+      var_file:
+        required: false
+        default: ""
+        type: string
+        description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+      terraform_version:
+        required: false
+        type: string
+        description: 'Terraform version to use. Leave empty to use latest or min/max versions.'
+      role_duration_seconds:
+        required: false
+        type: number
+        default: 3600
+        description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour (3600 seconds). Acceptable values range from 15 minutes (900 seconds) to 12 hours (43200 seconds).'
+      enable_version_check:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable min/max version checking and testing against both versions.'
+      enable_plan:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable terraform plan step.'
+      show_plan:
+        required: false
+        type: boolean
+        default: true
+        description: 'Show full terraform plan output. If false, only shows summary (e.g. Plan: 4 to add, 1 to change).'
+      gcp_credentials:
+        required: false
+        type: string
+        default: false
+        description: 'GCP credentials to use.'
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Desired lifetime duration of the access token, in seconds'
+      project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+      create_credentials_file:
+        required: false
+        type: string
+        default: true
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+    secrets:
+      AZURE_CREDENTIALS:
+        required: false
+        description: 'Azure Credentials to install Azure in github runner.'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
+      DIGITALOCEAN_ACCESS_TOKEN:
+        required: false
+        description: 'Digitalocean access Token to install Digitalocean CLI'
+      GITHUB:
+        required: false
+        description: 'PAT of the user to run the jobs.'
+      TF_API_TOKEN:
+        required: false
+        description: 'Terraform cloud token if your backend is terraform cloud.'
+      GCP_CREDENTIALS:
+        required: false
+        description: 'The Google Cloud JSON service account key to use for authentication'
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+        description: 'The full identifier of the Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'The service account to be used'
+
+jobs:
+  # Terraform version extract as output (only if version check is enabled)
+  versionExtract:
+    if: ${{ inputs.enable_version_check }}
+    name: 🏷️ Get min/max versions
+    runs-on: ubuntu-latest
+
+    outputs:
+      minVersion: ${{ steps.minMax.outputs.minVersion }}
+      maxVersion: ${{ steps.minMax.outputs.maxVersion }}
+
+    steps:
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: 🧮 Terraform min/max versions
+        id: minMax
+        uses: clowdhaus/terraform-min-max@main
+
+  # Evaluate terraform version based on version extract (only if version check is enabled)
+  versionEvaluate:
+    if: ${{ inputs.enable_version_check }}
+    name: 🧪 Evaluate Terraform versions
+    runs-on: ubuntu-latest
+    needs: versionExtract
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - ${{ needs.versionExtract.outputs.minVersion }}
+          - ${{ needs.versionExtract.outputs.maxVersion }}
+        directory:
+          - ${{ inputs.working_directory }}
+
+    steps:
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: ☁️ Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: true
+
+      - name: ☁️ Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: ☁️ Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+
+      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || matrix.version }}
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version || matrix.version }}
+
+      - name: 🏗️ Init & validate v${{ matrix.version }}
+        run: |
+          cd ${{ matrix.directory }}
+          terraform init
+          terraform validate
+
+  # Format check job (runs if version check is enabled)
+  format:
+    if: ${{ inputs.enable_version_check }}
+    name: 🧹 Check code format
+    runs-on: ubuntu-latest
+    needs: [versionExtract, versionEvaluate]
+
+    steps:
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+
+      - name: 🧹 Check Terraform format changes
+        run: terraform fmt --recursive -check=true
+
+  # Main terraform checks job (runs if version check is disabled)
+  terraform-checks:
+    if: ${{ !inputs.enable_version_check }}
+    name: '🌎 Terraform Validate, Init and Plan'
+    runs-on: ubuntu-latest
+    env:
+      #  This is needed since we are running terraform with read-only permissions
+      ARM_SKIP_PROVIDER_REGISTRATION: true
+    outputs:
+      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+
+    steps:
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: ☁️ Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: true
+
+      - name: ☁️ Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🟦 Install doctl
+        if: ${{ inputs.provider == 'digitalocean' }}
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: ☁️ Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+
+      - name: 🛠️ Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: 🧹 Terraform Format
+        uses: 'dflook/terraform-fmt-check@v2'
+
+      - name: 🏗️ Terraform Init
+        id: init
+        run: terraform init -input=false
+
+      - name: 🔎 Terraform validate
+        uses: dflook/terraform-validate@v2
+        with:
+          path: ${{ inputs.working_directory }}
+
+      - name: 📋 Terraform Plan
+        id: tf-plan
+        if: ${{ inputs.enable_plan }}
+        run: |
+          export exitcode=0
+          cd ${{ inputs.working_directory }}
+              
+          if [ -n "${{ inputs.var_file }}" ]; then
+            terraform plan -detailed-exitcode -no-color -out=tfplan --var-file=${{ inputs.var_file }} > plan.txt 2>&1 || exitcode=$?
+          else
+            terraform plan -detailed-exitcode -no-color -out=tfplan > plan.txt 2>&1 || exitcode=$?
+          fi
+              
+          if [ $exitcode -eq 1 ]; then
+            echo "Terraform Plan Failed!"
+            cat plan.txt
+            exit 1
+          fi
+              
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+              
+          if [ "${{ inputs.show_plan }}" == "true" ]; then
+            # Show full plan
+            cat plan.txt
+          else
+            # Show only summary
+            grep -E '^Plan:|^No changes' plan.txt || echo "No changes."
+          fi
