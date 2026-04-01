@@ -11,6 +11,7 @@ jobs:
       working_directory: './examples/complete/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-cors_s3-example:
@@ -20,6 +21,7 @@ jobs:
       working_directory: './examples/cors_s3/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-default-s3-example:
@@ -29,6 +31,7 @@ jobs:
       working_directory: './examples/default-s3/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-encryption-s3-example:
@@ -38,6 +41,7 @@ jobs:
       working_directory: './examples/encryption-s3/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-logging-encryption-s3-example:
@@ -47,6 +51,7 @@ jobs:
       working_directory: './examples/logging-encryption-s3/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-logging-s3-example:
@@ -56,6 +61,7 @@ jobs:
       working_directory: './examples/logging-s3/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-s3-replication-example:
@@ -65,6 +71,7 @@ jobs:
       working_directory: './examples/s3-replication/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-website-s3-example:
@@ -74,5 +81,6 @@ jobs:
       working_directory: './examples/website-s3/'
       provider: aws
       enable_plan: true
+      show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
