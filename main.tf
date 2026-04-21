@@ -821,3 +821,285 @@ resource "aws_vpc_endpoint" "endpoints" {
     delete = try(var.timeouts.delete, "10m")
   }
 }
+
+##-----------------------------------------------------------------------------
+## Data sources for AWS account, partition, and region details.
+##-----------------------------------------------------------------------------
+data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+data "aws_region" "current" {}
+
+##-----------------------------------------------------------------------------
+## IAM Role for S3Files service to assume.
+##-----------------------------------------------------------------------------
+resource "aws_iam_role" "s3files_role" {
+  count = var.enabled && var.enable_s3files ? 1 : 0
+  name  = "S3FilesAccessRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "s3.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+
+  depends_on = [aws_s3files_file_system.this]
+}
+
+##-----------------------------------------------------------------------------
+## S3Files File System Policy configuration.
+##-----------------------------------------------------------------------------
+resource "aws_s3files_file_system_policy" "example" {
+  count          = var.enabled && var.enable_s3files ? 1 : 0
+  file_system_id = aws_s3files_file_system.this[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "s3files:ClientMount"
+        Resource = "*"
+      }
+    ]
+  })
+
+  depends_on = [aws_s3files_file_system.this]
+}
+
+##-----------------------------------------------------------------------------
+## IAM Role with full access for S3Files operations.
+##-----------------------------------------------------------------------------
+resource "aws_iam_role" "s3_full_access_role" {
+  count = var.enabled && var.enable_s3files ? 1 : 0
+  name  = "s3-full-access-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid    = "AllowS3FilesAssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = [
+          "elasticfilesystem.amazonaws.com",
+          "ec2.amazonaws.com",
+          "lambda.amazonaws.com",
+          "ecs-tasks.amazonaws.com"
+        ]
+      }
+      Action = "sts:AssumeRole"
+      Condition = {
+        StringEquals = {
+          "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+        }
+        ArnLike = {
+          "aws:SourceArn" = "arn:aws:s3files:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:file-system/*"
+        }
+      }
+    }]
+  })
+}
+
+##-----------------------------------------------------------------------------
+## IAM Policy attachment for S3Files full access role.
+##-----------------------------------------------------------------------------
+resource "aws_iam_role_policy" "bucket_access" {
+  count = var.enabled && var.enable_s3files ? 1 : 0
+  name  = "s3files-bucket-access"
+  role  = aws_iam_role.s3_full_access_role[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "S3BucketPermissions"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:ListBucketVersions"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      },
+      {
+        Sid    = "S3ObjectPermissions"
+        Effect = "Allow"
+        Action = [
+          "s3:AbortMultipartUpload",
+          "s3:DeleteObject*",
+          "s3:GetObject*",
+          "s3:List*",
+          "s3:PutObject*"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      },
+      {
+        Sid    = "EventBridgeManage"
+        Effect = "Allow"
+        Action = [
+          "events:DeleteRule",
+          "events:DisableRule",
+          "events:EnableRule",
+          "events:PutRule",
+          "events:PutTargets",
+          "events:RemoveTargets"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "events:ManagedBy" = "elasticfilesystem.amazonaws.com"
+          }
+        }
+      },
+      {
+        Sid    = "EventBridgeRead"
+        Effect = "Allow"
+        Action = [
+          "events:DescribeRule",
+          "events:ListRuleNamesByTarget",
+          "events:ListRules",
+          "events:ListTargetsByRule"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "S3FilesAccess"
+        Effect = "Allow"
+        Action = [
+          "s3files:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+##-----------------------------------------------------------------------------
+## S3Files File System resource.
+##-----------------------------------------------------------------------------
+resource "aws_s3files_file_system" "this" {
+  count = var.enabled && var.enable_s3files ? 1 : 0
+
+  bucket   = aws_s3_bucket.s3_default[0].arn
+  role_arn = aws_iam_role.s3_full_access_role[0].arn
+
+  kms_key_id = try(var.kms_key_id, null)
+  prefix     = try(var.prefix, null)
+  region     = try(var.region, data.aws_region.current)
+
+  tags = module.labels.tags
+
+  depends_on = [
+    aws_s3_bucket.s3_default,
+    aws_iam_role.s3_full_access_role
+  ]
+}
+
+##-----------------------------------------------------------------------------
+## S3Files Access Point configuration.
+##-----------------------------------------------------------------------------
+resource "aws_s3files_access_point" "this" {
+  count          = var.enabled && var.enable_s3files ? 1 : 0
+  file_system_id = aws_s3files_file_system.this[0].id
+
+  posix_user {
+    uid            = var.posix_user.uid
+    gid            = var.posix_user.gid
+    secondary_gids = var.posix_user.secondary_gids
+  }
+
+  region = try(var.region, data.aws_region.current)
+
+  dynamic "root_directory" {
+    for_each = var.root_directory != null ? [var.root_directory] : []
+
+    content {
+      path = try(root_directory.value.path, "/")
+
+      dynamic "creation_permissions" {
+        for_each = root_directory.value.creation_permissions != null ? [root_directory.value.creation_permissions] : []
+
+        content {
+          owner_uid   = creation_permissions.value.owner_uid
+          owner_gid   = creation_permissions.value.owner_gid
+          permissions = creation_permissions.value.permissions
+        }
+      }
+    }
+  }
+
+  tags = module.labels.tags
+
+  depends_on = [aws_s3files_file_system.this]
+}
+
+##-----------------------------------------------------------------------------
+## S3Files Mount Target configuration.
+##-----------------------------------------------------------------------------
+resource "aws_s3files_mount_target" "this" {
+  for_each = var.enabled && var.enable_s3files ? toset(var.subnet_id) : []
+
+  file_system_id = aws_s3files_file_system.this[0].id
+  subnet_id      = each.value
+
+  ip_address_type = var.ip_address_type
+  ipv4_address    = var.ipv4_address
+  ipv6_address    = var.ipv6_address
+  security_groups = length(var.security_groups) > 0 ? var.security_groups : null
+
+  region = try(var.region, data.aws_region.current)
+
+  timeouts {
+    create = "10m"
+    update = "10m"
+    delete = "10m"
+  }
+
+  depends_on = [aws_s3files_file_system.this]
+}
+
+##-----------------------------------------------------------------------------
+## S3Files Synchronization configuration.
+##-----------------------------------------------------------------------------
+resource "aws_s3files_synchronization_configuration" "this" {
+  count          = var.enabled && var.enable_s3files ? 1 : 0
+  file_system_id = aws_s3files_file_system.this[0].id
+
+  region = try(var.region, data.aws_region.current)
+
+  dynamic "import_data_rule" {
+    for_each = var.import_data_rules
+
+    content {
+      prefix         = import_data_rule.value.prefix
+      size_less_than = import_data_rule.value.size_less_than
+      trigger        = import_data_rule.value.trigger
+    }
+  }
+
+  dynamic "expiration_data_rule" {
+    for_each = var.expiration_data_rule != null ? [var.expiration_data_rule] : []
+
+    content {
+      days_after_last_access = expiration_data_rule.value.days_after_last_access
+    }
+  }
+
+  depends_on = [aws_s3files_file_system.this]
+}
