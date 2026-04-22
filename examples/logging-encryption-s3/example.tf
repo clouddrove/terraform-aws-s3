@@ -28,7 +28,7 @@ module "logging_bucket" {
 ##-----------------------------------------------------------------------------
 module "kms_key" {
   source      = "clouddrove/kms/aws"
-  version     = "1.3.1"
+  version     = "1.3.2"
   name        = "kms"
   environment = local.environment
   label_order = local.label_order
