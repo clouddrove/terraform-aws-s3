@@ -1053,7 +1053,10 @@ resource "aws_s3files_access_point" "this" {
 ## S3Files Mount Target configuration.
 ##-----------------------------------------------------------------------------
 resource "aws_s3files_mount_target" "this" {
-  for_each = var.enabled && var.enable_s3files ? toset(var.subnet_id) : []
+  for_each = var.enabled && var.enable_s3files ? {
+    for idx, subnet in var.subnet_id :
+    idx => subnet
+  } : {}
 
   file_system_id = aws_s3files_file_system.this[0].id
   subnet_id      = each.value

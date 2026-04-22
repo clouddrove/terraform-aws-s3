@@ -44,6 +44,7 @@ module "subnets" {
   single_nat_gateway  = true
   availability_zones  = ["${local.region}a", "${local.region}b", "${local.region}c"]
   vpc_id              = module.vpc.vpc_id
+  cidr_block          = module.vpc.vpc_cidr_block
   type                = "public-private"
   igw_id              = module.vpc.igw_id
 }

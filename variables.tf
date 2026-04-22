@@ -425,6 +425,7 @@ variable "root_directory" {
 variable "subnet_id" {
   description = "List of subnet IDs where S3Files mount targets will be created."
   type        = list(string)
+  default     = []
 }
 
 variable "ip_address_type" {

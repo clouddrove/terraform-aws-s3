@@ -85,6 +85,41 @@ data "aws_iam_policy_document" "default" {
 }
 
 ##-----------------------------------------------------------------------------
+## Security Group Module Call.
+##-----------------------------------------------------------------------------
+module "security_group" {
+  source  = "clouddrove/security-group/aws"
+  version = "2.0.2"
+
+  name        = "s3files-sg"
+  environment = local.environment
+  label_order = local.label_order
+  vpc_id      = module.vpc.vpc_id
+
+  ## INGRESS Rules
+  new_sg_ingress_rules_with_cidr_blocks = [{
+    rule_count  = 1
+    from_port   = 2049
+    protocol    = "tcp"
+    to_port     = 2049
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+    description = "NFS from VPC"
+    }
+  ]
+
+  ## EGRESS Rules
+  new_sg_egress_rules_with_cidr_blocks = [{
+    rule_count  = 1
+    from_port   = 0
+    protocol    = "-1"
+    to_port     = 0
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+    description = "Allow all outbound traffic."
+    }
+  ]
+}
+
+##-----------------------------------------------------------------------------
 ## Provides details about a specific S3 bucket.
 ##-----------------------------------------------------------------------------
 module "s3_bucket" {
@@ -280,4 +315,37 @@ module "s3_bucket" {
       }
     }]
   }
+  # enabled s3 files system
+  enable_s3files = true
+  kms_key_id     = module.kms_key.key_id
+  prefix         = "/"
+  root_directory = {
+    path = "/"
+
+    creation_permissions = {
+      owner_uid   = 1000
+      owner_gid   = 1000
+      permissions = "0755"
+    }
+  }
+
+  posix_user = {
+    gid            = 1000
+    uid            = 1000
+    secondary_gids = [1001, 1002]
+  }
+
+  subnet_id       = module.subnets.private_subnet_id
+  security_groups = [module.security_group.security_group_id]
+
+  import_data_rules = [{
+    prefix         = "/"
+    size_less_than = 524288000
+    trigger        = "ON_FILE_ACCESS"
+  }]
+
+  expiration_data_rule = {
+    days_after_last_access = 10
+  }
+
 }
