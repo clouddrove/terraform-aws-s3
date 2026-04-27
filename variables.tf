@@ -380,10 +380,58 @@ variable "enable_s3files" {
   default     = false
 }
 
+variable "enable_s3files_access_role" {
+  description = "Enable creation of IAM role for S3 Files access"
+  type        = bool
+  default     = false
+}
+
+variable "enable_s3files_file_system" {
+  description = "Enable creation of S3Files file system"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_file_system_policy" {
+  description = "Enable creation of S3Files file system policy"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_iam" {
+  description = "Enable IAM role for full S3Files access"
+  type        = bool
+  default     = true
+}
+
+variable "s3files_full_access_role_arn" {
+  description = "ARN of an existing IAM role to be used for S3Files full access. Used when enable_s3files_iam is disabled."
+  type        = string
+  default     = null
+}
+
+variable "enable_s3files_access_point" {
+  description = "Enable S3Files access point"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_mount_targets" {
+  description = "Enable S3Files mount targets"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_sync_config" {
+  description = "Enable S3Files synchronization configuration"
+  type        = bool
+  default     = true
+}
+
 variable "kms_key_id" {
   description = "KMS Key ID or ARN used to encrypt the S3Files file system. If not provided, default AWS encryption is used."
   type        = string
-  default     = ""
+  default     = null
 }
 
 variable "prefix" {
@@ -405,7 +453,11 @@ variable "posix_user" {
     gid            = number
     secondary_gids = optional(list(number), [])
   })
-  default = null
+  default = {
+    gid            = 1000
+    uid            = 1000
+    secondary_gids = [1001, 1002]
+  }
 }
 
 variable "root_directory" {
@@ -459,7 +511,14 @@ variable "import_data_rules" {
     size_less_than = number
     trigger        = string
   }))
-  default = []
+
+  default = [
+    {
+      prefix         = "/"
+      size_less_than = 524288000
+      trigger        = "ON_FILE_ACCESS"
+    }
+  ]
 }
 
 variable "expiration_data_rule" {
@@ -467,5 +526,8 @@ variable "expiration_data_rule" {
   type = object({
     days_after_last_access = number
   })
-  default = null
+
+  default = {
+    days_after_last_access = 10
+  }
 }

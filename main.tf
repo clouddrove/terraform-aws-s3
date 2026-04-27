@@ -830,31 +830,10 @@ data "aws_partition" "current" {}
 data "aws_region" "current" {}
 
 ##-----------------------------------------------------------------------------
-## IAM Role for S3Files service to assume.
-##-----------------------------------------------------------------------------
-resource "aws_iam_role" "s3files_role" {
-  count = var.enabled && var.enable_s3files ? 1 : 0
-  name  = "S3FilesAccessRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "s3.amazonaws.com"
-      }
-      Action = "sts:AssumeRole"
-    }]
-  })
-
-  depends_on = [aws_s3files_file_system.this]
-}
-
-##-----------------------------------------------------------------------------
 ## S3Files File System Policy configuration.
 ##-----------------------------------------------------------------------------
-resource "aws_s3files_file_system_policy" "example" {
-  count          = var.enabled && var.enable_s3files ? 1 : 0
+resource "aws_s3files_file_system_policy" "s3files" {
+  count          = var.enabled && var.enable_s3files && var.enable_s3files_file_system_policy ? 1 : 0
   file_system_id = aws_s3files_file_system.this[0].id
 
   policy = jsonencode({
@@ -878,8 +857,8 @@ resource "aws_s3files_file_system_policy" "example" {
 ## IAM Role with full access for S3Files operations.
 ##-----------------------------------------------------------------------------
 resource "aws_iam_role" "s3_full_access_role" {
-  count = var.enabled && var.enable_s3files ? 1 : 0
-  name  = "s3-full-access-role"
+  count = var.enabled && var.enable_s3files && var.enable_s3files_iam ? 1 : 0
+  name  = format("%s-%s", module.labels.id, "full-access-role")
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -911,8 +890,8 @@ resource "aws_iam_role" "s3_full_access_role" {
 ## IAM Policy attachment for S3Files full access role.
 ##-----------------------------------------------------------------------------
 resource "aws_iam_role_policy" "bucket_access" {
-  count = var.enabled && var.enable_s3files ? 1 : 0
-  name  = "s3files-bucket-access"
+  count = var.enabled && var.enable_s3files && var.enable_s3files_iam ? 1 : 0
+  name  = format("%s-%s", module.labels.id, "full-access-policy")
   role  = aws_iam_role.s3_full_access_role[0].id
 
   policy = jsonencode({
@@ -994,10 +973,10 @@ resource "aws_iam_role_policy" "bucket_access" {
 ## S3Files File System resource.
 ##-----------------------------------------------------------------------------
 resource "aws_s3files_file_system" "this" {
-  count = var.enabled && var.enable_s3files ? 1 : 0
+  count = var.enabled && var.enable_s3files && var.enable_s3files_file_system ? 1 : 0
 
   bucket   = aws_s3_bucket.s3_default[0].arn
-  role_arn = aws_iam_role.s3_full_access_role[0].arn
+  role_arn = var.enable_s3files_iam ? aws_iam_role.s3_full_access_role[0].arn : var.s3files_full_access_role_arn
 
   kms_key_id = try(var.kms_key_id, null)
   prefix     = try(var.prefix, null)
@@ -1006,8 +985,7 @@ resource "aws_s3files_file_system" "this" {
   tags = module.labels.tags
 
   depends_on = [
-    aws_s3_bucket.s3_default,
-    aws_iam_role.s3_full_access_role
+    aws_s3_bucket.s3_default
   ]
 }
 
@@ -1015,7 +993,7 @@ resource "aws_s3files_file_system" "this" {
 ## S3Files Access Point configuration.
 ##-----------------------------------------------------------------------------
 resource "aws_s3files_access_point" "this" {
-  count          = var.enabled && var.enable_s3files ? 1 : 0
+  count          = var.enabled && var.enable_s3files && var.enable_s3files_access_point ? 1 : 0
   file_system_id = aws_s3files_file_system.this[0].id
 
   posix_user {
@@ -1053,9 +1031,8 @@ resource "aws_s3files_access_point" "this" {
 ## S3Files Mount Target configuration.
 ##-----------------------------------------------------------------------------
 resource "aws_s3files_mount_target" "this" {
-  for_each = var.enabled && var.enable_s3files ? {
-    for idx, subnet in var.subnet_id :
-    idx => subnet
+  for_each = var.enabled && var.enable_s3files && var.enable_s3files_mount_targets ? {
+    for idx, subnet in var.subnet_id : idx => subnet
   } : {}
 
   file_system_id = aws_s3files_file_system.this[0].id
@@ -1081,7 +1058,7 @@ resource "aws_s3files_mount_target" "this" {
 ## S3Files Synchronization configuration.
 ##-----------------------------------------------------------------------------
 resource "aws_s3files_synchronization_configuration" "this" {
-  count          = var.enabled && var.enable_s3files ? 1 : 0
+  count          = var.enabled && var.enable_s3files && var.enable_s3files_sync_config ? 1 : 0
   file_system_id = aws_s3files_file_system.this[0].id
 
   region = try(var.region, data.aws_region.current)
