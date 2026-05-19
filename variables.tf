@@ -30,6 +30,12 @@ variable "managedby" {
   description = "ManagedBy, eg 'CloudDrove'."
 }
 
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Additional tags to apply to all resources managed by the module (merged with module.labels.tags via extra_tags)."
+}
+
 # Module      : S3 BUCKET
 # Description : Terraform S3 Bucket module variables.
 variable "enabled" {
