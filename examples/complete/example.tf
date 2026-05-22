@@ -125,10 +125,10 @@ module "security_group" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "sub-module-2026"
+  name        = "arcx-13"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = "sub-module-2026"
+  s3_name     = "sedfdrg"
 
   #acceleration and request payer enable or disable.
   acceleration_status = true

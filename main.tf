@@ -126,7 +126,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm     = var.enable_kms == true ? "aws:kms" : var.sse_algorithm
-      kms_master_key_id = var.kms_master_key_id
+      kms_master_key_id = var.kms_master_key_arn
     }
   }
 }
@@ -816,9 +816,9 @@ resource "aws_vpc_endpoint" "endpoints" {
   )
 
   timeouts {
-    create = try(var.timeouts.create, "10m")
-    update = try(var.timeouts.update, "10m")
-    delete = try(var.timeouts.delete, "10m")
+    create = try(var.timeouts.create, "20m")
+    update = try(var.timeouts.update, "20m")
+    delete = try(var.timeouts.delete, "20m")
   }
 }
 
@@ -978,14 +978,15 @@ resource "aws_s3files_file_system" "this" {
   bucket   = aws_s3_bucket.s3_default[0].arn
   role_arn = var.enable_s3files_iam ? aws_iam_role.s3_full_access_role[0].arn : var.s3files_full_access_role_arn
 
-  kms_key_id = try(var.kms_key_id, null)
+  kms_key_id = try(var.kms_key_arn, null)
   prefix     = try(var.prefix, null)
   region     = try(var.region, data.aws_region.current)
 
   tags = module.labels.tags
 
   depends_on = [
-    aws_s3_bucket.s3_default
+    aws_s3_bucket.s3_default,
+    aws_s3_bucket_versioning.example
   ]
 }
 
