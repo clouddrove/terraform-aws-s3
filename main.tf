@@ -979,8 +979,8 @@ resource "aws_s3files_file_system" "this" {
   role_arn = var.enable_s3files_iam ? aws_iam_role.s3_full_access_role[0].arn : var.s3files_full_access_role_arn
 
   kms_key_id = try(var.kms_key_arn, null)
-  prefix      = try(var.prefix, null)
-  region      = try(var.region, data.aws_region.current)
+  prefix     = try(var.prefix, null)
+  region     = try(var.region, data.aws_region.current)
 
   tags = module.labels.tags
 
