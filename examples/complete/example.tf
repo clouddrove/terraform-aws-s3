@@ -143,7 +143,7 @@ module "s3_bucket" {
   #encrption on s3 with default encryption and kms encryption .
   enable_server_side_encryption = true
   enable_kms                    = true
-  kms_master_key_arn             = module.kms_key.key_arn
+  kms_master_key_arn            = module.kms_key.key_arn
 
   #object locking of s3.
   object_lock_configuration = {
@@ -317,7 +317,7 @@ module "s3_bucket" {
   }
   # enabled s3 files system
   enable_s3files = true
-  kms_key_arn     = module.kms_key.key_arn
+  kms_key_arn    = module.kms_key.key_arn
   prefix         = "/"
   root_directory = {
     path = "/"
