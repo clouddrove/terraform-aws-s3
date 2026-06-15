@@ -93,7 +93,7 @@ module "s3_bucket" {
   versioning     = true
   force_destroy  = true
   enable_s3files = true
-  kms_key_id     = null
+  kms_key_arn    = null
   prefix         = "/"
   root_directory = {
     path = "/"
