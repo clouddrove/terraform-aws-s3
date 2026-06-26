@@ -58,8 +58,8 @@ variable "acl" {
 
 variable "enable_server_side_encryption" {
   type        = bool
-  default     = false
-  description = "Enable enable_server_side_encryption"
+  default     = true
+  description = "Enable server-side encryption by default."
 }
 
 variable "sse_algorithm" {
@@ -71,7 +71,7 @@ variable "sse_algorithm" {
 variable "enable_kms" {
   type        = bool
   default     = false
-  description = "Enable enable_server_side_encryption"
+  description = "Enable KMS encryption. If false, uses AES256."
 }
 
 variable "kms_master_key_id" {
