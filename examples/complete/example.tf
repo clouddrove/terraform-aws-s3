@@ -27,7 +27,7 @@ module "logging_bucket" {
 
 module "vpc" {
   source  = "clouddrove/vpc/aws"
-  version = "2.0.0"
+  version = "2.0.5"
 
   name        = "app"
   environment = local.environment
@@ -38,7 +38,7 @@ module "vpc" {
 #tfsec:ignore:aws-ec2-no-public-ingress-acl
 module "subnets" {
   source             = "clouddrove/subnet/aws"
-  version            = "2.0.1"
+  version            = "2.0.3"
   name               = "subnet"
   environment        = local.environment
   availability_zones = local.availability_zones
@@ -54,7 +54,7 @@ module "subnets" {
 ##-----------------------------------------------------------------------------
 module "kms_key" {
   source      = "clouddrove/kms/aws"
-  version     = "1.3.1"
+  version     = "1.3.4"
   name        = "kms"
   environment = local.environment
   label_order = local.label_order
