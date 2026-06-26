@@ -16,9 +16,9 @@
 | configuration\_status | Versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets. | `string` | `"Enabled"` | no |
 | control\_object\_ownership | Whether to manage S3 Bucket Ownership Controls on this bucket. | `bool` | `false` | no |
 | cors\_rule | CORS Configuration specification for this bucket | <pre>list(object({<br>    allowed_headers = list(string)<br>    allowed_methods = list(string)<br>    allowed_origins = list(string)<br>    expose_headers  = list(string)<br>    max_age_seconds = number<br>  }))</pre> | `null` | no |
-| enable\_kms | Enable enable\_server\_side\_encryption | `bool` | `false` | no |
+| enable\_kms | Enable KMS encryption. If false, uses AES256. | `bool` | `false` | no |
 | enable\_lifecycle\_configuration\_rules | enable or disable lifecycle\_configuration\_rules | `bool` | `false` | no |
-| enable\_server\_side\_encryption | Enable enable\_server\_side\_encryption | `bool` | `false` | no |
+| enable\_server\_side\_encryption | Enable server-side encryption by default. | `bool` | `true` | no |
 | enabled | Conditionally create S3 bucket. | `bool` | `true` | no |
 | environment | Environment (e.g. `prod`, `dev`, `staging`). | `string` | `""` | no |
 | expected\_bucket\_owner | The account ID of the expected bucket owner | `string` | `null` | no |
