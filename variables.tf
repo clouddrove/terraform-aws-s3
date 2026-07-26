@@ -324,6 +324,7 @@ variable "analytics_configuration" {
 variable "vpc_endpoints" {
   type    = any
   default = []
+  description = "List of VPC endpoint configurations to create for S3 access within a VPC."
 }
 
 variable "timeouts" {
