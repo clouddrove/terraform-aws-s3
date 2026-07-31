@@ -90,11 +90,18 @@ module "s3_bucket" {
   label_order = local.label_order
   s3_name     = "s3filesytemexample"
 
-  versioning     = true
-  force_destroy  = true
+  # S3 bucket encryption using an existing customer-managed KMS key.
+  versioning                    = true
+  force_destroy                 = true
+  enable_server_side_encryption = true
+  enable_kms                    = true
+  kms_master_key_arn            = var.kms_key_arn
+
+  # S3Files configuration.
   enable_s3files = true
-  kms_key_arn    = null
+  kms_key_arn    = var.kms_key_arn
   prefix         = "/"
+
   root_directory = {
     path = "/"
 

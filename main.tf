@@ -858,7 +858,7 @@ resource "aws_s3files_file_system_policy" "s3files" {
 ## IAM Role with full access for S3Files operations.
 ##-----------------------------------------------------------------------------
 resource "aws_iam_role" "s3_full_access_role" {
-  count = var.enabled && var.enable_s3files && var.enable_s3files_iam ? 1 : 0
+  count = var.enabled && var.enable_s3files && var.enable_s3files_access_role ? 1 : 0
   name  = format("%s-%s", module.labels.id, "full-access-role")
 
   assume_role_policy = jsonencode({
@@ -891,7 +891,7 @@ resource "aws_iam_role" "s3_full_access_role" {
 ## IAM Policy attachment for S3Files full access role.
 ##-----------------------------------------------------------------------------
 resource "aws_iam_role_policy" "bucket_access" {
-  count = var.enabled && var.enable_s3files && var.enable_s3files_iam ? 1 : 0
+  count = var.enabled && var.enable_s3files && var.enable_s3files_access_role ? 1 : 0
   name  = format("%s-%s", module.labels.id, "full-access-policy")
   role  = aws_iam_role.s3_full_access_role[0].id
 
@@ -977,7 +977,7 @@ resource "aws_s3files_file_system" "this" {
   count = var.enabled && var.enable_s3files && var.enable_s3files_file_system ? 1 : 0
 
   bucket   = aws_s3_bucket.s3_default[0].arn
-  role_arn = var.enable_s3files_iam ? aws_iam_role.s3_full_access_role[0].arn : var.s3files_full_access_role_arn
+  role_arn = var.enable_s3files_access_role ? aws_iam_role.s3_full_access_role[0].arn : var.s3files_full_access_role_arn
 
   kms_key_id = try(var.kms_key_arn, null)
   prefix     = try(var.prefix, null)
