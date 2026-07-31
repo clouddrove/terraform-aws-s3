@@ -1,17 +1,17 @@
 name: tf-checks
+
+permissions:
+  id-token: write
+  contents: read
+
 on:
   pull_request:
     paths:
       - '**/*.tf'
       - '*.tf'
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   tf-checks-complete-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: aws
@@ -20,8 +20,7 @@ jobs:
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-cors_s3-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/cors_s3/'
       provider: aws
@@ -30,8 +29,7 @@ jobs:
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-default-s3-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/default-s3/'
       provider: aws
@@ -40,8 +38,7 @@ jobs:
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-encryption-s3-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/encryption-s3/'
       provider: aws
@@ -50,8 +47,7 @@ jobs:
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-logging-encryption-s3-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/logging-encryption-s3/'
       provider: aws
@@ -60,8 +56,7 @@ jobs:
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-logging-s3-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/logging-s3/'
       provider: aws
@@ -70,8 +65,7 @@ jobs:
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-s3-replication-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/s3-replication/'
       provider: aws
@@ -80,20 +74,9 @@ jobs:
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
   tf-checks-website-s3-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/website-s3/'
-      provider: aws
-      enable_plan: true
-      show_plan: false
-    secrets:
-      BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
-  tf-checks-s3files-example:
-    if: github.actor != 'dependabot[bot]'
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
-    with:
-      working_directory: './examples/s3files/'
       provider: aws
       enable_plan: true
       show_plan: false

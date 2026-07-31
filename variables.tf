@@ -30,6 +30,12 @@ variable "managedby" {
   description = "ManagedBy, eg 'CloudDrove'."
 }
 
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Additional tags to apply to all resources managed by the module (merged with module.labels.tags via extra_tags)."
+}
+
 # Module      : S3 BUCKET
 # Description : Terraform S3 Bucket module variables.
 variable "enabled" {
@@ -52,8 +58,8 @@ variable "acl" {
 
 variable "enable_server_side_encryption" {
   type        = bool
-  default     = false
-  description = "Enable enable_server_side_encryption"
+  default     = true
+  description = "Enable server-side encryption by default."
 }
 
 variable "sse_algorithm" {
@@ -65,7 +71,7 @@ variable "sse_algorithm" {
 variable "enable_kms" {
   type        = bool
   default     = false
-  description = "Enable enable_server_side_encryption"
+  description = "Enable KMS encryption. If false, uses AES256."
 }
 
 variable "kms_master_key_arn" {

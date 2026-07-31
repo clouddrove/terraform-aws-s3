@@ -16,9 +16,9 @@
 | configuration\_status | Versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets. | `string` | `"Enabled"` | no |
 | control\_object\_ownership | Whether to manage S3 Bucket Ownership Controls on this bucket. | `bool` | `false` | no |
 | cors\_rule | CORS Configuration specification for this bucket | <pre>list(object({<br>    allowed_headers = list(string)<br>    allowed_methods = list(string)<br>    allowed_origins = list(string)<br>    expose_headers  = list(string)<br>    max_age_seconds = number<br>  }))</pre> | `null` | no |
-| enable\_kms | Enable enable\_server\_side\_encryption | `bool` | `false` | no |
+| enable\_kms | Enable KMS encryption. If false, uses AES256. | `bool` | `false` | no |
 | enable\_lifecycle\_configuration\_rules | enable or disable lifecycle\_configuration\_rules | `bool` | `false` | no |
-| enable\_server\_side\_encryption | Enable enable\_server\_side\_encryption | `bool` | `false` | no |
+| enable\_server\_side\_encryption | Enable server-side encryption by default. | `bool` | `true` | no |
 | enabled | Conditionally create S3 bucket. | `bool` | `true` | no |
 | environment | Environment (e.g. `prod`, `dev`, `staging`). | `string` | `""` | no |
 | expected\_bucket\_owner | The account ID of the expected bucket owner | `string` | `null` | no |
@@ -29,7 +29,7 @@
 | inventory\_configuration | Map containing S3 inventory configuration. | `any` | `{}` | no |
 | kms\_master\_key\_id | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse\_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse\_algorithm is aws:kms. | `string` | `""` | no |
 | label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
-| lifecycle\_configuration\_rules | A list of lifecycle rules | <pre>list(object({<br>    id      = string<br>    enabled = bool<br>    filter  = any<br><br>    enable_glacier_transition            = bool<br>    enable_deeparchive_transition        = bool<br>    enable_standard_ia_transition        = bool<br>    enable_current_object_expiration     = bool<br>    enable_noncurrent_version_expiration = bool<br><br>    abort_incomplete_multipart_upload_days         = number<br>    noncurrent_version_glacier_transition_days     = number<br>    noncurrent_version_deeparchive_transition_days = number<br>    noncurrent_version_expiration_days             = number<br><br>    standard_transition_days    = number<br>    glacier_transition_days     = number<br>    deeparchive_transition_days = number<br>    expiration_days             = number<br>  }))</pre> | `null` | no |
+| lifecycle\_configuration\_rules | A list of lifecycle rules | <pre>list(object({<br>    id      = string<br>    enabled = bool<br>    filter  = any<br><br>    enable_glacier_transition            = bool<br>    enable_deeparchive_transition        = bool<br>    enable_standard_ia_transition        = bool<br>    enable_current_object_expiration     = bool<br>    enable_noncurrent_version_expiration = bool<br><br>    abort_incomplete_multipart_upload_days         = number<br>    noncurrent_version_glacier_transition_days     = optional(number)<br>    noncurrent_version_deeparchive_transition_days = optional(number)<br>    noncurrent_version_expiration_days             = optional(number)<br><br>    noncurrent_version_glacier_transition_newer     = optional(number)<br>    noncurrent_version_deeparchive_transition_newer = optional(number)<br>    noncurrent_version_standard_ia_transition_newer = optional(number)<br><br>    storage_class = optional(string)<br><br>    glacier_transition_date     = optional(number)<br>    standard_ia_transition_date = optional(number)<br>    deeparchive_transition_date = optional(number)<br><br>    standard_transition_days    = optional(number)<br>    glacier_transition_days     = optional(number)<br>    deeparchive_transition_days = optional(number)<br>    expiration_days             = optional(number)<br>  }))</pre> | `null` | no |
 | logging | Logging Object to enable and disable logging | `bool` | `false` | no |
 | managedby | ManagedBy, eg 'CloudDrove'. | `string` | `"hello@clouddrove.com"` | no |
 | metric\_configuration | Map containing bucket metric configuration. | `any` | `[]` | no |
@@ -48,6 +48,7 @@
 | restrict\_public\_buckets | Whether Amazon S3 should restrict public bucket policies for this bucket. | `bool` | `true` | no |
 | s3\_name | name of s3 bucket | `string` | `null` | no |
 | sse\_algorithm | The server-side encryption algorithm to use. Valid values are AES256 and aws:kms. | `string` | `"AES256"` | no |
+| tags | Additional tags to apply to all resources managed by the module (merged with module.labels.tags via extra\_tags). | `map(string)` | `{}` | no |
 | target\_bucket | The bucket where you want Amazon S3 to store server access logs. | `string` | `""` | no |
 | target\_prefix | A prefix for all log object keys. | `string` | `""` | no |
 | timeouts | Define maximum timeout for creating, updating, and deleting VPC endpoint resources | `map(string)` | `{}` | no |
@@ -70,3 +71,4 @@
 | s3\_bucket\_website\_domain | The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string. This is used to create Route 53 alias records. |
 | s3\_bucket\_website\_endpoint | The website endpoint, if the bucket is configured with a website. If not, this will be an empty string. |
 | tags | A mapping of tags to assign to the resource. |
+
