@@ -54,7 +54,7 @@
 | timeouts | Define maximum timeout for creating, updating, and deleting VPC endpoint resources | `map(string)` | `{}` | no |
 | versioning | Enable Versioning of S3. | `bool` | `true` | no |
 | versioning\_status | Required if versioning\_configuration mfa\_delete is enabled) Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device. | `string` | `"Enabled"` | no |
-| vpc\_endpoints | n/a | `any` | `[]` | no |
+| vpc\_endpoints | List of VPC endpoint configurations to create for S3 access within a VPC. | `any` | `[]` | no |
 | website | Map containing static web-site hosting or redirect configuration. | `any` | `{}` | no |
 
 ## Outputs
