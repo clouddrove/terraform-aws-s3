@@ -2,6 +2,8 @@
 
 This module provides a wrapper around the root module to allow creating multiple instances using `for_each`, which is particularly useful with Terragrunt.
 
+Every root-module input can be set per item and can also be supplied through `defaults`. Item values take precedence over defaults.
+
 ## Usage with Terragrunt
 
 ```hcl

@@ -16,10 +16,9 @@ locals {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "clouddrove-secure-bucket"
-  environment = local.environment
-  label_order = local.label_order
-  s3_name     = "cdkc"
-  acl         = "private"
-  versioning  = true
+  name          = "clouddrove-secure-bucket"
+  environment   = local.environment
+  label_order   = local.label_order
+  bucket_prefix = "default-s3-"
+  versioning    = true
 }

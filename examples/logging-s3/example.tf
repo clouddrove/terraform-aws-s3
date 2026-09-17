@@ -16,11 +16,13 @@ locals {
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "logging-s3-test"
-  s3_name     = "zanq"
-  environment = local.environment
-  label_order = local.label_order
-  acl         = "log-delivery-write"
+  name                     = "logging-s3-test"
+  bucket_prefix            = "logging-target-"
+  environment              = local.environment
+  label_order              = local.label_order
+  acl                      = "log-delivery-write"
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
 }
 
 ##-----------------------------------------------------------------------------
@@ -29,13 +31,12 @@ module "logging_bucket" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "clouddrove-logging-bucket"
-  s3_name     = "wewrrt"
-  environment = local.environment
-  label_order = local.label_order
+  name          = "clouddrove-logging-bucket"
+  bucket_prefix = "logging-source-"
+  environment   = local.environment
+  label_order   = local.label_order
 
   versioning    = true
-  acl           = "private"
   logging       = true
   target_bucket = module.logging_bucket.id
   target_prefix = "logs"

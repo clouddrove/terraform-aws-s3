@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- S3 event notifications for Lambda, SQS, SNS, and EventBridge.
+- S3 Bucket Keys, DSSE-KMS, and optional SSE-C blocking.
+- Server access logging grants and partitioned/simple object key formats.
+- S3 bucket ABAC and S3 Metadata journal/inventory table configuration.
+- Mocked Terraform tests for default, disabled, ACL, Requester Pays, lifecycle, replication, and modern S3 feature paths.
+
+### Fixed
+
+- Merge custom and HTTPS-only statements into a single bucket policy resource.
+- Correct bucket-prefix, Requester Pays, ACL, lifecycle, replication-filter, website-routing, configuration-name, analytics-account, and module-disable behavior.
+- Forward the complete root-module interface from the Terragrunt wrapper.
+
+### Changed
+
+- Require AWS provider 6.64.0 or newer for S3 ABAC and Metadata support.
+- Return `null` instead of an empty string for absent optional outputs.
+- Use independent current and noncurrent lifecycle-transition switches.
+
 ## [2.0.0] - 2023-10-03
 ### :sparkles: New Features
 - [`069e255`](https://github.com/clouddrove/terraform-aws-s3/commit/069e255397266deb3499d077cb54260a798082d1) - updated tfsec.yml file and bug:updated changelog.yml name *(PR [#37](https://github.com/clouddrove/terraform-aws-s3/pull/37) by [@vibhutigoyal](https://github.com/vibhutigoyal))*

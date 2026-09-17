@@ -51,12 +51,11 @@ data "aws_iam_policy_document" "default" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "clouddrove-encryption-bucket"
-  s3_name     = "dmzx"
-  environment = local.environment
-  label_order = local.label_order
+  name          = "clouddrove-encryption-bucket"
+  bucket_prefix = "encrypted-s3-"
+  environment   = local.environment
+  label_order   = local.label_order
 
-  acl                           = "private"
   enable_server_side_encryption = true
   versioning                    = true
   enable_kms                    = true

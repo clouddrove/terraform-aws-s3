@@ -16,10 +16,10 @@ locals {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "clouddrove-website-bucket"
-  s3_name     = "doxrd"
-  environment = local.environment
-  label_order = local.label_order
+  name          = "clouddrove-website-bucket"
+  bucket_prefix = "website-s3-"
+  environment   = local.environment
+  label_order   = local.label_order
 
   website = {
     index_document = "index.html"
@@ -46,7 +46,6 @@ module "s3_bucket" {
   }
 
   versioning                           = true
-  acl                                  = "private"
   enable_lifecycle_configuration_rules = true
   lifecycle_configuration_rules = [
     {
@@ -94,7 +93,9 @@ module "s3_bucket" {
   ]
 
   attach_public_policy    = true
-  bucket_policy           = true ##first time apply it while be false.
+  block_public_policy     = false
+  restrict_public_buckets = false
+  bucket_policy           = true
   aws_iam_policy_document = data.aws_iam_policy_document.default.json
 }
 

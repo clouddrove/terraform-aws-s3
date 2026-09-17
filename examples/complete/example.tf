@@ -18,11 +18,13 @@ data "aws_canonical_user_id" "current" {}
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "logging-x13"
-  environment = local.environment
-  label_order = local.label_order
-  s3_name     = ""
-  acl         = "log-delivery-write"
+  name                     = "logging-x13"
+  environment              = local.environment
+  label_order              = local.label_order
+  bucket_prefix            = "logging-x13-"
+  acl                      = "log-delivery-write"
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
 }
 
 module "vpc" {
@@ -90,10 +92,10 @@ data "aws_iam_policy_document" "default" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "arcx-13"
-  environment = local.environment
-  label_order = local.label_order
-  s3_name     = "sedfdrg"
+  name          = "arcx-13"
+  environment   = local.environment
+  label_order   = local.label_order
+  bucket_prefix = "complete-s3-"
 
   #acceleration and request payer enable or disable.
   acceleration_status = true
@@ -205,7 +207,9 @@ module "s3_bucket" {
       uri         = "http://acs.amazonaws.com/groups/s3/LogDelivery"
     },
   ]
-  owner_id = data.aws_canonical_user_id.current.id
+  owner_id                 = data.aws_canonical_user_id.current.id
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
 
   #lifecycle rule for s3
   enable_lifecycle_configuration_rules = true

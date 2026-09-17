@@ -16,11 +16,13 @@ locals {
 module "logging_bucket" {
   source = "./../../"
 
-  name        = "logging"
-  s3_name     = "quya"
-  environment = local.environment
-  label_order = local.label_order
-  acl         = "log-delivery-write"
+  name                     = "logging"
+  bucket_prefix            = "logging-target-"
+  environment              = local.environment
+  label_order              = local.label_order
+  acl                      = "log-delivery-write"
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerPreferred"
 }
 
 ##-----------------------------------------------------------------------------
@@ -64,13 +66,12 @@ data "aws_iam_policy_document" "default" {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "clouddrove-logging-encryption-bucket"
-  s3_name     = "aqua"
-  environment = local.environment
-  label_order = local.label_order
+  name          = "clouddrove-logging-encryption-bucket"
+  bucket_prefix = "logging-encrypted-"
+  environment   = local.environment
+  label_order   = local.label_order
 
   versioning                    = true
-  acl                           = "private"
   enable_server_side_encryption = true
   enable_kms                    = true
   kms_master_key_id             = module.kms_key.key_arn

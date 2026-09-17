@@ -14,10 +14,10 @@
 <a href="https://github.com/clouddrove/terraform-aws-s3/releases/latest">
   <img src="https://img.shields.io/github/release/clouddrove/terraform-aws-s3.svg" alt="Latest Release">
 </a>
-<a href="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml">
-  <img src="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml/badge.svg" alt="tfsec">
+<a href="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/security-tfsec.yml">
+  <img src="https://github.com/clouddrove/terraform-aws-s3/actions/workflows/security-tfsec.yml/badge.svg" alt="tfsec">
 </a>
-<a href="LICENSE.md">
+<a href="LICENSE">
   <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
 </a>
 <a href="CHANGELOG.md">
@@ -59,8 +59,8 @@ This table contains both Prerequisites and Providers:
 
 | Description   | Name                                       | Version   |
 |:-------------:|:-------------------------------------------:|:---------:|
-| **Prerequisite** | [Terraform](https://learn.hashicorp.com/terraform/getting-started/install.html) | >= 1.6.6 |
-| **Provider** | [aws](https://aws.amazon.com/) | >= 5.31.0 |
+| **Prerequisite** | [Terraform](https://developer.hashicorp.com/terraform/install) | >= 1.10.0 |
+| **Provider** | [aws](https://registry.terraform.io/providers/hashicorp/aws/latest) | >= 6.64.0 |
 
 
 
@@ -71,6 +71,12 @@ This table contains both Prerequisites and Providers:
 **IMPORTANT:** Since the master branch used in source varies based on new modifications, we recommend using the [release versions](https://github.com/clouddrove/terraform-aws-s3/releases).
 
 📌 For additional usage examples, check the complete list under [`examples/`](./examples) directory.
+
+## Supported S3 bucket capabilities
+
+This module manages general-purpose S3 buckets and their bucket-level configuration: versioning and MFA delete, default encryption (SSE-S3, SSE-KMS, and DSSE-KMS), S3 Bucket Keys, SSE-C blocking, policies and TLS enforcement, Public Access Block, ownership controls and ACLs, CORS, website hosting, server access logging, lifecycle rules, replication, Object Lock, Transfer Acceleration, Requester Pays, event notifications and EventBridge, analytics, metrics, inventory, Intelligent-Tiering, bucket ABAC, S3 Metadata tables, and optional S3 VPC endpoints.
+
+Directory buckets, S3 Tables, S3 Vectors, S3 Files, access points, Storage Lens, and CloudTrail trails are separate AWS resource families and are intentionally outside this general-purpose bucket module.
 
 
 
@@ -101,6 +107,8 @@ This module has dependencies on:
 ## 📑 Changelog
 
 Refer [here](CHANGELOG.md).
+
+Upgrading an existing deployment? Review the [migration notes](MIGRATION.md) before applying.
 
 
 

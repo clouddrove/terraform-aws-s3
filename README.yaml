@@ -19,11 +19,11 @@ badges:
     image: "https://img.shields.io/github/release/clouddrove/terraform-aws-s3.svg"
     url: "https://github.com/clouddrove/terraform-aws-s3/releases/latest"
   - name: "tfsec"
-    image: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml/badge.svg"
-    url: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/tfsec.yml"
+    image: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/security-tfsec.yml/badge.svg"
+    url: "https://github.com/clouddrove/terraform-aws-s3/actions/workflows/security-tfsec.yml"
   - name: "Licence"
     image: "https://img.shields.io/badge/License-APACHE-blue.svg"
-    url: "LICENSE.md"
+    url: "LICENSE"
   - name: "Changelog"
     image: "https://img.shields.io/badge/Changelog-blue"
     url: "CHANGELOG.md"
@@ -31,12 +31,12 @@ badges:
 prerequesties:
   - name: Terraform
     url: https://learn.hashicorp.com/terraform/getting-started/install.html
-    version: ">= 1.6.6"
+    version: ">= 1.10.0"
 
 providers:
   - name: aws
     url: https://aws.amazon.com/
-    version: ">= 5.31.0"
+    version: ">= 6.64.0"
 
 module_dependencies:
   - name: Labels Module
@@ -44,7 +44,8 @@ module_dependencies:
     description: Provides resource tagging.
 
 description: |-
-  Terraform module to create default S3 bucket with logging and encryption type specific features.
+  Terraform module for general-purpose S3 buckets, including encryption, policies, logging,
+  lifecycle, replication, notifications, Object Lock, ABAC, and S3 Metadata tables.
 
 # How to use this project
 usage: |-
@@ -62,7 +63,7 @@ usage: |-
     #acceleration and request payer enable or disable.
     acceleration_status = true
     request_payer       = "BucketOwner"
-    object_lock_enabled = "Enabled"
+    object_lock_enabled = true
     # logging of s3 bucket to destination bucket.
     logging       = true
     target_bucket = module.logging_bucket.id
@@ -107,9 +108,11 @@ usage: |-
     lifecycle_configuration_rules = [
       {
         id                                             = "log"
-        prefix                                         = null
         enabled                                        = true
-        tags                                           = { "temp" : "true" }
+        filter = {
+          prefix = null
+          tags   = { "temp" : "true" }
+        }
         enable_glacier_transition                      = false
         enable_deeparchive_transition                  = false
         enable_standard_ia_transition                  = false
@@ -127,9 +130,11 @@ usage: |-
       },
       {
         id                                             = "log1"
-        prefix                                         = null
         enabled                                        = true
-        tags                                           = {}
+        filter = {
+          prefix = null
+          tags   = {}
+        }
         enable_glacier_transition                      = false
         enable_deeparchive_transition                  = false
         enable_standard_ia_transition                  = false
@@ -187,8 +192,6 @@ usage: |-
     label_order = ["name", "environment"]
 
     versioning = true
-    acl        = "private"
-
     cors_rule = [{
       allowed_headers = ["*"],
       allowed_methods = ["PUT", "POST"],
@@ -209,7 +212,6 @@ usage: |-
     environment = "test"
     label_order = ["name", "environment"]
     versioning  = true
-    acl         = "private"
   }
   ```
 
@@ -224,7 +226,6 @@ usage: |-
     label_order = ["name", "environment"]
 
     versioning                    = true
-    acl                           = "private"
     enable_server_side_encryption = true
     enable_kms                    = true
     kms_master_key_id             = module.kms_key.key_arn
@@ -241,7 +242,6 @@ usage: |-
     label_order = ["name", "environment"]
 
     versioning = true
-    acl        = "private"
     enable_server_side_encryption = true
     enable_kms                    = true
     kms_master_key_id             = module.kms_key.key_arn
@@ -263,7 +263,6 @@ usage: |-
     label_order = ["name", "environment"]
 
     versioning    = true
-    acl           = "private"
     logging       = true
     target_bucket = module.logging_bucket.id
     target_prefix = "logs"
@@ -281,7 +280,6 @@ usage: |-
     environment = "test"
     label_order = ["name", "environment"]
 
-    acl                       = "private"
     replication_configuration = {
       role       = aws_iam_role.replication.arn
       versioning = true
@@ -343,7 +341,7 @@ usage: |-
           status                    = "Enabled"
           priority                  = 30
           delete_marker_replication = true
-          1 = {
+          filter = {
             prefix = ""
           }
           destination = {
@@ -467,14 +465,15 @@ usage: |-
    }
 
    versioning = true
-   acl                                  = "private"
    enable_lifecycle_configuration_rules = true
    lifecycle_configuration_rules = [
    {
    id                                             = "log"
-   prefix                                         = null
    enabled                                        = true
-   tags                                           = { "temp" : "true" }
+   filter = {
+     prefix = null
+     tags   = { "temp" : "true" }
+   }
    enable_glacier_transition                      = false
    enable_deeparchive_transition                  = false
    enable_standard_ia_transition                  = false
@@ -491,9 +490,11 @@ usage: |-
     },
     {
     id                                             = "log1"
-    prefix                                         = null
     enabled                                        = true
-    tags                                           = {}
+    filter = {
+      prefix = null
+      tags   = {}
+    }
     enable_glacier_transition                      = false
     enable_deeparchive_transition                  = false
     enable_standard_ia_transition                  = false
@@ -511,7 +512,9 @@ usage: |-
     ]
 
      attach_public_policy    = true
-     bucket_policy           = true ##first time apply it while be false.
+     block_public_policy     = false
+     restrict_public_buckets = false
+     bucket_policy           = true
      aws_iam_policy_document = data.aws_iam_policy_document.default.json
     }
 

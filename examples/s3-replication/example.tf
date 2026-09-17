@@ -35,12 +35,11 @@ module "replica_bucket" {
   providers = {
     aws = aws.replica
   }
-  name        = "clouddrov-s3-replica"
-  s3_name     = "antil"
-  environment = local.environment
-  label_order = local.label_order
-  acl         = "private"
-  versioning  = true
+  name          = "clouddrov-s3-replica"
+  bucket_prefix = "replica-s3-"
+  environment   = local.environment
+  label_order   = local.label_order
+  versioning    = true
 }
 ##-----------------------------------------------------------------------------
 ## Provides details about a specific S3 bucket.
@@ -48,12 +47,11 @@ module "replica_bucket" {
 module "s3_bucket" {
   source = "../../"
 
-  name        = "clouddrov-s3"
-  s3_name     = "poxord"
-  environment = local.environment
-  label_order = local.label_order
+  name          = "clouddrov-s3"
+  bucket_prefix = "source-s3-"
+  environment   = local.environment
+  label_order   = local.label_order
 
-  acl = "private"
   replication_configuration = {
     role       = aws_iam_role.replication.arn
     versioning = true
@@ -116,7 +114,7 @@ module "s3_bucket" {
         status                    = "Enabled"
         priority                  = 30
         delete_marker_replication = true
-        1 = {
+        filter = {
           prefix = ""
         }
         destination = {

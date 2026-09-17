@@ -16,14 +16,13 @@ locals {
 module "s3_bucket" {
   source = "./../../"
 
-  name        = "clouddrove-secure-bucket"
-  environment = local.environment
-  label_order = local.label_order
-  s3_name     = "sdfdfg"
+  name          = "clouddrove-secure-bucket"
+  environment   = local.environment
+  label_order   = local.label_order
+  bucket_prefix = "cors-s3-"
 
   versioning = true
 
-  acl = "private"
   cors_rule = [{
     allowed_headers = ["*"],
     allowed_methods = ["PUT", "POST"],
