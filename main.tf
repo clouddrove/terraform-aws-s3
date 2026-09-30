@@ -348,13 +348,25 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
       # -- `filter` block is required for `aws_s3_bucket_lifecycle_configuration` resource
       dynamic "filter" {
-        for_each = length(try(flatten([rule.value.filter]), [])) == 0 ? [true] : []
+        for_each = length([
+          for v in try(flatten([rule.value.filter]), []) : v
+          if length([
+            for key, value in v : key
+            if !contains(["tags", "tag"], key) && value != null
+          ]) + length(try(v.tags, v.tag, {})) > 0
+        ]) == 0 ? [true] : []
         content {}
       }
 
       # -- block without `and`
       dynamic "filter" {
-        for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) == 1]
+        for_each = [
+          for v in try(flatten([rule.value.filter]), []) : v
+          if length([
+            for key, value in v : key
+            if !contains(["tags", "tag"], key) && value != null
+          ]) + length(try(v.tags, v.tag, {})) == 1
+        ]
 
         content {
           object_size_greater_than = try(filter.value.object_size_greater_than, null)
@@ -378,10 +390,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
           for v in try(flatten([rule.value.filter]), []) :
           v
           if(
-            max(
-              length(keys(v)),
-              length(try(v.tags, v.tag, {}))
-            ) > 1
+            length([
+              for key, value in v : key
+              if !contains(["tags", "tag"], key) && value != null
+            ]) + length(try(v.tags, v.tag, {})) > 1
           )
         ]
 
