@@ -33,7 +33,7 @@ resource "aws_s3_bucket" "s3_default" {
 ## Terraform resource which creates policy for S3 bucket on AWS.
 ##-----------------------------------------------------------------------------
 resource "aws_s3_bucket_policy" "s3_default" {
-  count  = var.bucket_policy == true ? 1 : 0
+  count  = var.enabled && var.bucket_policy ? 1 : 0
   bucket = join("", aws_s3_bucket.s3_default[*].id)
   policy = var.aws_iam_policy_document
 
@@ -82,7 +82,7 @@ resource "aws_s3_bucket_accelerate_configuration" "example" {
 ## Provides an S3 bucket request payment configuration resource.
 ##-----------------------------------------------------------------------------
 resource "aws_s3_bucket_request_payment_configuration" "example" {
-  count = var.enabled && var.request_payer == true ? 1 : 0
+  count = var.enabled && var.request_payer != null ? 1 : 0
 
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
@@ -109,11 +109,46 @@ resource "aws_s3_bucket_versioning" "example" {
 ## Provides an S3 bucket (server access) logging resource.
 ##-----------------------------------------------------------------------------
 resource "aws_s3_bucket_logging" "example" {
-  count  = var.enabled && var.logging == true ? 1 : 0
-  bucket = join("", aws_s3_bucket.s3_default[*].id)
+  count                 = var.enabled && var.logging == true ? 1 : 0
+  bucket                = join("", aws_s3_bucket.s3_default[*].id)
+  expected_bucket_owner = var.expected_bucket_owner
 
   target_bucket = var.target_bucket
   target_prefix = var.target_prefix
+
+  dynamic "target_grant" {
+    for_each = var.logging_target_grants
+
+    content {
+      permission = target_grant.value.permission
+
+      grantee {
+        type          = target_grant.value.grantee.type
+        id            = try(target_grant.value.grantee.id, null)
+        email_address = try(target_grant.value.grantee.email_address, null)
+        uri           = try(target_grant.value.grantee.uri, null)
+      }
+    }
+  }
+
+  dynamic "target_object_key_format" {
+    for_each = var.logging_target_object_key_format == null ? [] : [var.logging_target_object_key_format]
+
+    content {
+      dynamic "partitioned_prefix" {
+        for_each = try(target_object_key_format.value.partition_date_source, null) == null ? [] : [1]
+
+        content {
+          partition_date_source = target_object_key_format.value.partition_date_source
+        }
+      }
+
+      dynamic "simple_prefix" {
+        for_each = try(target_object_key_format.value.use_simple_prefix, false) ? [1] : []
+        content {}
+      }
+    }
+  }
 }
 
 ##-----------------------------------------------------------------------------
@@ -127,8 +162,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm     = var.enable_kms == true ? "aws:kms" : var.sse_algorithm
-      kms_master_key_id = var.kms_master_key_id
+      kms_master_key_id = contains(["aws:kms", "aws:kms:dsse"], var.enable_kms ? "aws:kms" : var.sse_algorithm) && var.kms_master_key_id != "" ? var.kms_master_key_id : null
     }
+
+    bucket_key_enabled       = var.bucket_key_enabled
+    blocked_encryption_types = var.blocked_encryption_types
   }
 }
 
@@ -145,8 +183,8 @@ resource "aws_s3_bucket_object_lock_configuration" "example" {
   rule {
     default_retention {
       mode  = var.object_lock_configuration.mode
-      days  = var.object_lock_configuration.days
-      years = var.object_lock_configuration.years
+      days  = try(var.object_lock_configuration.days, null)
+      years = try(var.object_lock_configuration.years, null)
     }
   }
 }
@@ -250,14 +288,14 @@ locals {
 ## Provides an S3 bucket ACL resource.
 ##-----------------------------------------------------------------------------
 resource "aws_s3_bucket_acl" "default" {
-  count                 = var.enabled ? var.grants != null ? var.acl != null ? 1 : 0 : 0 : 0
+  count                 = var.enabled && (var.acl != null || try(length(local.acl_grants), 0) > 0) ? 1 : 0
   bucket                = join("", aws_s3_bucket.s3_default[*].id)
   expected_bucket_owner = var.expected_bucket_owner
 
-  acl = try(length(local.acl_grants), 0) == 0 ? var.acl : null
+  acl = var.acl
 
   dynamic "access_control_policy" {
-    for_each = try(length(local.acl_grants), 0) == 0 || try(length(var.acl), 0) > 0 ? [] : [1]
+    for_each = var.acl == null && try(length(local.acl_grants), 0) > 0 ? [1] : []
 
     content {
       dynamic "grant" {
@@ -286,9 +324,10 @@ resource "aws_s3_bucket_acl" "default" {
 ## Provides an independent configuration resource for S3 bucket lifecycle configuration.
 ##-----------------------------------------------------------------------------
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
-  count                 = var.enabled && var.enable_lifecycle_configuration_rules == true ? 1 : 0
-  bucket                = join("", aws_s3_bucket.s3_default[*].id)
-  expected_bucket_owner = var.expected_bucket_owner
+  count                                  = var.enabled && var.enable_lifecycle_configuration_rules == true ? 1 : 0
+  bucket                                 = join("", aws_s3_bucket.s3_default[*].id)
+  expected_bucket_owner                  = var.expected_bucket_owner
+  transition_default_minimum_object_size = var.transition_default_minimum_object_size
 
   dynamic "rule" {
     for_each = var.lifecycle_configuration_rules
@@ -309,13 +348,25 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
       # -- `filter` block is required for `aws_s3_bucket_lifecycle_configuration` resource
       dynamic "filter" {
-        for_each = length(try(flatten([rule.value.filter]), [])) == 0 ? [true] : []
+        for_each = length([
+          for v in try(flatten([rule.value.filter]), []) : v
+          if length([
+            for key, value in v : key
+            if !contains(["tags", "tag"], key) && value != null
+          ]) + length(try(v.tags, v.tag, {})) > 0
+        ]) == 0 ? [true] : []
         content {}
       }
 
       # -- block without `and`
       dynamic "filter" {
-        for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) == 1]
+        for_each = [
+          for v in try(flatten([rule.value.filter]), []) : v
+          if length([
+            for key, value in v : key
+            if !contains(["tags", "tag"], key) && value != null
+          ]) + length(try(v.tags, v.tag, {})) == 1
+        ]
 
         content {
           object_size_greater_than = try(filter.value.object_size_greater_than, null)
@@ -339,12 +390,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
           for v in try(flatten([rule.value.filter]), []) :
           v
           if(
-            max(
-              length(keys(v)),
-              length(try(v.tags, v.tag, {}))
-            ) > 1
-            &&
-            length(try(v.tags, v.tag, {})) > 0
+            length([
+              for key, value in v : key
+              if !contains(["tags", "tag"], key) && value != null
+            ]) + length(try(v.tags, v.tag, {})) > 1
           )
         ]
 
@@ -353,7 +402,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
             object_size_greater_than = try(filter.value.object_size_greater_than, null)
             object_size_less_than    = try(filter.value.object_size_less_than, null)
             prefix                   = try(filter.value.prefix, null)
-            tags                     = try(filter.value.tags, filter.value.tag)
+            tags                     = try(filter.value.tags, filter.value.tag, null)
           }
         }
       }
@@ -369,7 +418,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
         for_each = rule.value.enable_noncurrent_version_expiration ? [1] : []
 
         content {
-          newer_noncurrent_versions = rule.value.noncurrent_version_expiration_days
+          newer_noncurrent_versions = rule.value.noncurrent_version_expiration_newer
           noncurrent_days           = rule.value.noncurrent_version_expiration_days
         }
       }
@@ -399,7 +448,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
         content {
           newer_noncurrent_versions = rule.value.noncurrent_version_standard_ia_transition_newer
-          noncurrent_days           = rule.value.noncurrent_version_glacier_transition_days
+          noncurrent_days           = rule.value.noncurrent_version_standard_ia_transition_days
           storage_class             = rule.value.storage_class
         }
       }
@@ -467,10 +516,7 @@ resource "aws_s3_bucket_replication_configuration" "this" {
     content {
       id       = try(rule.value.id, null)
       priority = try(rule.value.priority, null)
-      filter {
-        prefix = try(rule.value.prefix, null)
-      }
-      status = try(tobool(rule.value.status) ? "Enabled" : "Disabled", title(lower(rule.value.status)), "Enabled")
+      status   = try(tobool(rule.value.status) ? "Enabled" : "Disabled", title(lower(rule.value.status)), "Enabled")
 
       dynamic "delete_marker_replication" {
         for_each = flatten(try([rule.value.delete_marker_replication_status], [rule.value.delete_marker_replication], []))
@@ -658,7 +704,7 @@ resource "aws_s3_bucket_ownership_controls" "this" {
 resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
   for_each = { for k, v in var.intelligent_tiering : k => v if var.enabled }
 
-  name   = module.labels.id
+  name   = try(each.value.name, each.key)
   bucket = aws_s3_bucket.s3_default[0].id
   status = try(tobool(each.value.status) ? "Enabled" : "Disabled", title(lower(each.value.status)), null)
 
@@ -685,7 +731,7 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
 resource "aws_s3_bucket_metric" "this" {
   for_each = { for k, v in var.metric_configuration : k => v if var.enabled }
 
-  name   = module.labels.id
+  name   = try(each.value.name, each.key)
   bucket = aws_s3_bucket.s3_default[0].id
 
   dynamic "filter" {
@@ -700,7 +746,7 @@ resource "aws_s3_bucket_metric" "this" {
 resource "aws_s3_bucket_inventory" "this" {
   for_each = { for k, v in var.inventory_configuration : k => v if var.enabled }
 
-  name                     = module.labels.id
+  name                     = try(each.value.name, each.key)
   bucket                   = aws_s3_bucket.s3_default[0].id
   included_object_versions = each.value.included_object_versions
   enabled                  = try(each.value.enabled, true)
@@ -777,11 +823,112 @@ resource "aws_s3_bucket_analytics_configuration" "default" {
 
           s3_bucket_destination {
             bucket_arn        = try(each.value.storage_class_analysis.destination_bucket_arn, aws_s3_bucket.s3_default[0].arn)
-            bucket_account_id = try(each.value.storage_class_analysis.destination_account_id, var.aws_iam_policy_document)
+            bucket_account_id = try(each.value.storage_class_analysis.destination_account_id, null)
             format            = try(each.value.storage_class_analysis.export_format, "CSV")
             prefix            = try(each.value.storage_class_analysis.export_prefix, null)
           }
         }
+      }
+    }
+  }
+}
+
+##-----------------------------------------------------------------------------
+## Manages the complete S3 event notification configuration for the bucket.
+##-----------------------------------------------------------------------------
+resource "aws_s3_bucket_notification" "this" {
+  count = var.enabled && var.notification_configuration != null ? 1 : 0
+
+  bucket      = aws_s3_bucket.s3_default[0].id
+  eventbridge = try(var.notification_configuration.eventbridge, false)
+
+  dynamic "lambda_function" {
+    for_each = try(var.notification_configuration.lambda_functions, [])
+
+    content {
+      id                  = try(lambda_function.value.id, null)
+      lambda_function_arn = lambda_function.value.lambda_function_arn
+      events              = lambda_function.value.events
+      filter_prefix       = try(lambda_function.value.filter_prefix, null)
+      filter_suffix       = try(lambda_function.value.filter_suffix, null)
+    }
+  }
+
+  dynamic "queue" {
+    for_each = try(var.notification_configuration.queues, [])
+
+    content {
+      id            = try(queue.value.id, null)
+      queue_arn     = queue.value.queue_arn
+      events        = queue.value.events
+      filter_prefix = try(queue.value.filter_prefix, null)
+      filter_suffix = try(queue.value.filter_suffix, null)
+    }
+  }
+
+  dynamic "topic" {
+    for_each = try(var.notification_configuration.topics, [])
+
+    content {
+      id            = try(topic.value.id, null)
+      topic_arn     = topic.value.topic_arn
+      events        = topic.value.events
+      filter_prefix = try(topic.value.filter_prefix, null)
+      filter_suffix = try(topic.value.filter_suffix, null)
+    }
+  }
+}
+
+##-----------------------------------------------------------------------------
+## Enables tag-based attribute access control for a general purpose bucket.
+##-----------------------------------------------------------------------------
+resource "aws_s3_bucket_abac" "this" {
+  count = var.enabled && var.abac_status != null ? 1 : 0
+
+  bucket                = aws_s3_bucket.s3_default[0].id
+  expected_bucket_owner = var.expected_bucket_owner
+
+  abac_status {
+    status = var.abac_status
+  }
+}
+
+##-----------------------------------------------------------------------------
+## Creates S3 Metadata live inventory and journal tables.
+##-----------------------------------------------------------------------------
+resource "aws_s3_bucket_metadata_configuration" "this" {
+  count = var.enabled && var.metadata_configuration != null ? 1 : 0
+
+  bucket                = aws_s3_bucket.s3_default[0].id
+  expected_bucket_owner = var.expected_bucket_owner
+
+  metadata_configuration {
+    inventory_table_configuration {
+      configuration_state = var.metadata_configuration.inventory_table_configuration.configuration_state
+
+      dynamic "encryption_configuration" {
+        for_each = try(var.metadata_configuration.inventory_table_configuration.encryption_configuration, null) == null ? [] : [var.metadata_configuration.inventory_table_configuration.encryption_configuration]
+
+        content {
+          sse_algorithm = encryption_configuration.value.sse_algorithm
+          kms_key_arn   = try(encryption_configuration.value.kms_key_arn, null)
+        }
+      }
+    }
+
+    journal_table_configuration {
+      dynamic "encryption_configuration" {
+        for_each = try(var.metadata_configuration.journal_table_configuration.encryption_configuration, null) == null ? [] : [var.metadata_configuration.journal_table_configuration.encryption_configuration]
+
+        content {
+          sse_algorithm = encryption_configuration.value.sse_algorithm
+          kms_key_arn   = try(encryption_configuration.value.kms_key_arn, null)
+        }
+      }
+
+      record_expiration {
+        expiration = var.metadata_configuration.journal_table_configuration.record_expiration.expiration
+        days       = try(var.metadata_configuration.journal_table_configuration.record_expiration.days, null)
       }
     }
   }

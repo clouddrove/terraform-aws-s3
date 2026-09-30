@@ -59,8 +59,8 @@ This table contains both Prerequisites and Providers:
 
 | Description   | Name                                       | Version   |
 |:-------------:|:-------------------------------------------:|:---------:|
-| **Prerequisite** | [Terraform](https://learn.hashicorp.com/terraform/getting-started/install.html) | >= 1.6.6 |
-| **Provider** | [aws](https://aws.amazon.com/) | >= 5.31.0 |
+| **Prerequisite** | [Terraform](https://learn.hashicorp.com/terraform/getting-started/install.html) | >= 1.10.0 |
+| **Provider** | [aws](https://aws.amazon.com/) | >= 6.23.0 |
 
 
 
@@ -71,6 +71,8 @@ This table contains both Prerequisites and Providers:
 **IMPORTANT:** Since the master branch used in source varies based on new modifications, we recommend using the [release versions](https://github.com/clouddrove/terraform-aws-s3/releases).
 
 📌 For additional usage examples, check the complete list under [`examples/`](./examples) directory.
+
+See [Modern S3 features](docs/modern-features.md) for notification, encryption, ABAC, metadata table, and partitioned access-log examples and operational caveats.
 
 
 

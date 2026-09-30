@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- S3 notifications for EventBridge, Lambda, SQS, and SNS.
+- S3 Metadata inventory and journal table configuration.
+- S3 general purpose bucket ABAC configuration.
+- SSE-KMS dual-layer encryption, S3 Bucket Keys, and blocked encryption type controls.
+- Partitioned/simple server access log key formats and logging destination grants.
+- Lifecycle transition default minimum object-size behavior.
+- Outputs for bucket region, notification configuration, metadata tables, and VPC endpoints.
+
+### Fixed
+
+- Requester Pays configuration was never created because a string input was compared with a boolean.
+- Canned and grant-based bucket ACL configurations were not created correctly.
+- Replication rules emitted multiple mutually exclusive filter blocks.
+- Intelligent-Tiering, metric, and inventory configurations ignored their map keys and reused one name.
+- Analytics incorrectly used the bucket policy JSON as the destination account ID fallback.
+- Lifecycle noncurrent expiration used the expiration days value as the version-count value.
+- Lifecycle filters with multiple non-tag predicates produced no filter, and noncurrent Standard-IA transitions reused the Glacier day setting.
+
 ## [2.0.0] - 2023-10-03
 ### :sparkles: New Features
 - [`069e255`](https://github.com/clouddrove/terraform-aws-s3/commit/069e255397266deb3499d077cb54260a798082d1) - updated tfsec.yml file and bug:updated changelog.yml name *(PR [#37](https://github.com/clouddrove/terraform-aws-s3/pull/37) by [@vibhutigoyal](https://github.com/vibhutigoyal))*

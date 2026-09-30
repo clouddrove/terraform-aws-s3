@@ -2,6 +2,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| abac\_status | Enable or disable attribute-based access control for the general purpose bucket. Valid values are Enabled and Disabled. | `string` | `null` | no |
 | acceleration\_status | Sets the accelerate configuration of an existing bucket. Can be Enabled or Suspended | `bool` | `false` | no |
 | acl | Canned ACL to apply to the S3 bucket. | `string` | `null` | no |
 | acl\_grants | A list of policy grants for the bucket. Conflicts with `acl`. Set `acl` to `null` to use this. | <pre>list(object({<br>    id         = string<br>    type       = string<br>    permission = string<br>    uri        = string<br>  }))</pre> | `null` | no |
@@ -9,13 +10,15 @@
 | attach\_public\_policy | Controls if a user defined public bucket policy will be attached (set to `false` to allow upstream to apply defaults to the bucket) | `bool` | `true` | no |
 | aws\_iam\_policy\_document | The text of the policy. Although this is a bucket policy rather than an IAM policy, the aws\_iam\_policy\_document data source may be used, so long as it specifies a principal. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. Note: Bucket policies are limited to 20 KB in size. | `string` | `""` | no |
 | block\_http\_bucket\_policy | Custome bucket policy to block https traffic | `any` | `null` | no |
+| blocked\_encryption\_types | Encryption types to block for object uploads. Supported values are SSE-C or NONE. | `list(string)` | `null` | no |
 | block\_public\_acls | Whether Amazon S3 should block public ACLs for this bucket. | `bool` | `true` | no |
 | block\_public\_policy | Whether Amazon S3 should block public bucket policies for this bucket. | `bool` | `true` | no |
 | bucket\_policy | Conditionally create S3 bucket policy. | `bool` | `false` | no |
 | bucket\_prefix | (Optional, Forces new resource) Creates a unique bucket name beginning with the specified prefix. | `string` | `null` | no |
+| bucket\_key\_enabled | Whether to use an S3 Bucket Key for SSE-KMS. Leave null to use the AWS default. | `bool` | `null` | no |
 | configuration\_status | Versioning state of the bucket. Valid values: Enabled, Suspended, or Disabled. Disabled should only be used when creating or importing resources that correspond to unversioned S3 buckets. | `string` | `"Enabled"` | no |
 | control\_object\_ownership | Whether to manage S3 Bucket Ownership Controls on this bucket. | `bool` | `false` | no |
-| cors\_rule | CORS Configuration specification for this bucket | <pre>list(object({<br>    allowed_headers = list(string)<br>    allowed_methods = list(string)<br>    allowed_origins = list(string)<br>    expose_headers  = list(string)<br>    max_age_seconds = number<br>  }))</pre> | `null` | no |
+| cors\_rule | CORS Configuration specification for this bucket | <pre>list(object({<br>    id              = optional(string)<br>    allowed_headers = list(string)<br>    allowed_methods = list(string)<br>    allowed_origins = list(string)<br>    expose_headers  = optional(list(string))<br>    max_age_seconds = optional(number)<br>  }))</pre> | `null` | no |
 | enable\_kms | Enable KMS encryption. If false, uses AES256. | `bool` | `false` | no |
 | enable\_lifecycle\_configuration\_rules | enable or disable lifecycle\_configuration\_rules | `bool` | `false` | no |
 | enable\_server\_side\_encryption | Enable server-side encryption by default. | `bool` | `true` | no |
@@ -29,14 +32,18 @@
 | inventory\_configuration | Map containing S3 inventory configuration. | `any` | `{}` | no |
 | kms\_master\_key\_id | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse\_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse\_algorithm is aws:kms. | `string` | `""` | no |
 | label\_order | Label order, e.g. `name`,`application`. | `list(any)` | `[]` | no |
-| lifecycle\_configuration\_rules | A list of lifecycle rules | <pre>list(object({<br>    id      = string<br>    enabled = bool<br>    filter  = any<br><br>    enable_glacier_transition            = bool<br>    enable_deeparchive_transition        = bool<br>    enable_standard_ia_transition        = bool<br>    enable_current_object_expiration     = bool<br>    enable_noncurrent_version_expiration = bool<br><br>    abort_incomplete_multipart_upload_days         = number<br>    noncurrent_version_glacier_transition_days     = optional(number)<br>    noncurrent_version_deeparchive_transition_days = optional(number)<br>    noncurrent_version_expiration_days             = optional(number)<br><br>    noncurrent_version_glacier_transition_newer     = optional(number)<br>    noncurrent_version_deeparchive_transition_newer = optional(number)<br>    noncurrent_version_standard_ia_transition_newer = optional(number)<br><br>    storage_class = optional(string)<br><br>    glacier_transition_date     = optional(number)<br>    standard_ia_transition_date = optional(number)<br>    deeparchive_transition_date = optional(number)<br><br>    standard_transition_days    = optional(number)<br>    glacier_transition_days     = optional(number)<br>    deeparchive_transition_days = optional(number)<br>    expiration_days             = optional(number)<br>  }))</pre> | `null` | no |
+| lifecycle\_configuration\_rules | A list of lifecycle rules | <pre>list(object({<br>    id      = string<br>    enabled = bool<br>    filter  = any<br><br>    enable_glacier_transition            = bool<br>    enable_deeparchive_transition        = bool<br>    enable_standard_ia_transition        = bool<br>    enable_current_object_expiration     = bool<br>    enable_noncurrent_version_expiration = bool<br><br>    abort_incomplete_multipart_upload_days         = number<br>    noncurrent_version_glacier_transition_days     = optional(number)<br>    noncurrent_version_deeparchive_transition_days = optional(number)<br>    noncurrent_version_standard_ia_transition_days = optional(number)<br>    noncurrent_version_expiration_days             = optional(number)<br>    noncurrent_version_expiration_newer            = optional(number)<br><br>    noncurrent_version_glacier_transition_newer     = optional(number)<br>    noncurrent_version_deeparchive_transition_newer = optional(number)<br>    noncurrent_version_standard_ia_transition_newer = optional(number)<br><br>    storage_class = optional(string)<br><br>    glacier_transition_date     = optional(number)<br>    standard_ia_transition_date = optional(number)<br>    deeparchive_transition_date = optional(number)<br><br>    standard_transition_days    = optional(number)<br>    glacier_transition_days     = optional(number)<br>    deeparchive_transition_days = optional(number)<br>    expiration_days             = optional(number)<br>  }))</pre> | `null` | no |
 | logging | Logging Object to enable and disable logging | `bool` | `false` | no |
+| logging\_target\_grants | Optional grants applied to the server access logging destination. Bucket policies are preferred by AWS. | <pre>list(object({<br>    permission = string<br>    grantee = object({<br>      type          = string<br>      id            = optional(string)<br>      email_address = optional(string)<br>      uri           = optional(string)<br>    })<br>  }))</pre> | `[]` | no |
+| logging\_target\_object\_key\_format | Server access log object key format. Set partition\_date\_source to EventTime or DeliveryTime, or set use\_simple\_prefix to true. | <pre>object({<br>    partition_date_source = optional(string)<br>    use_simple_prefix     = optional(bool, false)<br>  })</pre> | `null` | no |
 | managedby | ManagedBy, eg 'CloudDrove'. | `string` | `"hello@clouddrove.com"` | no |
+| metadata\_configuration | Amazon S3 Metadata configuration for live inventory and journal tables. Creating these tables can incur S3 Tables and backfill charges. | `object(...)` | `null` | no |
 | metric\_configuration | Map containing bucket metric configuration. | `any` | `[]` | no |
 | mfa | Optional, Required if versioning\_configuration mfa\_delete is enabled) Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device. | `string` | `null` | no |
 | mfa\_delete | Specifies whether MFA delete is enabled in the bucket versioning configuration. Valid values: Enabled or Disabled. | `string` | `"Disabled"` | no |
 | name | Name  (e.g. `app` or `cluster`). | `string` | `""` | no |
-| object\_lock\_configuration | With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely. | <pre>object({<br>    mode  = string #Valid values are GOVERNANCE and COMPLIANCE.<br>    days  = number<br>    years = number<br>  })</pre> | `null` | no |
+| notification\_configuration | S3 event notification configuration for EventBridge, Lambda, SQS, and SNS. This resource manages the bucket's complete notification configuration. | `object(...)` | `null` | no |
+| object\_lock\_configuration | With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely. | <pre>object({<br>    mode  = string<br>    days  = optional(number)<br>    years = optional(number)<br>    token = optional(string)<br>  })</pre> | `null` | no |
 | object\_lock\_enabled | Whether S3 bucket should have an Object Lock configuration enabled. | `bool` | `false` | no |
 | object\_ownership | Object ownership. Valid values: BucketOwnerEnforced, BucketOwnerPreferred or ObjectWriter. 'BucketOwnerEnforced': ACLs are disabled, and the bucket owner automatically owns and has full control over every object in the bucket. 'BucketOwnerPreferred': Objects uploaded to the bucket change ownership to the bucket owner if the objects are uploaded with the bucket-owner-full-control canned ACL. 'ObjectWriter': The uploading account will own the object if the object is uploaded with the bucket-owner-full-control canned ACL. | `string` | `"ObjectWriter"` | no |
 | only\_https\_traffic | This veriables use for only https traffic. | `bool` | `true` | no |
@@ -52,6 +59,7 @@
 | target\_bucket | The bucket where you want Amazon S3 to store server access logs. | `string` | `""` | no |
 | target\_prefix | A prefix for all log object keys. | `string` | `""` | no |
 | timeouts | Define maximum timeout for creating, updating, and deleting VPC endpoint resources | `map(string)` | `{}` | no |
+| transition\_default\_minimum\_object\_size | Default minimum object size behavior for lifecycle transitions. Valid values are all\_storage\_classes\_128K and varies\_by\_storage\_class. | `string` | `null` | no |
 | versioning | Enable Versioning of S3. | `bool` | `true` | no |
 | versioning\_status | Required if versioning\_configuration mfa\_delete is enabled) Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device. | `string` | `"Enabled"` | no |
 | vpc\_endpoints | List of VPC endpoint configurations to create for S3 access within a VPC. | `any` | `[]` | no |
@@ -65,10 +73,13 @@
 | bucket\_domain\_name | The Domain of the s3 bucket. |
 | bucket\_regional\_domain\_name | The bucket region-specific domain name. The bucket domain name including the region name, please refer here for format. Note: The AWS CloudFront allows specifying S3 region-specific endpoint when creating S3 origin, it will prevent redirect issues from CloudFront to S3 Origin URL. |
 | id | The ID of the s3 bucket. |
+| metadata\_configuration | The S3 Metadata configuration, including generated table names and ARNs, if configured. |
+| notification\_configuration\_id | The ID of the managed S3 bucket notification configuration, if configured. |
+| region | The AWS Region where the bucket is hosted. |
 | s3\_bucket\_hosted\_zone\_id | The Route 53 Hosted Zone ID for this bucket's region. |
 | s3\_bucket\_lifecycle\_configuration\_rules | The lifecycle rules of the bucket, if the bucket is configured with lifecycle rules. If not, this will be an empty string. |
 | s3\_bucket\_policy | The policy of the bucket, if the bucket is configured with a policy. If not, this will be an empty string. |
 | s3\_bucket\_website\_domain | The domain of the website endpoint, if the bucket is configured with a website. If not, this will be an empty string. This is used to create Route 53 alias records. |
 | s3\_bucket\_website\_endpoint | The website endpoint, if the bucket is configured with a website. If not, this will be an empty string. |
 | tags | A mapping of tags to assign to the resource. |
-
+| vpc\_endpoint\_ids | Map of configured S3 VPC endpoint keys to endpoint IDs. |

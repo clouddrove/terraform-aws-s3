@@ -31,12 +31,12 @@ badges:
 prerequesties:
   - name: Terraform
     url: https://learn.hashicorp.com/terraform/getting-started/install.html
-    version: ">= 1.6.6"
+    version: ">= 1.10.0"
 
 providers:
   - name: aws
     url: https://aws.amazon.com/
-    version: ">= 5.31.0"
+    version: ">= 6.23.0"
 
 module_dependencies:
   - name: Labels Module
@@ -44,7 +44,7 @@ module_dependencies:
     description: Provides resource tagging.
 
 description: |-
-  Terraform module to create default S3 bucket with logging and encryption type specific features.
+  Terraform module for Amazon S3 general purpose buckets, including security, lifecycle, replication, notifications, observability, access logging, ABAC, and S3 Metadata features.
 
 # How to use this project
 usage: |-
@@ -67,11 +67,20 @@ usage: |-
     logging       = true
     target_bucket = module.logging_bucket.id
     target_prefix = "logs"
+    logging_target_object_key_format = {
+      partition_date_source = "EventTime"
+    }
 
     #encrption on s3 with default encryption and kms encryption .
     enable_server_side_encryption = true
     enable_kms                    = true
     kms_master_key_id             = module.kms_key.key_arn
+    bucket_key_enabled            = true
+    blocked_encryption_types      = ["SSE-C"]
+
+    notification_configuration = {
+      eventbridge = true
+    }
 
     #object locking of s3.
     object_lock_configuration = {

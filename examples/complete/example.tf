@@ -104,11 +104,22 @@ module "s3_bucket" {
   logging       = true
   target_bucket = module.logging_bucket.id
   target_prefix = "logs"
+  logging_target_object_key_format = {
+    partition_date_source = "EventTime"
+  }
 
   #encrption on s3 with default encryption and kms encryption .
   enable_server_side_encryption = true
   enable_kms                    = true
   kms_master_key_id             = module.kms_key.key_arn
+  bucket_key_enabled            = true
+  blocked_encryption_types      = ["SSE-C"]
+
+  # Publish all supported S3 events to EventBridge. Direct Lambda, SQS, and SNS
+  # destinations can also be declared in this object.
+  notification_configuration = {
+    eventbridge = true
+  }
 
   #object locking of s3.
   object_lock_configuration = {
