@@ -95,7 +95,7 @@ module "s3_bucket" {
   label_order = local.label_order
   s3_name     = "s3filesytemexample"
 
-  # S3 bucket encryption using an existing customer-managed KMS key.
+  # S3 bucket encryption using a customer-managed KMS key.
   versioning                    = true
   force_destroy                 = true
   enable_server_side_encryption = true
@@ -103,9 +103,10 @@ module "s3_bucket" {
   kms_master_key_arn            = aws_kms_key.s3files.arn
 
   # S3Files configuration.
-  enable_s3files = true
-  kms_key_arn    = aws_kms_key.s3files.arn
-  prefix         = "/"
+  enable_s3files             = true
+  enable_s3files_access_role = true
+  kms_key_arn                = aws_kms_key.s3files.arn
+  prefix                     = "/"
 
   root_directory = {
     path = "/"
