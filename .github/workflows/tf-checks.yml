@@ -9,13 +9,21 @@ on:
     paths:
       - '**/*.tf'
       - '*.tf'
+      - '.github/workflows/tf-checks.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - '**/*.tf'
+      - '*.tf'
+      - '.github/workflows/tf-checks.yml'
 jobs:
   tf-checks-complete-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
@@ -24,7 +32,7 @@ jobs:
     with:
       working_directory: './examples/cors_s3/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
@@ -33,7 +41,7 @@ jobs:
     with:
       working_directory: './examples/default-s3/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
@@ -42,7 +50,7 @@ jobs:
     with:
       working_directory: './examples/encryption-s3/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
@@ -51,7 +59,7 @@ jobs:
     with:
       working_directory: './examples/logging-encryption-s3/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
@@ -60,7 +68,7 @@ jobs:
     with:
       working_directory: './examples/logging-s3/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
@@ -69,7 +77,7 @@ jobs:
     with:
       working_directory: './examples/s3-replication/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
@@ -78,7 +86,16 @@ jobs:
     with:
       working_directory: './examples/website-s3/'
       provider: aws
-      enable_plan: true
+      enable_plan: ${{ github.event_name == 'push' }}
+      show_plan: false
+    secrets:
+      BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
+  tf-checks-s3files-example:
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
+    with:
+      working_directory: './examples/s3files/'
+      provider: aws
+      enable_plan: ${{ github.event_name == 'push' }}
       show_plan: false
     secrets:
       BUILD_ROLE: ${{ secrets.BUILD_ROLE }}
