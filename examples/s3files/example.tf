@@ -11,6 +11,11 @@ locals {
 
 }
 
+resource "aws_kms_key" "s3files" {
+  description         = "KMS key for the S3Files example"
+  enable_key_rotation = true
+}
+
 ##-----------------------------------------------------------------------------
 ## Vpc Module call.
 ##-----------------------------------------------------------------------------
@@ -95,11 +100,11 @@ module "s3_bucket" {
   force_destroy                 = true
   enable_server_side_encryption = true
   enable_kms                    = true
-  kms_master_key_arn            = var.kms_key_arn
+  kms_master_key_arn            = aws_kms_key.s3files.arn
 
   # S3Files configuration.
   enable_s3files = true
-  kms_key_arn    = var.kms_key_arn
+  kms_key_arn    = aws_kms_key.s3files.arn
   prefix         = "/"
 
   root_directory = {

@@ -37,6 +37,7 @@ Make sure you have:
   * S3
   * VPC
   * IAM roles
+  * KMS keys
   * S3Files resources
 
 ---
@@ -145,7 +146,7 @@ After deployment, you will get:
 
 * Security Group allows NFS (port 2049) within VPC only
 * IAM roles follow least privilege principle
-* Optional KMS encryption support
+* S3 and S3Files use a customer-managed KMS key created by the example
 
 ---
 
