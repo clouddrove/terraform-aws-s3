@@ -905,7 +905,7 @@ resource "aws_iam_role_policy" "bucket_access" {
           "s3:ListBucket",
           "s3:ListBucketVersions"
         ]
-        Resource = "*"
+        Resource = aws_s3_bucket.s3_default[0].arn
         Condition = {
           StringEquals = {
             "aws:ResourceAccount" = data.aws_caller_identity.current.account_id
@@ -918,11 +918,12 @@ resource "aws_iam_role_policy" "bucket_access" {
         Action = [
           "s3:AbortMultipartUpload",
           "s3:DeleteObject*",
+          "s3:GetObject",
           "s3:GetObject*",
           "s3:List*",
           "s3:PutObject*"
         ]
-        Resource = "*"
+        Resource = "${aws_s3_bucket.s3_default[0].arn}/*"
         Condition = {
           StringEquals = {
             "aws:ResourceAccount" = data.aws_caller_identity.current.account_id
@@ -970,6 +971,37 @@ resource "aws_iam_role_policy" "bucket_access" {
   })
 }
 
+resource "aws_iam_role_policy" "kms_access" {
+  count = var.enabled && var.enable_s3files && var.enable_s3files_access_role && var.kms_key_arn != null ? 1 : 0
+  name  = format("%s-%s", module.labels.id, "s3files-kms-access-policy")
+  role  = aws_iam_role.s3_full_access_role[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Sid    = "UseKmsKeyWithS3Files"
+      Effect = "Allow"
+      Action = [
+        "kms:GenerateDataKey",
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncryptFrom",
+        "kms:ReEncryptTo"
+      ]
+      Resource = var.kms_key_arn
+      Condition = {
+        StringLike = {
+          "kms:ViaService" = "s3.${data.aws_region.current.id}.amazonaws.com"
+          "kms:EncryptionContext:aws:s3:arn" = [
+            aws_s3_bucket.s3_default[0].arn,
+            "${aws_s3_bucket.s3_default[0].arn}/*"
+          ]
+        }
+      }
+    }]
+  })
+}
+
 ##-----------------------------------------------------------------------------
 ## S3Files File System resource.
 ##-----------------------------------------------------------------------------
@@ -987,7 +1019,9 @@ resource "aws_s3files_file_system" "this" {
 
   depends_on = [
     aws_s3_bucket.s3_default,
-    aws_s3_bucket_versioning.example
+    aws_s3_bucket_versioning.example,
+    aws_iam_role_policy.bucket_access,
+    aws_iam_role_policy.kms_access
   ]
 }
 
