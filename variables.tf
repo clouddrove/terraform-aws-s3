@@ -74,7 +74,7 @@ variable "enable_kms" {
   description = "Enable KMS encryption. If false, uses AES256."
 }
 
-variable "kms_master_key_id" {
+variable "kms_master_key_arn" {
   type        = string
   default     = ""
   description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
@@ -379,4 +379,162 @@ variable "mfa" {
   type        = string
   default     = null
   description = "Optional, Required if versioning_configuration mfa_delete is enabled) Concatenation of the authentication device's serial number, a space, and the value that is displayed on your authentication device."
+}
+
+variable "enable_s3files" {
+  description = "Flag to enable S3Files resources (file system, access point, mount target, etc.)."
+  type        = bool
+  default     = false
+}
+
+variable "enable_s3files_access_role" {
+  description = "Enable creation of IAM role for S3 Files access"
+  type        = bool
+  default     = false
+}
+
+variable "enable_s3files_file_system" {
+  description = "Enable creation of S3Files file system"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_file_system_policy" {
+  description = "Enable creation of S3Files file system policy"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_iam" {
+  description = "Enable IAM role for full S3Files access"
+  type        = bool
+  default     = true
+}
+
+variable "s3files_full_access_role_arn" {
+  description = "ARN of an existing IAM role to be used for S3Files full access. Used when enable_s3files_iam is disabled."
+  type        = string
+  default     = null
+}
+
+variable "enable_s3files_access_point" {
+  description = "Enable S3Files access point"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_mount_targets" {
+  description = "Enable S3Files mount targets"
+  type        = bool
+  default     = true
+}
+
+variable "enable_s3files_sync_config" {
+  description = "Enable S3Files synchronization configuration"
+  type        = bool
+  default     = true
+}
+
+variable "kms_key_arn" {
+  description = "KMS Key ID or ARN used to encrypt the S3Files file system. If not provided, default AWS encryption is used."
+  type        = string
+  default     = null
+}
+
+variable "prefix" {
+  description = "Prefix path inside the S3 bucket to be used by the S3Files file system."
+  type        = string
+  default     = "/"
+}
+
+variable "region" {
+  description = "AWS region where S3Files resources will be created. If null, provider region will be used."
+  type        = string
+  default     = null
+}
+
+variable "posix_user" {
+  description = "POSIX user configuration for S3Files access point, including UID, GID, and optional secondary group IDs."
+  type = object({
+    uid            = number
+    gid            = number
+    secondary_gids = optional(list(number), [])
+  })
+  default = {
+    gid            = 1000
+    uid            = 1000
+    secondary_gids = [1001, 1002]
+  }
+}
+
+variable "root_directory" {
+  description = "Configuration for the root directory of the S3Files access point, including optional creation permissions."
+  type = object({
+    path = optional(string, "/")
+
+    creation_permissions = optional(object({
+      owner_uid   = number
+      owner_gid   = number
+      permissions = string
+    }), null)
+  })
+  default = null
+}
+
+variable "subnet_id" {
+  description = "List of subnet IDs where S3Files mount targets will be created."
+  type        = list(string)
+  default     = []
+}
+
+variable "ip_address_type" {
+  description = "Type of IP address to assign to mount targets (IPv4, IPv6, or dualstack depending on AWS support)."
+  type        = string
+  default     = null
+}
+
+variable "ipv4_address" {
+  description = "Optional static IPv4 address to assign to the mount target."
+  type        = string
+  default     = null
+}
+
+variable "ipv6_address" {
+  description = "Optional static IPv6 address to assign to the mount target."
+  type        = string
+  default     = null
+}
+
+variable "security_groups" {
+  description = "List of security group IDs to associate with S3Files mount targets."
+  type        = list(string)
+  default     = []
+}
+
+variable "import_data_rules" {
+  description = "List of rules to control which data is imported into the S3Files file system."
+  type = list(object({
+    prefix         = string
+    size_less_than = number
+    trigger        = string
+  }))
+
+  default = [
+    {
+      prefix         = "/"
+      size_less_than = 524288000
+      trigger        = "ON_FILE_ACCESS"
+    }
+  ]
+}
+
+variable "expiration_data_rule" {
+  description = "Configuration to automatically expire data based on last access time."
+  type = object({
+    days_after_last_access = number
+  })
+
+  default = {
+    days_after_last_access = 10
+  }
 }

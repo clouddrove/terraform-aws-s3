@@ -73,7 +73,7 @@ module "s3_bucket" {
   acl                           = "private"
   enable_server_side_encryption = true
   enable_kms                    = true
-  kms_master_key_id             = module.kms_key.key_arn
+  kms_master_key_arn            = module.kms_key.key_arn
   logging                       = true
   target_bucket                 = module.logging_bucket.id
   target_prefix                 = "logs"

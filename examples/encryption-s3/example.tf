@@ -60,5 +60,5 @@ module "s3_bucket" {
   enable_server_side_encryption = true
   versioning                    = true
   enable_kms                    = true
-  kms_master_key_id             = module.kms_key.key_arn
+  kms_master_key_arn            = module.kms_key.key_arn
 }
