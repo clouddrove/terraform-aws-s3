@@ -2,6 +2,8 @@ provider "aws" {
   region = local.region
 }
 
+data "aws_caller_identity" "current" {}
+
 locals {
   name        = "app"
   environment = "test"
@@ -93,7 +95,7 @@ module "s3_bucket" {
   name        = "s3filesytemexample"
   environment = local.environment
   label_order = local.label_order
-  s3_name     = "s3filesytemexample"
+  s3_name     = "cd-sandbox-test-s3files-${data.aws_caller_identity.current.account_id}"
 
   # S3 bucket encryption using a customer-managed KMS key.
   versioning                    = true
