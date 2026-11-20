@@ -623,9 +623,14 @@ resource "aws_s3_bucket_replication_configuration" "this" {
         }
       }
 
+      # Prefer the nested filter configuration, but keep supporting the legacy
+      # rule-level prefix argument for existing module callers.
       # Max 1 block - filter - without any key arguments or tags
       dynamic "filter" {
-        for_each = length(try(flatten([rule.value.filter]), [])) == 0 ? [true] : []
+        for_each = [
+          for v in try(flatten([rule.value.filter]), [{ prefix = try(rule.value.prefix, null) }]) : v
+          if length(keys(v)) == 0
+        ]
 
         content {
         }
@@ -633,7 +638,7 @@ resource "aws_s3_bucket_replication_configuration" "this" {
 
       # Max 1 block - filter - with one key argument or a single tag
       dynamic "filter" {
-        for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) == 1]
+        for_each = [for v in try(flatten([rule.value.filter]), [{ prefix = try(rule.value.prefix, null) }]) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) == 1]
 
         content {
           prefix = try(filter.value.prefix, null)
@@ -651,7 +656,7 @@ resource "aws_s3_bucket_replication_configuration" "this" {
 
       # Max 1 block - filter - with more than one key arguments or multiple tags
       dynamic "filter" {
-        for_each = [for v in try(flatten([rule.value.filter]), []) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) > 1]
+        for_each = [for v in try(flatten([rule.value.filter]), [{ prefix = try(rule.value.prefix, null) }]) : v if max(length(keys(v)), length(try(rule.value.filter.tags, rule.value.filter.tag, []))) > 1]
 
         content {
           and {
