@@ -65,7 +65,12 @@ variable "enable_server_side_encryption" {
 variable "sse_algorithm" {
   type        = string
   default     = "AES256"
-  description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms."
+  description = "The server-side encryption algorithm to use. Valid values are AES256, aws:kms, and aws:kms:dsse."
+
+  validation {
+    condition     = contains(["AES256", "aws:kms", "aws:kms:dsse"], var.sse_algorithm)
+    error_message = "sse_algorithm must be one of AES256, aws:kms, or aws:kms:dsse."
+  }
 }
 
 variable "enable_kms" {
@@ -80,10 +85,46 @@ variable "kms_master_key_id" {
   description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
 }
 
+variable "bucket_key_enabled" {
+  type        = bool
+  default     = null
+  description = "Whether to use an S3 Bucket Key for SSE-KMS. Leave null to use the AWS default."
+
+  validation {
+    condition     = var.bucket_key_enabled != true || var.enable_kms || var.sse_algorithm == "aws:kms"
+    error_message = "bucket_key_enabled can only be true when the effective sse_algorithm is aws:kms; S3 Bucket Keys are not supported with AES256 or aws:kms:dsse."
+  }
+}
+
+variable "blocked_encryption_types" {
+  type        = list(string)
+  default     = null
+  description = "Encryption types to block for object uploads. Supported values are SSE-C or NONE."
+
+  validation {
+    condition = var.blocked_encryption_types == null ? true : (
+      length(var.blocked_encryption_types) == 1 &&
+      contains(["SSE-C", "NONE"], var.blocked_encryption_types[0])
+    )
+    error_message = "blocked_encryption_types must be null or a single-item list containing SSE-C or NONE."
+  }
+}
+
 variable "enable_lifecycle_configuration_rules" {
   type        = bool
   default     = false
   description = "enable or disable lifecycle_configuration_rules"
+}
+
+variable "transition_default_minimum_object_size" {
+  type        = string
+  default     = null
+  description = "Default minimum object size behavior for lifecycle transitions. Valid values are all_storage_classes_128K and varies_by_storage_class."
+
+  validation {
+    condition     = var.transition_default_minimum_object_size == null ? true : contains(["all_storage_classes_128K", "varies_by_storage_class"], var.transition_default_minimum_object_size)
+    error_message = "transition_default_minimum_object_size must be null, all_storage_classes_128K, or varies_by_storage_class."
+  }
 }
 
 variable "lifecycle_configuration_rules" {
@@ -101,7 +142,9 @@ variable "lifecycle_configuration_rules" {
     abort_incomplete_multipart_upload_days         = number
     noncurrent_version_glacier_transition_days     = optional(number)
     noncurrent_version_deeparchive_transition_days = optional(number)
+    noncurrent_version_standard_ia_transition_days = optional(number)
     noncurrent_version_expiration_days             = optional(number)
+    noncurrent_version_expiration_newer            = optional(number)
 
     noncurrent_version_glacier_transition_newer     = optional(number)
     noncurrent_version_deeparchive_transition_newer = optional(number)
@@ -208,6 +251,45 @@ variable "target_prefix" {
   description = "A prefix for all log object keys."
 }
 
+variable "logging_target_grants" {
+  type = list(object({
+    permission = string
+    grantee = object({
+      type          = string
+      id            = optional(string)
+      email_address = optional(string)
+      uri           = optional(string)
+    })
+  }))
+  default     = []
+  description = "Optional grants applied to the server access logging destination. Bucket policies are preferred by AWS."
+}
+
+variable "logging_target_object_key_format" {
+  type = object({
+    partition_date_source = optional(string)
+    use_simple_prefix     = optional(bool, false)
+  })
+  default     = null
+  description = "Server access log object key format. Set partition_date_source to EventTime or DeliveryTime, or set use_simple_prefix to true."
+
+  validation {
+    condition = var.logging_target_object_key_format == null ? true : (
+      (try(var.logging_target_object_key_format.partition_date_source, null) != null) !=
+      try(var.logging_target_object_key_format.use_simple_prefix, false)
+    )
+    error_message = "Choose exactly one logging key format: partition_date_source or use_simple_prefix."
+  }
+
+  validation {
+    condition = var.logging_target_object_key_format == null ? true : try(
+      contains(["EventTime", "DeliveryTime"], var.logging_target_object_key_format.partition_date_source),
+      true
+    )
+    error_message = "partition_date_source must be EventTime or DeliveryTime."
+  }
+}
+
 variable "acceleration_status" {
   type        = bool
   default     = false
@@ -218,6 +300,11 @@ variable "request_payer" {
   type        = string
   default     = null
   description = "(Optional) Specifies who should bear the cost of Amazon S3 data transfer. Can be either BucketOwner or Requester. By default, the owner of the S3 bucket would incur the costs of any data transfer. See Requester Pays Buckets developer guide for more information."
+
+  validation {
+    condition     = var.request_payer == null ? true : contains(["bucketowner", "requester"], lower(var.request_payer))
+    error_message = "request_payer must be null, BucketOwner, or Requester."
+  }
 }
 
 variable "website" {
@@ -228,22 +315,31 @@ variable "website" {
 
 variable "object_lock_configuration" {
   type = object({
-    mode  = string #Valid values are GOVERNANCE and COMPLIANCE.
-    days  = number
-    years = number
+    mode  = string # Valid values are GOVERNANCE and COMPLIANCE.
+    days  = optional(number)
+    years = optional(number)
+    token = optional(string)
   })
   default     = null
   description = "With S3 Object Lock, you can store objects using a write-once-read-many (WORM) model. Object Lock can help prevent objects from being deleted or overwritten for a fixed amount of time or indefinitely."
 
+  validation {
+    condition = var.object_lock_configuration == null ? true : (
+      contains(["GOVERNANCE", "COMPLIANCE"], var.object_lock_configuration.mode) &&
+      ((try(var.object_lock_configuration.days, null) != null) != (try(var.object_lock_configuration.years, null) != null))
+    )
+    error_message = "object_lock_configuration mode must be GOVERNANCE or COMPLIANCE and exactly one of days or years must be set."
+  }
 }
 
 variable "cors_rule" {
   type = list(object({
+    id              = optional(string)
     allowed_headers = list(string)
     allowed_methods = list(string)
     allowed_origins = list(string)
-    expose_headers  = list(string)
-    max_age_seconds = number
+    expose_headers  = optional(list(string))
+    max_age_seconds = optional(number)
   }))
   default     = null
   description = "CORS Configuration specification for this bucket"
@@ -373,6 +469,88 @@ variable "inventory_configuration" {
   type        = any
   default     = {}
   description = "Map containing S3 inventory configuration."
+}
+
+variable "notification_configuration" {
+  type = object({
+    eventbridge = optional(bool, false)
+    lambda_functions = optional(list(object({
+      id                  = optional(string)
+      lambda_function_arn = string
+      events              = list(string)
+      filter_prefix       = optional(string)
+      filter_suffix       = optional(string)
+    })), [])
+    queues = optional(list(object({
+      id            = optional(string)
+      queue_arn     = string
+      events        = list(string)
+      filter_prefix = optional(string)
+      filter_suffix = optional(string)
+    })), [])
+    topics = optional(list(object({
+      id            = optional(string)
+      topic_arn     = string
+      events        = list(string)
+      filter_prefix = optional(string)
+      filter_suffix = optional(string)
+    })), [])
+  })
+  default     = null
+  description = "S3 event notification configuration for EventBridge, Lambda, SQS, and SNS. This resource manages the bucket's complete notification configuration."
+}
+
+variable "abac_status" {
+  type        = string
+  default     = null
+  description = "Enable or disable attribute-based access control for the general purpose bucket. Valid values are Enabled and Disabled."
+
+  validation {
+    condition     = var.abac_status == null ? true : contains(["Enabled", "Disabled"], var.abac_status)
+    error_message = "abac_status must be null, Enabled, or Disabled."
+  }
+}
+
+variable "metadata_configuration" {
+  type = object({
+    inventory_table_configuration = object({
+      configuration_state = string
+      encryption_configuration = optional(object({
+        sse_algorithm = string
+        kms_key_arn   = optional(string)
+      }))
+    })
+    journal_table_configuration = object({
+      encryption_configuration = optional(object({
+        sse_algorithm = string
+        kms_key_arn   = optional(string)
+      }))
+      record_expiration = object({
+        expiration = string
+        days       = optional(number)
+      })
+    })
+  })
+  default     = null
+  description = "Amazon S3 Metadata configuration for live inventory and journal tables. Creating these tables can incur S3 Tables and backfill charges."
+
+  validation {
+    condition = var.metadata_configuration == null ? true : (
+      contains(["ENABLED", "DISABLED"], var.metadata_configuration.inventory_table_configuration.configuration_state) &&
+      contains(["ENABLED", "DISABLED"], var.metadata_configuration.journal_table_configuration.record_expiration.expiration)
+    )
+    error_message = "Metadata inventory configuration_state and journal record expiration must be ENABLED or DISABLED."
+  }
+
+  validation {
+    condition = var.metadata_configuration == null ? true : alltrue([
+      for encryption in [
+        try(var.metadata_configuration.inventory_table_configuration.encryption_configuration, null),
+        try(var.metadata_configuration.journal_table_configuration.encryption_configuration, null)
+      ] : encryption == null ? true : contains(["AES256", "aws:kms"], encryption.sse_algorithm)
+    ])
+    error_message = "Metadata table sse_algorithm must be AES256 or aws:kms."
+  }
 }
 
 variable "mfa" {
