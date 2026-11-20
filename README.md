@@ -72,7 +72,7 @@ This table contains both Prerequisites and Providers:
 
 📌 For additional usage examples, check the complete list under [`examples/`](./examples) directory.
 
-See [Modern S3 features](docs/modern-features.md) for notification, encryption, ABAC, metadata table, and partitioned access-log examples and operational caveats.
+See [module inputs, outputs, and configuration examples](docs/io.md).
 
 
 

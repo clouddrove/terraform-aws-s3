@@ -49,6 +49,7 @@ description: |-
 # How to use this project
 usage: |-
   Here are some examples of how you can use this module in your inventory structure:
+  For notification, encryption, ABAC, server access logging, lifecycle, and S3 Metadata examples, see [module inputs, outputs, and configuration examples](docs/io.md).
   ### complete Bucket
   ```hcl
   module "s3_bucket" {
