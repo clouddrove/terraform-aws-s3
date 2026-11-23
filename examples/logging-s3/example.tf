@@ -2,7 +2,7 @@
 ## Provider block added, Use the Amazon Web Services (AWS) provider to interact with the many resources supported by AWS.
 ####-----------------------------------------------------------------------------
 provider "aws" {
-  region = "eu-west-1"
+  region = "ca-central-1"
 }
 
 locals {
