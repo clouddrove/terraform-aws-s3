@@ -4,7 +4,7 @@ provider "aws" {
 
 module "s3_lifecycle" {
   source        = "../../"
-  name          = "clouddrove-s3-lifecycle-demo"
+  name          = "cd-s3-lifecycle-demo"
   environment   = "test"
   force_destroy = true
 
