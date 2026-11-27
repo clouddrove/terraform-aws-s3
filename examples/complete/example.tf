@@ -2,13 +2,13 @@
 ## Provider block added, Use the Amazon Web Services (AWS) provider to interact with the many resources supported by AWS.
 ##-----------------------------------------------------------------------------
 provider "aws" {
-  region = "eu-west-1"
+  region = "ca-central-1"
 }
 
 locals {
   environment        = "test"
   label_order        = ["name", "environment"]
-  availability_zones = ["eu-west-1a", "eu-west-1b"]
+  availability_zones = ["ca-central-1a", "ca-central-1b"]
 }
 
 data "aws_canonical_user_id" "current" {}
